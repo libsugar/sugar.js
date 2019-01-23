@@ -1,0 +1,30 @@
+{
+  "name": "batchoper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "batchoper.js",
+  "module": "batchoper.mjs",
+  "browser": "./dist/batchoper.min.js",
+  "umd::main": "./dist/batchoper.js",
+  "types": "./@type/batchoper.d.ts",
+  "typings": "./@type/batchoper.d.ts",
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.cjs.json  && tsc -p tsconfig.umd.json && rollup -c rollup.config.cjs.js && rollup -c && rollup -c rollup.config.es.js && rollup -c rollup.config.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BatchOperator/BatchOperJs.git"
+  },
+  "keywords": [
+    "batchoper"
+  ],
+  "author": "BatchOperator",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BatchOperator/BatchOperJs/issues"
+  },
+  "homepage": "https://github.com/BatchOperator/BatchOperJs#readme",
+  "devDependencies": {
+    "rollup-plugin-terser": "^4.0.2"
+  }
+}

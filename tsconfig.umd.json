@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "umd",
+        "target": "esnext",
+        "outDir": "./umd"
+    },
+    "files": [
+        "./src/batchoper.ts"
+    ]
+}

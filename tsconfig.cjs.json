@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "esnext",
+        "outDir": "./cjs"
+    },
+    "files": [
+        "./src/batchoper.ts"
+    ]
+}

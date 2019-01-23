@@ -1,0 +1,12 @@
+export declare function eqOr<T>(self: T): T;
+export declare function eqOr<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function eqOr<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function eqAnd<T>(self: T): T;
+export declare function eqAnd<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function eqAnd<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function fEqOr<T>(self: T): T;
+export declare function fEqOr<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function fEqOr<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function fEqAnd<T>(self: T): T;
+export declare function fEqAnd<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function fEqAnd<T>(self: T, Other: T, ...others: any[]): boolean;
