@@ -1,0 +1,2 @@
+# BatchOperJS
+Batch execution operator
