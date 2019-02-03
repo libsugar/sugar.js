@@ -35,6 +35,43 @@ function fEqAnd(self, ...others) {
     return true;
 }
 
+function nEqOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self != other)
+            return true;
+    }
+    return false;
+}
+function nEqAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self == other)
+            return false;
+    }
+    return true;
+}
+function fNEqOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self !== other)
+            return true;
+    }
+    return false;
+}
+function fNEqAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self === other)
+            return false;
+    }
+    return true;
+}
+
 function sum(num, ...others) {
     for (const other of others) {
         num += other;
@@ -138,14 +175,28 @@ function andFn(...bool) {
     return true;
 }
 
-function instanceofOr(type, ...objs) {
+function instanceofOr(obj, ...types) {
+    for (const type of types) {
+        if (obj instanceof type)
+            return true;
+    }
+    return false;
+}
+function instanceofAnd(obj, ...types) {
+    for (const type of types) {
+        if (!(obj instanceof type))
+            return false;
+    }
+    return true;
+}
+function AllInstanceofOr(type, ...objs) {
     for (const o of objs) {
         if (o instanceof type)
             return true;
     }
     return false;
 }
-function instanceofAnd(type, ...objs) {
+function AllInstanceofAnd(type, ...objs) {
     for (const o of objs) {
         if (!(o instanceof type))
             return false;
@@ -190,4 +241,31 @@ function bitOrAll(num, ...others) {
     return num;
 }
 
-export { eqOr, eqAnd, fEqOr, fEqAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, typeofOr, typeofAnd, or, and, orFn, andFn, instanceofOr, instanceofAnd, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll };
+function inOr(obj, ...keys) {
+    if (keys.length == 0)
+        return false;
+    for (const key of keys) {
+        if (key in obj)
+            return true;
+    }
+    return false;
+}
+function inAnd(obj, ...keys) {
+    if (keys.length == 0)
+        return false;
+    for (const key of keys) {
+        if (!(key in obj))
+            return false;
+    }
+    return true;
+}
+
+function deleteAll(obj, ...keys) {
+    for (const key of keys) {
+        if (!(delete obj[key]))
+            return false;
+    }
+    return true;
+}
+
+export { eqOr, eqAnd, fEqOr, fEqAnd, nEqOr, nEqAnd, fNEqOr, fNEqAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, typeofOr, typeofAnd, or, and, orFn, andFn, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, inOr, inAnd, deleteAll };

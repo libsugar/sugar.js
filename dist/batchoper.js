@@ -41,6 +41,43 @@
         return true;
     }
 
+    function nEqOr(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (self != other)
+                return true;
+        }
+        return false;
+    }
+    function nEqAnd(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (self == other)
+                return false;
+        }
+        return true;
+    }
+    function fNEqOr(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (self !== other)
+                return true;
+        }
+        return false;
+    }
+    function fNEqAnd(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (self === other)
+                return false;
+        }
+        return true;
+    }
+
     function sum(num, ...others) {
         for (const other of others) {
             num += other;
@@ -144,14 +181,28 @@
         return true;
     }
 
-    function instanceofOr(type, ...objs) {
+    function instanceofOr(obj, ...types) {
+        for (const type of types) {
+            if (obj instanceof type)
+                return true;
+        }
+        return false;
+    }
+    function instanceofAnd(obj, ...types) {
+        for (const type of types) {
+            if (!(obj instanceof type))
+                return false;
+        }
+        return true;
+    }
+    function AllInstanceofOr(type, ...objs) {
         for (const o of objs) {
             if (o instanceof type)
                 return true;
         }
         return false;
     }
-    function instanceofAnd(type, ...objs) {
+    function AllInstanceofAnd(type, ...objs) {
         for (const o of objs) {
             if (!(o instanceof type))
                 return false;
@@ -196,10 +247,41 @@
         return num;
     }
 
+    function inOr(obj, ...keys) {
+        if (keys.length == 0)
+            return false;
+        for (const key of keys) {
+            if (key in obj)
+                return true;
+        }
+        return false;
+    }
+    function inAnd(obj, ...keys) {
+        if (keys.length == 0)
+            return false;
+        for (const key of keys) {
+            if (!(key in obj))
+                return false;
+        }
+        return true;
+    }
+
+    function deleteAll(obj, ...keys) {
+        for (const key of keys) {
+            if (!(delete obj[key]))
+                return false;
+        }
+        return true;
+    }
+
     exports.eqOr = eqOr;
     exports.eqAnd = eqAnd;
     exports.fEqOr = fEqOr;
     exports.fEqAnd = fEqAnd;
+    exports.nEqOr = nEqOr;
+    exports.nEqAnd = nEqAnd;
+    exports.fNEqOr = fNEqOr;
+    exports.fNEqAnd = fNEqAnd;
     exports.sum = sum;
     exports.addAll = addAll;
     exports.subAll = subAll;
@@ -217,12 +299,17 @@
     exports.andFn = andFn;
     exports.instanceofOr = instanceofOr;
     exports.instanceofAnd = instanceofAnd;
+    exports.AllInstanceofOr = AllInstanceofOr;
+    exports.AllInstanceofAnd = AllInstanceofAnd;
     exports.leftShiftAll = leftShiftAll;
     exports.rightShiftAll = rightShiftAll;
     exports.uRightShiftAll = uRightShiftAll;
     exports.bitAndAll = bitAndAll;
     exports.bitXorAll = bitXorAll;
     exports.bitOrAll = bitOrAll;
+    exports.inOr = inOr;
+    exports.inAnd = inAnd;
+    exports.deleteAll = deleteAll;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
