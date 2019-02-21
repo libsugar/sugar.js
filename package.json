@@ -9,7 +9,7 @@
   "types": "./@type/batchoper.d.ts",
   "typings": "./@type/batchoper.d.ts",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json  && tsc -p tsconfig.umd.json && rollup -c rollup.config.cjs.js && rollup -c && rollup -c rollup.config.es.js && rollup -c rollup.config.min.js"
+    "build": "tsc && tsc -p tsconfig.cjs.json  && tsc -p tsconfig.umd.json && rollup -c rollup.config.cjs.js && rollup -c && rollup -c rollup.config.es.js && rollup -c rollup.config.min.js && node ./rename.js ./es"
   },
   "repository": {
     "type": "git",
