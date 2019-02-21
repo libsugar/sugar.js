@@ -1,4 +1,4 @@
-export function nEqOr(self, ...others) {
+export function neOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -7,7 +7,7 @@ export function nEqOr(self, ...others) {
     }
     return false;
 }
-export function nEqAnd(self, ...others) {
+export function neAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -16,7 +16,7 @@ export function nEqAnd(self, ...others) {
     }
     return true;
 }
-export function fNEqOr(self, ...others) {
+export function fNeOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -25,7 +25,7 @@ export function fNEqOr(self, ...others) {
     }
     return false;
 }
-export function fNEqAnd(self, ...others) {
+export function fNeAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {

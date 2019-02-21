@@ -35,7 +35,7 @@ function fEqAnd(self, ...others) {
     return true;
 }
 
-function nEqOr(self, ...others) {
+function neOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -44,7 +44,7 @@ function nEqOr(self, ...others) {
     }
     return false;
 }
-function nEqAnd(self, ...others) {
+function neAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -53,7 +53,7 @@ function nEqAnd(self, ...others) {
     }
     return true;
 }
-function fNEqOr(self, ...others) {
+function fNeOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -62,11 +62,87 @@ function fNEqOr(self, ...others) {
     }
     return false;
 }
-function fNEqAnd(self, ...others) {
+function fNeAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
         if (self === other)
+            return false;
+    }
+    return true;
+}
+
+function gtOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self > other)
+            return true;
+    }
+    return false;
+}
+function gtAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (!(self > other))
+            return false;
+    }
+    return true;
+}
+
+function ltOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self < other)
+            return true;
+    }
+    return false;
+}
+function ltAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (!(self > other))
+            return false;
+    }
+    return true;
+}
+
+function geOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self >= other)
+            return true;
+    }
+    return false;
+}
+function geAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (!(self >= other))
+            return false;
+    }
+    return true;
+}
+
+function leOr(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (self <= other)
+            return true;
+    }
+    return false;
+}
+function leAnd(self, ...others) {
+    if (others.length == 0)
+        return self;
+    for (const other of others) {
+        if (!(self >= other))
             return false;
     }
     return true;
@@ -127,83 +203,6 @@ function powAll(num, ...others) {
     return num;
 }
 
-function typeofOr(type, ...objs) {
-    if (objs.length == 0)
-        return false;
-    for (const o of objs) {
-        if (typeof o === type)
-            return true;
-    }
-    return false;
-}
-function typeofAnd(type, ...objs) {
-    if (objs.length == 0)
-        return false;
-    for (const o of objs) {
-        if (typeof o !== type)
-            return false;
-    }
-    return true;
-}
-
-function or(...bool) {
-    for (const item of bool) {
-        if (item)
-            return true;
-    }
-    return false;
-}
-function and(...bool) {
-    for (const item of bool) {
-        if (!item)
-            return false;
-    }
-    return true;
-}
-function orFn(...bool) {
-    for (const item of bool) {
-        if (typeof item == 'function' ? item() : item)
-            return true;
-    }
-    return false;
-}
-function andFn(...bool) {
-    for (const item of bool) {
-        if (!(typeof item == 'function' ? item() : item))
-            return false;
-    }
-    return true;
-}
-
-function instanceofOr(obj, ...types) {
-    for (const type of types) {
-        if (obj instanceof type)
-            return true;
-    }
-    return false;
-}
-function instanceofAnd(obj, ...types) {
-    for (const type of types) {
-        if (!(obj instanceof type))
-            return false;
-    }
-    return true;
-}
-function AllInstanceofOr(type, ...objs) {
-    for (const o of objs) {
-        if (o instanceof type)
-            return true;
-    }
-    return false;
-}
-function AllInstanceofAnd(type, ...objs) {
-    for (const o of objs) {
-        if (!(o instanceof type))
-            return false;
-    }
-    return true;
-}
-
 function leftShiftAll(num, ...others) {
     for (const other of others) {
         num <<= other;
@@ -241,6 +240,14 @@ function bitOrAll(num, ...others) {
     return num;
 }
 
+function deleteAll(obj, ...keys) {
+    for (const key of keys) {
+        if (!(delete obj[key]))
+            return false;
+    }
+    return true;
+}
+
 function inOr(obj, ...keys) {
     if (keys.length == 0)
         return false;
@@ -260,12 +267,91 @@ function inAnd(obj, ...keys) {
     return true;
 }
 
-function deleteAll(obj, ...keys) {
-    for (const key of keys) {
-        if (!(delete obj[key]))
+function instanceofOr(obj, ...types) {
+    for (const type of types) {
+        if (obj instanceof type)
+            return true;
+    }
+    return false;
+}
+function instanceofAnd(obj, ...types) {
+    for (const type of types) {
+        if (!(obj instanceof type))
+            return false;
+    }
+    return true;
+}
+function AllInstanceofOr(type, ...objs) {
+    for (const o of objs) {
+        if (o instanceof type)
+            return true;
+    }
+    return false;
+}
+function AllInstanceofAnd(type, ...objs) {
+    for (const o of objs) {
+        if (!(o instanceof type))
             return false;
     }
     return true;
 }
 
-export { eqOr, eqAnd, fEqOr, fEqAnd, nEqOr, nEqAnd, fNEqOr, fNEqAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, typeofOr, typeofAnd, or, and, orFn, andFn, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, inOr, inAnd, deleteAll };
+function or(...bool) {
+    for (const item of bool) {
+        if (typeof item == 'function' ? item() : item)
+            return true;
+    }
+    return false;
+}
+function and(...bool) {
+    for (const item of bool) {
+        if (!(typeof item == 'function' ? item() : item))
+            return false;
+    }
+    return true;
+}
+function* take2(arr) {
+    let tuple = [];
+    for (const item of arr) {
+        tuple.push(item);
+        if (tuple.length == 2) {
+            yield tuple;
+            tuple = [];
+        }
+    }
+}
+function orGroup(logic, ...items) {
+    for (const [a, b] of take2(items)) {
+        if (logic(a, b))
+            return true;
+    }
+    return false;
+}
+function andGroup(logic, ...items) {
+    for (const [a, b] of take2(items)) {
+        if (!logic(a, b))
+            return false;
+    }
+    return true;
+}
+
+function typeofOr(type, ...objs) {
+    if (objs.length == 0)
+        return false;
+    for (const o of objs) {
+        if (typeof o === type)
+            return true;
+    }
+    return false;
+}
+function typeofAnd(type, ...objs) {
+    if (objs.length == 0)
+        return false;
+    for (const o of objs) {
+        if (typeof o !== type)
+            return false;
+    }
+    return true;
+}
+
+export { eqOr, eqAnd, fEqOr, fEqAnd, neOr, neAnd, fNeOr, fNeAnd, gtOr, gtAnd, ltOr, ltAnd, geOr, geAnd, leOr, leAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, deleteAll, inOr, inAnd, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, or, and, orGroup, andGroup, typeofOr, typeofAnd };

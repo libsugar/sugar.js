@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function nEqOr(self, ...others) {
+function neOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -9,8 +9,8 @@ function nEqOr(self, ...others) {
     }
     return false;
 }
-exports.nEqOr = nEqOr;
-function nEqAnd(self, ...others) {
+exports.neOr = neOr;
+function neAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -19,8 +19,8 @@ function nEqAnd(self, ...others) {
     }
     return true;
 }
-exports.nEqAnd = nEqAnd;
-function fNEqOr(self, ...others) {
+exports.neAnd = neAnd;
+function fNeOr(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -29,8 +29,8 @@ function fNEqOr(self, ...others) {
     }
     return false;
 }
-exports.fNEqOr = fNEqOr;
-function fNEqAnd(self, ...others) {
+exports.fNeOr = fNeOr;
+function fNeAnd(self, ...others) {
     if (others.length == 0)
         return self;
     for (const other of others) {
@@ -39,4 +39,4 @@ function fNEqAnd(self, ...others) {
     }
     return true;
 }
-exports.fNEqAnd = fNEqAnd;
+exports.fNeAnd = fNeAnd;

@@ -1,0 +1,12 @@
+export declare function neOr<T>(self: T): T;
+export declare function neOr<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function neOr<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function neAnd<T>(self: T): T;
+export declare function neAnd<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function neAnd<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function fNeOr<T>(self: T): T;
+export declare function fNeOr<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function fNeOr<T>(self: T, Other: T, ...others: any[]): boolean;
+export declare function fNeAnd<T>(self: T): T;
+export declare function fNeAnd<T>(self: T, Other: T, ...others: T[]): boolean;
+export declare function fNeAnd<T>(self: T, Other: T, ...others: any[]): boolean;

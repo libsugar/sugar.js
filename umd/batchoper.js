@@ -4,7 +4,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./eq", "./notEq", "./arithmetic", "./typeof", "./logic", "./instanceof", "./bitwise", "./in", "./delete"], factory);
+        define(["require", "exports", "./eq", "./ne", "./gt", "./lt", "./ge", "./le", "./arithmetic", "./bitwise", "./delete", "./in", "./instanceof", "./logic", "./typeof"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -13,12 +13,16 @@
     }
     Object.defineProperty(exports, "__esModule", { value: true });
     __export(require("./eq"));
-    __export(require("./notEq"));
+    __export(require("./ne"));
+    __export(require("./gt"));
+    __export(require("./lt"));
+    __export(require("./ge"));
+    __export(require("./le"));
     __export(require("./arithmetic"));
-    __export(require("./typeof"));
-    __export(require("./logic"));
-    __export(require("./instanceof"));
     __export(require("./bitwise"));
-    __export(require("./in"));
     __export(require("./delete"));
+    __export(require("./in"));
+    __export(require("./instanceof"));
+    __export(require("./logic"));
+    __export(require("./typeof"));
 });
