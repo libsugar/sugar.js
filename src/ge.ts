@@ -71,7 +71,7 @@ export function geAnd(self: any, ...others: any[]) {
  * @param self 被比较的目标
  * @returns 直接返回自身
  */
-export function AllGeOr<T>(self: T): T
+export function allGeOr<T>(self: T): T
 /** AllGeOr
  *
  * 等价于 `a >= self || b >= self ...`
@@ -80,7 +80,7 @@ export function AllGeOr<T>(self: T): T
  * @param Other 被比较的值
  * @param others 其他被比较的值
  */
-export function AllGeOr<T>(self: T, Other: T, ...others: T[]): boolean
+export function allGeOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** AllGeOr
  *
  * 等价于 `a >= self || b >= self ...`
@@ -89,8 +89,8 @@ export function AllGeOr<T>(self: T, Other: T, ...others: T[]): boolean
  * @param Other 被比较的值
  * @param others 其他被比较的值
  */
-export function AllGeOr<T>(self: T, Other: T, ...others: any[]): boolean
-export function AllGeOr(self: any, ...others: any[]) {
+export function allGeOr<T>(self: T, Other: T, ...others: any[]): boolean
+export function allGeOr(self: any, ...others: any[]) {
     if (others.length == 0) return self
     for (const other of others) {
         if (other >= self) return true
@@ -104,7 +104,7 @@ export function AllGeOr(self: any, ...others: any[]) {
  * @param self 被比较的目标
  * @returns 直接返回自身
  */
-export function AllGeAnd<T>(self: T): T
+export function allGeAnd<T>(self: T): T
 /** AllGeAnd
  *
  * 等价于 `a >= self && b >= self ...`
@@ -113,7 +113,7 @@ export function AllGeAnd<T>(self: T): T
  * @param Other 被比较的值
  * @param others 其他被比较的值
  */
-export function AllGeAnd<T>(self: T, Other: T, ...others: T[]): boolean
+export function allGeAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** AllGeAnd
  *
  * 等价于 `a >= self && b >= self ...`
@@ -122,8 +122,8 @@ export function AllGeAnd<T>(self: T, Other: T, ...others: T[]): boolean
  * @param Other 被比较的值
  * @param others 其他被比较的值
  */
-export function AllGeAnd<T>(self: T, Other: T, ...others: any[]): boolean
-export function AllGeAnd(self: any, ...others: any[]) {
+export function allGeAnd<T>(self: T, Other: T, ...others: any[]): boolean
+export function allGeAnd(self: any, ...others: any[]) {
     if (others.length == 0) return self
     for (const other of others) {
         if (!(other >= self)) return false
