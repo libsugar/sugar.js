@@ -16,3 +16,13 @@ export function typeofAnd(type, ...objs) {
     }
     return true;
 }
+export function typeofAny(obj, ...types) {
+    if (types.length == 0)
+        return false;
+    const type = typeof obj;
+    for (const t of types) {
+        if (type === t)
+            return true;
+    }
+    return false;
+}
