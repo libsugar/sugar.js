@@ -360,91 +360,91 @@ export function typeofAnd(type: TypeString, ...objs: any[]) {
  *
  * 等价于 `typeof obj === 'bigint'`
  *
- * 判断一堆对象是否至少有一个是 `bigint`
- * @param type 目标类型
+ * 判断一个对象是否是`bigint`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'bigint'): obj is bigint
 /** typeofAny
  *
  * 等价于 `typeof obj === 'number'`
  *
- * 判断一堆对象是否至少有一个是 `number`
- * @param type 目标类型
+ * 判断一个对象是否是`number`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'number'): obj is number
 /** typeofAny
  *
  * 等价于 `typeof obj === 'string'`
  *
- * 判断一堆对象是否至少有一个是 `string`
- * @param type 目标类型
+ * 判断一个对象是否是`string`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'string'): obj is string
 /** typeofAny
  *
  * 等价于 `typeof obj === 'boolean'`
  *
- * 判断一堆对象是否至少有一个是 `boolean`
- * @param type 目标类型
+ * 判断一个对象是否是`boolean`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'boolean'): obj is boolean
 /** typeofAny
  *
  * 等价于 `typeof obj === 'symbol'`
  *
- * 判断一堆对象是否至少有一个是 `symbol`
- * @param type 目标类型
+ * 判断一个对象是否是`symbol`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'symbol'): obj is symbol
 /** typeofAny
  *
  * 等价于 `typeof obj === 'object'`
  *
- * 判断一堆对象是否至少有一个是 `object`
- * @param type 目标类型
+ * 判断一个对象是否是`object`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'object'): obj is object
 /** typeofAny
  *
  * 等价于 `typeof obj === 'undefined'`
  *
- * 判断一堆对象是否至少有一个是 `undefined`
- * @param type 目标类型
+ * 判断一个对象是否是`undefined`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'undefined'): obj is undefined
 /** typeofAny
  *
  * 等价于 `typeof obj === 'function'`
  *
- * 判断一堆对象是否至少有一个是 `function`
- * @param type 目标类型
+ * 判断一个对象是否是`function`
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
 export function typeofAny(obj: any, type: 'function'): obj is Function
 /** typeofAny
  *
  * 等价于 `typeof obj === type `
  *
- * 判断一堆对象是否至少有一个是某个类型
- * @param type 目标类型
+ * 判断一个对象是否是其中一个类型
  * @param obj 要判断的对象
+ * @param type 目标类型
  */
-export function typeofAny(any: any, type: TypeString): boolean
+export function typeofAny<T extends TypeString>(obj: any, type: T): obj is T
 /** typeofAny
  * 
  * 等价于 `typeof obj === a || typeof obj === b ...`
  * 
- * 判断一堆对象是否至少有一个是某个类型
- * @param type 目标类型
+ * 判断一个对象是否是其中一个类型
  * @param obj 要判断的对象
- * @param objs 其他要判断的对象
+ * @param type 可能的类型
+ * @param types 其他可能的类型
  */
 export function typeofAny(obj: any, type: TypeString, ...types: TypeString[]): boolean
 export function typeofAny(obj: any, ...types: TypeString[]) {
