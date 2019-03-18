@@ -20,3 +20,14 @@ function typeofAnd(type, ...objs) {
     return true;
 }
 exports.typeofAnd = typeofAnd;
+function typeofAny(obj, ...types) {
+    if (types.length == 0)
+        return false;
+    const type = typeof obj;
+    for (const t of types) {
+        if (type === t)
+            return true;
+    }
+    return false;
+}
+exports.typeofAny = typeofAny;

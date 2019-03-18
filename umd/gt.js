@@ -29,4 +29,24 @@
         return true;
     }
     exports.gtAnd = gtAnd;
+    function allGtOr(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (other > self)
+                return true;
+        }
+        return false;
+    }
+    exports.allGtOr = allGtOr;
+    function allGtAnd(self, ...others) {
+        if (others.length == 0)
+            return self;
+        for (const other of others) {
+            if (!(other > self))
+                return false;
+        }
+        return true;
+    }
+    exports.allGtAnd = allGtAnd;
 });
