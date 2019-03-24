@@ -4,7 +4,7 @@
  * 
  * @param bool 需要判断的值或者返回需要判断的值的函数
  */
-export function or(...bool: (boolean | (() => boolean))[]): boolean {
+export function or(...bool: (boolean | ((...p: any[]) => boolean))[]): boolean {
     for (const item of bool) {
         if (typeof item == 'function' ? item() : item) return true
     }
@@ -16,7 +16,7 @@ export function or(...bool: (boolean | (() => boolean))[]): boolean {
  *
  * @param bool 需要判断的值或者返回需要判断的值的函数
  */
-export function and(...bool: (boolean | (() => boolean))[]): boolean {
+export function and(...bool: (boolean | ((...p: any[]) => boolean))[]): boolean {
     for (const item of bool) {
         if (!(typeof item == 'function' ? item() : item)) return false
     }
@@ -75,6 +75,42 @@ export function andGroup(logic: ((a: any, b: any) => boolean), ...items: any[]):
 export function andGroup(logic: ((a: any, b: any) => boolean), ...items: any[]): boolean {
     for (const [a, b] of take2(items)) {
         if (!logic(a, b)) return false
+    }
+    return true
+}
+
+export function orDo<T>(logic: (v: T) => boolean, item: T | ((...p: any[]) => T)): boolean
+export function orDo<T>(logic: (v: T) => boolean, item: T, ...items: T[]): boolean
+export function orDo(logic: (v: any) => boolean, item: any, ...items: any[]): boolean
+export function orDo(logic: (v: any) => boolean, ...items: any[]): boolean {
+    for (const item of items) {
+        if (logic(item)) return true
+    }
+    return false
+}
+export function andDo<T>(logic: (v: T) => boolean, item: T): boolean
+export function andDo<T>(logic: (v: T) => boolean, item: T, ...items: T[]): boolean
+export function andDo(logic: (v: any) => boolean, item: any, ...items: any[]): boolean
+export function andDo(logic: (v: any) => boolean, ...items: any[]): boolean {
+    for (const item of items) {
+        if (!logic(item)) return false
+    }
+    return true
+}
+
+export function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T): boolean
+export function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T, ...items: ((...p: any[]) => T)[]): boolean
+export function orDoGet<T>(logic: (v: T) => boolean, ...items: ((...p: any[]) => T)[]): boolean{
+    for (const item of items) {
+        if (logic(item())) return true
+    }
+    return false
+}
+export function andDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T): boolean
+export function andDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T, ...items: ((...p: any[]) => T)[]): boolean
+export function andDoGet<T>(logic: (v: T) => boolean, ...items: ((...p: any[]) => T)[]): boolean {
+    for (const item of items) {
+        if (!logic(item())) return false
     }
     return true
 }
