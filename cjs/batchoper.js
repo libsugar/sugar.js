@@ -15,4 +15,5 @@ __export(require("./delete"));
 __export(require("./in"));
 __export(require("./instanceof"));
 __export(require("./logic"));
+__export(require("./of"));
 __export(require("./typeof"));

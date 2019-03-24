@@ -60,3 +60,51 @@ function andGroup(logic, ...items) {
     return true;
 }
 exports.andGroup = andGroup;
+function orDo(logic, ...items) {
+    for (const item of items) {
+        if (logic(item))
+            return true;
+    }
+    return false;
+}
+exports.orDo = orDo;
+function andDo(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item))
+            return false;
+    }
+    return true;
+}
+exports.andDo = andDo;
+/** orDoGet
+ *
+ * 等价于 `logic(a()) || logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function orDoGet(logic, ...items) {
+    for (const item of items) {
+        if (logic(item()))
+            return true;
+    }
+    return false;
+}
+exports.orDoGet = orDoGet;
+/** andDoGet
+ *
+ * 等价于 `logic(a()) && logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function andDoGet(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item()))
+            return false;
+    }
+    return true;
+}
+exports.andDoGet = andDoGet;
