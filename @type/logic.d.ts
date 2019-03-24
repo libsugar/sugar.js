@@ -4,14 +4,14 @@
  *
  * @param bool 需要判断的值或者返回需要判断的值的函数
  */
-export declare function or(...bool: (boolean | ((...p: any[]) => boolean))[]): boolean;
+export declare function or(...bool: (boolean | (() => boolean))[]): boolean;
 /** and
  *
  * 等价于 `a && b && c ....`
  *
  * @param bool 需要判断的值或者返回需要判断的值的函数
  */
-export declare function and(...bool: (boolean | ((...p: any[]) => boolean))[]): boolean;
+export declare function and(...bool: (boolean | (() => boolean))[]): boolean;
 /** orGroup
  *
  * 等价于 `logic(a, b) || logic(c, d) ....`
@@ -91,7 +91,7 @@ export declare function andGroup(logic: ((a: any, b: any) => boolean), ...items:
  * @param logic 逻辑判断函数
  * @param item 要判断的项
  */
-export declare function orDo<T>(logic: (v: T) => boolean, item: T | ((...p: any[]) => T)): boolean;
+export declare function orDo<T>(logic: (v: T) => boolean, item: T): boolean;
 /** orDo
  *
  * 等价于 `logic(a) || logic(b) ....`
@@ -143,7 +143,7 @@ export declare function andDo(logic: (v: any) => boolean, item: any, ...items: a
  * @param logic 逻辑判断函数
  * @param item 要判断的项
  */
-export declare function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T): boolean;
+export declare function orDoGet<T>(logic: (v: T) => boolean, item: () => T): boolean;
 /** orDoGet
  *
  * 等价于 `logic(a()) || logic(b()) ....`
@@ -152,7 +152,7 @@ export declare function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[])
  * @param item 要判断的项
  * @param items 其他要判断的项
  */
-export declare function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T, ...items: ((...p: any[]) => T)[]): boolean;
+export declare function orDoGet<T>(logic: (v: T) => boolean, item: () => T, ...items: (() => T)[]): boolean;
 /** andDoGet
  *
  * 等价于 `logic(item())`
@@ -160,7 +160,7 @@ export declare function orDoGet<T>(logic: (v: T) => boolean, item: (...p: any[])
  * @param logic 逻辑判断函数
  * @param item 要判断的项
  */
-export declare function andDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T): boolean;
+export declare function andDoGet<T>(logic: (v: T) => boolean, item: () => T): boolean;
 /** andDoGet
  *
  * 等价于 `logic(a()) && logic(b()) ....`
@@ -169,4 +169,12 @@ export declare function andDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]
  * @param item 要判断的项
  * @param items 其他要判断的项
  */
-export declare function andDoGet<T>(logic: (v: T) => boolean, item: (...p: any[]) => T, ...items: ((...p: any[]) => T)[]): boolean;
+export declare function andDoGet<T>(logic: (v: T) => boolean, item: () => T, ...items: (() => T)[]): boolean;
+export declare function orDoAll<T>(item: T, logic: (v: T) => boolean): boolean;
+export declare function orDoAll<T>(item: T, logic: (v: T) => boolean, ...logics: ((v: T) => boolean)[]): boolean;
+export declare function andDoAll<T>(item: T, logic: (v: T) => boolean): boolean;
+export declare function andDoAll<T>(item: T, logic: (v: T) => boolean, ...logics: ((v: T) => boolean)[]): boolean;
+export declare function orDoGetAll<T>(item: () => T, logic: (v: T) => boolean): boolean;
+export declare function orDoGetAll<T>(item: () => T, logic: (v: T) => boolean, ...logics: ((v: T) => boolean)[]): boolean;
+export declare function andDoGetAll<T>(item: () => T, logic: (v: T) => boolean): boolean;
+export declare function andDoGetAll<T>(item: () => T, logic: (v: T) => boolean, ...logics: ((v: T) => boolean)[]): boolean;

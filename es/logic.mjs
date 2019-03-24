@@ -98,3 +98,31 @@ export function andDoGet(logic, ...items) {
     }
     return true;
 }
+export function orDoAll(item, ...logics) {
+    for (const logic of logics) {
+        if (logic(item))
+            return true;
+    }
+    return false;
+}
+export function andDoAll(item, ...logics) {
+    for (const logic of logics) {
+        if (!logic(item))
+            return false;
+    }
+    return true;
+}
+export function orDoGetAll(item, ...logics) {
+    for (const logic of logics) {
+        if (logic(item()))
+            return true;
+    }
+    return false;
+}
+export function andDoGetAll(item, ...logics) {
+    for (const logic of logics) {
+        if (!logic(item()))
+            return false;
+    }
+    return true;
+}

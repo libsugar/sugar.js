@@ -117,4 +117,36 @@
         return true;
     }
     exports.andDoGet = andDoGet;
+    function orDoAll(item, ...logics) {
+        for (const logic of logics) {
+            if (logic(item))
+                return true;
+        }
+        return false;
+    }
+    exports.orDoAll = orDoAll;
+    function andDoAll(item, ...logics) {
+        for (const logic of logics) {
+            if (!logic(item))
+                return false;
+        }
+        return true;
+    }
+    exports.andDoAll = andDoAll;
+    function orDoGetAll(item, ...logics) {
+        for (const logic of logics) {
+            if (logic(item()))
+                return true;
+        }
+        return false;
+    }
+    exports.orDoGetAll = orDoGetAll;
+    function andDoGetAll(item, ...logics) {
+        for (const logic of logics) {
+            if (!logic(item()))
+                return false;
+        }
+        return true;
+    }
+    exports.andDoGetAll = andDoGetAll;
 });

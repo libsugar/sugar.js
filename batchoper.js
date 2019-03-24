@@ -429,6 +429,50 @@ function andGroup(logic, ...items) {
     }
     return true;
 }
+function orDo(logic, ...items) {
+    for (const item of items) {
+        if (logic(item))
+            return true;
+    }
+    return false;
+}
+function andDo(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item))
+            return false;
+    }
+    return true;
+}
+/** orDoGet
+ *
+ * 等价于 `logic(a()) || logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function orDoGet(logic, ...items) {
+    for (const item of items) {
+        if (logic(item()))
+            return true;
+    }
+    return false;
+}
+/** andDoGet
+ *
+ * 等价于 `logic(a()) && logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function andDoGet(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item()))
+            return false;
+    }
+    return true;
+}
 
 /**
  * 将一个值包装成返回它的函数
@@ -553,6 +597,10 @@ exports.or = or;
 exports.and = and;
 exports.orGroup = orGroup;
 exports.andGroup = andGroup;
+exports.orDo = orDo;
+exports.andDo = andDo;
+exports.orDoGet = orDoGet;
+exports.andDoGet = andDoGet;
 exports.fnOf = fnOf;
 exports.classOf = classOf;
 exports.protoOf = protoOf;

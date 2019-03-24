@@ -425,6 +425,50 @@ function andGroup(logic, ...items) {
     }
     return true;
 }
+function orDo(logic, ...items) {
+    for (const item of items) {
+        if (logic(item))
+            return true;
+    }
+    return false;
+}
+function andDo(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item))
+            return false;
+    }
+    return true;
+}
+/** orDoGet
+ *
+ * 等价于 `logic(a()) || logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function orDoGet(logic, ...items) {
+    for (const item of items) {
+        if (logic(item()))
+            return true;
+    }
+    return false;
+}
+/** andDoGet
+ *
+ * 等价于 `logic(a()) && logic(b()) ....`
+ *
+ * @param logic 逻辑判断函数
+ * @param item 要判断的项
+ * @param items 其他要判断的项
+ */
+function andDoGet(logic, ...items) {
+    for (const item of items) {
+        if (!logic(item()))
+            return false;
+    }
+    return true;
+}
 
 /**
  * 将一个值包装成返回它的函数
@@ -499,4 +543,4 @@ function typeofAny(obj, ...types) {
     return false;
 }
 
-export { eqOr, eqAnd, fEqOr, fEqAnd, neOr, neAnd, fNeOr, fNeAnd, gtOr, gtAnd, allGtOr, allGtAnd, ltOr, ltAnd, allLtOr, allLtAnd, geOr, geAnd, allGeOr, allGeAnd, leOr, leAnd, allLeOr, allLeAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, deleteAll, inOr, inAnd, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, or, and, orGroup, andGroup, fnOf, classOf, protoOf, promiseOf, boxOf, typeofOr, typeofAnd, typeofAny };
+export { eqOr, eqAnd, fEqOr, fEqAnd, neOr, neAnd, fNeOr, fNeAnd, gtOr, gtAnd, allGtOr, allGtAnd, ltOr, ltAnd, allLtOr, allLtAnd, geOr, geAnd, allGeOr, allGeAnd, leOr, leAnd, allLeOr, allLeAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, deleteAll, inOr, inAnd, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, or, and, orGroup, andGroup, orDo, andDo, orDoGet, andDoGet, fnOf, classOf, protoOf, promiseOf, boxOf, typeofOr, typeofAnd, typeofAny };
