@@ -1,27 +1,27 @@
 /** gtOr
  * 
- * 等价于 `self > a || self > b ...`
+ * Equivalent `self > a || self > b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function gtOr<T>(self: T): T
 /** gtOr
  *
- * 等价于 `self > a || self > b ...`
+ * Equivalent `self > a || self > b ...`
  * 
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function gtOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** gtOr
  *
- * 等价于 `self > a || self > b ...`
+ * Equivalent `self > a || self > b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function gtOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function gtOr(self: any, ...others: any[]) {
@@ -33,28 +33,28 @@ export function gtOr(self: any, ...others: any[]) {
 }
 /** gtAnd
  *
- * 等价于 `self > a && self > b ...`
+ * Equivalent `self > a && self > b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function gtAnd<T>(self: T): T
 /** gtAnd
  *
- * 等价于 `self > a && self > b ...`
+ * Equivalent `self > a && self > b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function gtAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** gtAnd
  *
- * 等价于 `self > a && self > b ...`
+ * Equivalent `self > a && self > b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function gtAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function gtAnd(self: any, ...others: any[]) {
@@ -66,28 +66,28 @@ export function gtAnd(self: any, ...others: any[]) {
 }
 /** allGtOr
  * 
- * 等价于 `a > self || b > self ...`
+ * Equivalent `a > self || b > self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allGtOr<T>(self: T): T
 /** allGtOr
  *
- * 等价于 `a > self || b > self ...`
+ * Equivalent `a > self || b > self ...`
  * 
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGtOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** allGtOr
  *
- * 等价于 `a > self || b > self ...`
+ * Equivalent `a > self || b > self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGtOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function allGtOr(self: any, ...others: any[]) {
@@ -99,28 +99,28 @@ export function allGtOr(self: any, ...others: any[]) {
 }
 /** allGtAnd
  *
- * 等价于 `a > self && b > self ...`
+ * Equivalent `a > self && b > self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allGtAnd<T>(self: T): T
 /** allGtAnd
  *
- * 等价于 `a > self && b > self ...`
+ * Equivalent `a > self && b > self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGtAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** allGtAnd
  *
- * 等价于 `a > self && b > self ...`
+ * Equivalent `a > self && b > self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGtAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function allGtAnd(self: any, ...others: any[]) {
