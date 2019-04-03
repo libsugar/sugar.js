@@ -4,7 +4,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./eq", "./ne", "./gt", "./lt", "./ge", "./le", "./arithmetic", "./bitwise", "./delete", "./in", "./instanceof", "./logic", "./typeof"], factory);
+        define(["require", "exports", "./eq", "./ne", "./gt", "./lt", "./ge", "./le", "./arithmetic", "./bitwise", "./delete", "./in", "./instanceof", "./logic", "./of", "./typeof"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,5 +24,6 @@
     __export(require("./in"));
     __export(require("./instanceof"));
     __export(require("./logic"));
+    __export(require("./of"));
     __export(require("./typeof"));
 });

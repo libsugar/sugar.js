@@ -10,4 +10,5 @@ export * from './delete';
 export * from './in';
 export * from './instanceof';
 export * from './logic';
+export * from './of';
 export * from './typeof';

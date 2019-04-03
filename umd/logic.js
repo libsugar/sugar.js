@@ -69,4 +69,84 @@
         return true;
     }
     exports.andGroup = andGroup;
+    function orDo(logic, ...items) {
+        for (const item of items) {
+            if (logic(item))
+                return true;
+        }
+        return false;
+    }
+    exports.orDo = orDo;
+    function andDo(logic, ...items) {
+        for (const item of items) {
+            if (!logic(item))
+                return false;
+        }
+        return true;
+    }
+    exports.andDo = andDo;
+    /** orDoGet
+     *
+     * 等价于 `logic(a()) || logic(b()) ....`
+     *
+     * @param logic 逻辑判断函数
+     * @param item 要判断的项
+     * @param items 其他要判断的项
+     */
+    function orDoGet(logic, ...items) {
+        for (const item of items) {
+            if (logic(item()))
+                return true;
+        }
+        return false;
+    }
+    exports.orDoGet = orDoGet;
+    /** andDoGet
+     *
+     * 等价于 `logic(a()) && logic(b()) ....`
+     *
+     * @param logic 逻辑判断函数
+     * @param item 要判断的项
+     * @param items 其他要判断的项
+     */
+    function andDoGet(logic, ...items) {
+        for (const item of items) {
+            if (!logic(item()))
+                return false;
+        }
+        return true;
+    }
+    exports.andDoGet = andDoGet;
+    function orDoAll(item, ...logics) {
+        for (const logic of logics) {
+            if (logic(item))
+                return true;
+        }
+        return false;
+    }
+    exports.orDoAll = orDoAll;
+    function andDoAll(item, ...logics) {
+        for (const logic of logics) {
+            if (!logic(item))
+                return false;
+        }
+        return true;
+    }
+    exports.andDoAll = andDoAll;
+    function orDoGetAll(item, ...logics) {
+        for (const logic of logics) {
+            if (logic(item()))
+                return true;
+        }
+        return false;
+    }
+    exports.orDoGetAll = orDoGetAll;
+    function andDoGetAll(item, ...logics) {
+        for (const logic of logics) {
+            if (!logic(item()))
+                return false;
+        }
+        return true;
+    }
+    exports.andDoGetAll = andDoGetAll;
 });
