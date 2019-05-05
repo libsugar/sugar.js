@@ -1,27 +1,27 @@
 /** inOr
  *
- * 等价于 `a in obj || b in obj ...`
+ * Equivalent `a in obj || b in obj ...`
  * 
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
+ * Determine if an object has certain members
+ * @param obj target object
  */
 export function inOr<T extends object>(obj: T): false
 /** inOr
  *
- * 等价于 `a in obj || b in obj ...`
+ * Equivalent `a in obj || b in obj ...`
  *
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
- * @param keys 要判断的成员的键
+ * Determine if an object has certain members
+ * @param obj target object
+ * @param keys Need to determine if it is a member's key
  */
 export function inOr<T extends object, K extends string | number | symbol>(obj: T, ...keys: K[]): keyof T extends K ? true : false
 /** inOr
  *
- * 等价于 `a in obj || b in obj ...`
+ * Equivalent `a in obj || b in obj ...`
  *
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
- * @param keys 要判断的成员的键
+ * Determine if an object has certain members
+ * @param obj target object
+ * @param keys Need to determine if it is a member's key
  */
 export function inOr(obj: object, ...keys: (string | number | symbol)[]): boolean
 export function inOr(obj: object, ...keys: (string | number | symbol)[]): boolean {
@@ -33,28 +33,28 @@ export function inOr(obj: object, ...keys: (string | number | symbol)[]): boolea
 }
 /** inAnd
  *
- * 等价于 `a in obj && b in obj ...`
+ * Equivalent `a in obj && b in obj ...`
  *
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
+ * Determine if an object has certain members
+ * @param obj target object
  */
 export function inAnd<T extends object>(obj: T): false
 /** inAnd
  *
- * 等价于 `a in obj && b in obj ...`
+ * Equivalent `a in obj && b in obj ...`
  *
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
- * @param keys 要判断的成员的键
+ * Determine if an object has certain members
+ * @param obj target object
+ * @param keys Need to determine if it is a member's key
  */
 export function inAnd<T extends object, K extends string | number | symbol>(obj: T, ...keys: K[]): K extends keyof T ? true : false
 /** inAnd
  *
- * 等价于 `a in obj && b in obj ...`
+ * Equivalent `a in obj && b in obj ...`
  *
- * 判断一个对象是否有某些成员
- * @param obj 目标对象
- * @param keys 要判断的成员的键
+ * Determine if an object has certain members
+ * @param obj target object
+ * @param keys Need to determine if it is a member's key
  */
 export function inAnd(obj: object, ...keys: (string | number | symbol)[]): boolean
 export function inAnd(obj: object, ...keys: (string | number | symbol)[]): boolean {
