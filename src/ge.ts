@@ -1,27 +1,27 @@
 /** geOr
  * 
- * 等价于 `self >= a || self >= b ...`
+ * Equivalent `self >= a || self >= b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function geOr<T>(self: T): T
 /** geOr
  *
- * 等价于 `self >= a || self >= b ...`
+ * Equivalent `self >= a || self >= b ...`
  * 
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function geOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** geOr
  *
- * 等价于 `self >= a || self >= b ...`
+ * Equivalent `self >= a || self >= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function geOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function geOr(self: any, ...others: any[]) {
@@ -33,28 +33,28 @@ export function geOr(self: any, ...others: any[]) {
 }
 /** geAnd
  *
- * 等价于 `self >= a && self >= b ...`
+ * Equivalent `self >= a && self >= b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function geAnd<T>(self: T): T
 /** geAnd
  *
- * 等价于 `self >= a && self >= b ...`
+ * Equivalent `self >= a && self >= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function geAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** geAnd
  *
- * 等价于 `self >= a && self >= b ...`
+ * Equivalent `self >= a && self >= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function geAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function geAnd(self: any, ...others: any[]) {
@@ -66,28 +66,28 @@ export function geAnd(self: any, ...others: any[]) {
 }
 /** AllGeOr
  * 
- * 等价于 `a >= self || b >= self ...`
+ * Equivalent `a >= self || b >= self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allGeOr<T>(self: T): T
 /** AllGeOr
  *
- * 等价于 `a >= self || b >= self ...`
+ * Equivalent `a >= self || b >= self ...`
  * 
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGeOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** AllGeOr
  *
- * 等价于 `a >= self || b >= self ...`
+ * Equivalent `a >= self || b >= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGeOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function allGeOr(self: any, ...others: any[]) {
@@ -99,28 +99,28 @@ export function allGeOr(self: any, ...others: any[]) {
 }
 /** AllGeAnd
  *
- * 等价于 `a >= self && b >= self ...`
+ * Equivalent `a >= self && b >= self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allGeAnd<T>(self: T): T
 /** AllGeAnd
  *
- * 等价于 `a >= self && b >= self ...`
+ * Equivalent `a >= self && b >= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGeAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** AllGeAnd
  *
- * 等价于 `a >= self && b >= self ...`
+ * Equivalent `a >= self && b >= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allGeAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function allGeAnd(self: any, ...others: any[]) {

@@ -1,27 +1,27 @@
 /** leOr
  *
- * 等价于 `self <= a || self <= b ...`
+ * Equivalent `self <= a || self <= b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function leOr<T>(self: T): T
 /** leOr
  *
- * 等价于 `self <= a || self <= b ...`
+ * Equivalent `self <= a || self <= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function leOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** leOr
  *
- * 等价于 `self <= a || self <= b ...`
+ * Equivalent `self <= a || self <= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function leOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function leOr(self: any, ...others: any[]) {
@@ -33,28 +33,28 @@ export function leOr(self: any, ...others: any[]) {
 }
 /** leAnd
  *
- * 等价于 `self <= a && self <= b ...`
+ * Equivalent `self <= a && self <= b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function leAnd<T>(self: T): T
 /** leAnd
  *
- * 等价于 `self <= a && self <= b ...`
+ * Equivalent `self <= a && self <= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function leAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** leAnd
  *
- * 等价于 `self <= a && self <= b ...`
+ * Equivalent `self <= a && self <= b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function leAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function leAnd(self: any, ...others: any[]) {
@@ -66,28 +66,28 @@ export function leAnd(self: any, ...others: any[]) {
 }
 /** allLeOr
  *
- * 等价于 `a <= self || b <= self ...`
+ * Equivalent `a <= self || b <= self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allLeOr<T>(self: T): T
 /** allLeOr
  *
- * 等价于 `a <= self || b <= self ...`
+ * Equivalent `a <= self || b <= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allLeOr<T>(self: T, Other: T, ...others: T[]): boolean
 /** allLeOr
  *
- * 等价于 `a <= self || b <= self ...`
+ * Equivalent `a <= self || b <= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allLeOr<T>(self: T, Other: T, ...others: any[]): boolean
 export function allLeOr(self: any, ...others: any[]) {
@@ -99,28 +99,28 @@ export function allLeOr(self: any, ...others: any[]) {
 }
 /** allLeAnd
  *
- * 等价于 `a <= self && b <= self ...`
+ * Equivalent `a <= self && b <= self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export function allLeAnd<T>(self: T): T
 /** allLeAnd
  *
- * 等价于 `a <= self && b <= self ...`
+ * Equivalent `a <= self && b <= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allLeAnd<T>(self: T, Other: T, ...others: T[]): boolean
 /** allLeAnd
  *
- * 等价于 `a <= self && b <= self ...`
+ * Equivalent `a <= self && b <= self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export function allLeAnd<T>(self: T, Other: T, ...others: any[]): boolean
 export function allLeAnd(self: any, ...others: any[]) {

@@ -1,13 +1,13 @@
 /**
- * 将一个值包装成返回它的函数
- * @param value 要包装的值
+ * Wrap a value into a function that returns it
+ * @param value The value to be wrapped
  */
 export function fnOf<T>(value: T): () => T {
     return () => value
 }
 /**
- * 将一个值包装成生成它的构造函数
- * @param value 要包装的值
+ * Wrap a value into a constructor that constructs it
+ * @param value The value to be wrapped
  */
 export function classOf<T>(value: T): new () => T {
     value = Object(value)
@@ -18,9 +18,9 @@ export function classOf<T>(value: T): new () => T {
     })
 }
 /**
- * 包装一个值使其的原型为`proto`
- * @param value 要包装的值
- * @param proto 原型值
+ * Wrap a value so that its prototype is `proto``proto`
+ * @param value The value to be wrapped
+ * @param proto Prototype value
  */
 export function protoOf<T, P>(value: T, proto: P): T & P {
     proto = Object(proto)
@@ -31,21 +31,21 @@ export function protoOf<T, P>(value: T, proto: P): T & P {
     })
 }
 /**
- * 将一个值包装成promise
+ * Wrap a value into a promise
  */
 export function promiseOf(): Promise<void>
 /**
- * 将一个值包装成promise
- * @param value 要包装的值
+ * Wrap a value into a promise
+ * @param value The value to be wrapped
  */
 export function promiseOf<T>(value: T | PromiseLike<T>): Promise<any>
 export function promiseOf(value?: any): any {
     return Promise.resolve(value)
 }
 /**
- * 将一个值装箱
- * @param boxof 包装函数
- * @param value 值
+ * Box a value
+ * @param boxof Wrapper function
+ * @param value Value
  */
 export function boxOf<T, B>(boxof: (value: T) => B, value: T): B {
     return boxof(value)
