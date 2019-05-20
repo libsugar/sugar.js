@@ -11,9 +11,9 @@
     Object.defineProperty(exports, "__esModule", { value: true });
     /** or
      *
-     * 等价于 `a || b || c ....`
+     * Equivalent `a || b || c ....`
      *
-     * @param bool 需要判断的值或者返回需要判断的值的函数
+     * @param bool The value to be judged or the function that returns value to be judged
      */
     function or(...bool) {
         for (const item of bool) {
@@ -25,9 +25,9 @@
     exports.or = or;
     /** and
      *
-     * 等价于 `a && b && c ....`
+     * Equivalent `a && b && c ....`
      *
-     * @param bool 需要判断的值或者返回需要判断的值的函数
+     * @param bool The value to be judged or the function that returns value to be judged
      */
     function and(...bool) {
         for (const item of bool) {
@@ -38,10 +38,10 @@
     }
     exports.and = and;
     /**
-     * 对数组节流
+     * Throttling the array
      *
-     * 每2个为一组输出
-     * @param arr 要被节流的数组
+     * Every 2 is a set of outputs
+     * @param arr The array to be throttled
      */
     function* take2(arr) {
         let tuple = [];
@@ -87,11 +87,11 @@
     exports.andDo = andDo;
     /** orDoGet
      *
-     * 等价于 `logic(a()) || logic(b()) ....`
+     * Equivalent `logic(a()) || logic(b()) ....`
      *
-     * @param logic 逻辑判断函数
-     * @param item 要判断的项
-     * @param items 其他要判断的项
+     * @param logic Logical judgment function
+     * @param item Item to be judged
+     * @param items Other items to judge
      */
     function orDoGet(logic, ...items) {
         for (const item of items) {
@@ -103,11 +103,11 @@
     exports.orDoGet = orDoGet;
     /** andDoGet
      *
-     * 等价于 `logic(a()) && logic(b()) ....`
+     * Equivalent `logic(a()) && logic(b()) ....`
      *
-     * @param logic 逻辑判断函数
-     * @param item 要判断的项
-     * @param items 其他要判断的项
+     * @param logic Logical judgment function
+     * @param item Item to be judged
+     * @param items Other items to judge
      */
     function andDoGet(logic, ...items) {
         for (const item of items) {

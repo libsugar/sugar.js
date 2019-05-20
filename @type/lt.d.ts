@@ -1,104 +1,104 @@
 /** ltOr
  *
- * 等价于 `self < a || self < b ...`
+ * Equivalent `self < a || self < b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export declare function ltOr<T>(self: T): T;
 /** ltOr
  *
- * 等价于 `self < a || self < b ...`
+ * Equivalent `self < a || self < b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function ltOr<T>(self: T, Other: T, ...others: T[]): boolean;
 /** ltOr
  *
- * 等价于 `self < a || self < b ...`
+ * Equivalent `self < a || self < b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function ltOr<T>(self: T, Other: T, ...others: any[]): boolean;
 /** ltAnd
  *
- * 等价于 `self < a && self < b ...`
+ * Equivalent `self < a && self < b ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export declare function ltAnd<T>(self: T): T;
 /** ltAnd
  *
- * 等价于 `self < a && self < b ...`
+ * Equivalent `self < a && self < b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function ltAnd<T>(self: T, Other: T, ...others: T[]): boolean;
 /** ltAnd
  *
- * 等价于 `self < a && self < b ...`
+ * Equivalent `self < a && self < b ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function ltAnd<T>(self: T, Other: T, ...others: any[]): boolean;
 /** allLtOr
  *
- * 等价于 `a < self || b < self ...`
+ * Equivalent `a < self || b < self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export declare function allLtOr<T>(self: T): T;
 /** allLtOr
  *
- * 等价于 `a < self || b < self ...`
+ * Equivalent `a < self || b < self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function allLtOr<T>(self: T, Other: T, ...others: T[]): boolean;
 /** allLtOr
  *
- * 等价于 `a < self || b < self ...`
+ * Equivalent `a < self || b < self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function allLtOr<T>(self: T, Other: T, ...others: any[]): boolean;
 /** allLtAnd
  *
- * 等价于 `a < self && b < self ...`
+ * Equivalent `a < self && b < self ...`
  *
- * @param self 被比较的目标
- * @returns 直接返回自身
+ * @param self Compare target
+ * @returns Return directly to itself
  */
 export declare function allLtAnd<T>(self: T): T;
 /** allLtAnd
  *
- * 等价于 `a < self && b < self ...`
+ * Equivalent `a < self && b < self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function allLtAnd<T>(self: T, Other: T, ...others: T[]): boolean;
 /** allLtAnd
  *
- * 等价于 `a < self && b < self ...`
+ * Equivalent `a < self && b < self ...`
  *
- * @param self 被比较的目标
- * @param Other 被比较的值
- * @param others 其他被比较的值
+ * @param self Compare target
+ * @param Other The object being compared
+ * @param others Other compared objects
  */
 export declare function allLtAnd<T>(self: T, Other: T, ...others: any[]): boolean;

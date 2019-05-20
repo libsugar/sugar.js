@@ -1,26 +1,26 @@
 /**
- * 将一个值包装成返回它的函数
- * @param value 要包装的值
+ * Wrap a value into a function that returns it
+ * @param value The value to be wrapped
  */
 export function fnOf(value) {
     return () => value;
 }
 /**
- * 将一个值包装成生成它的构造函数
- * @param value 要包装的值
+ * Wrap a value into a constructor that constructs it
+ * @param value The value to be wrapped
  */
 export function classOf(value) {
     value = Object(value);
-    return new Proxy(null, {
+    return new Proxy({}, {
         construct() {
             return value;
         }
     });
 }
 /**
- * 包装一个值使其的原型为`proto`
- * @param value 要包装的值
- * @param proto 原型值
+ * Wrap a value so that its prototype is `proto``proto`
+ * @param value The value to be wrapped
+ * @param proto Prototype value
  */
 export function protoOf(value, proto) {
     proto = Object(proto);
@@ -34,9 +34,9 @@ export function promiseOf(value) {
     return Promise.resolve(value);
 }
 /**
- * 将一个值装箱
- * @param boxof 包装函数
- * @param value 值
+ * Box a value
+ * @param boxof Wrapper function
+ * @param value Value
  */
 export function boxOf(boxof, value) {
     return boxof(value);

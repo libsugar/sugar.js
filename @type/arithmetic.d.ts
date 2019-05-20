@@ -1,125 +1,179 @@
 /** sum
  *
- * 求和函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * Sum function
+ *
+ * Equivalent to `a + b + c + ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function sum<N extends number>(num: N): N;
 /** sum
  *
- * 求和函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * Sum function
+ *
+ * Equivalent to `a + b + c + ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function sum(num: number, ...numbers: number[]): number;
 /** addAll
  *
- * 全加函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All add function
+ *
+ * Equivalent to `a + b + c + ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function addAll<N extends number>(num: N): N;
 /** addAll
  *
- * 全加函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All add function
+ *
+ * Equivalent to `a + b + c + ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function addAll(num: number, ...numbers: number[]): number;
 /** subAll
  *
- * 全减函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All subtract function
+ *
+ * Equivalent to `a - b - c - ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function subAll<N extends number>(num: N): N;
 /** subAll
  *
- * 全减函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All subtract function
+ *
+ * Equivalent to `a - b - c - ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function subAll(num: number, ...numbers: number[]): number;
 /** prod
  *
- * 求积函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * Product function
+ *
+ * Equivalent to `a * b * c * ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function prod<N extends number>(num: N): N;
 /** prod
  *
- * 求积函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * Product function
+ *
+ * Equivalent to `a * b * c * ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function prod(num: number, ...numbers: number[]): number;
 /** sum
  *
- * 全乘函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All multiply function
+ *
+ * Equivalent to `a * b * c * ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function mulAll<N extends number>(num: N): N;
 /** sum
  *
- * 全乘函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All multiply function
+ *
+ * Equivalent to `a * b * c * ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function mulAll(num: number, ...numbers: number[]): number;
 /** quot
  *
- * 求商函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * Quotient function
+ *
+ * Equivalent to `a / b / c / ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function quot<N extends number>(num: N): N;
 /** quot
  *
- * 求商函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * Quotient function
+ *
+ * Equivalent to `a / b / c / ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function quot(num: number, ...numbers: number[]): number;
 /** divAll
- * 全除函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All divide function
+ *
+ * Equivalent to `a / b / c / ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function divAll<N extends number>(num: N): N;
 /** divAll
  *
- * 全除函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All divide function
+ *
+ * Equivalent to `a / b / c / ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function divAll(num: number, ...numbers: number[]): number;
 /** modAll
  *
- * 全余函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All molding function
+ *
+ * Equivalent to `a % b % c % ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function modAll<N extends number>(num: N): N;
 /** modAll
  *
- * 全余函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All molding function
+ *
+ * Equivalent to `a % b % c % ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function modAll(num: number, ...numbers: number[]): number;
 /** powAll
  *
- * 全幂函数
- * @param num 目标数字
- * @returns 直接返回目标数字
+ * All power function
+ *
+ * Equivalent to `a ** b ** c ** ...`
+ *
+ * @param num Target number
+ * @returns Return target number directly
  */
 export declare function powAll<N extends number>(num: N): N;
 /** powAll
  *
- * 全幂函数
- * @param num 第一个数字
- * @param numbers 其他数字
+ * All power function
+ *
+ * Equivalent to `a ** b ** c ** ...`
+ *
+ * @param num First number
+ * @param numbers Other numbers
  */
 export declare function powAll(num: number, ...numbers: number[]): number;

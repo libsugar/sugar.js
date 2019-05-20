@@ -371,9 +371,9 @@ function AllInstanceofAnd(type, ...objs) {
 
 /** or
  *
- * 等价于 `a || b || c ....`
+ * Equivalent `a || b || c ....`
  *
- * @param bool 需要判断的值或者返回需要判断的值的函数
+ * @param bool The value to be judged or the function that returns value to be judged
  */
 function or(...bool) {
     for (const item of bool) {
@@ -384,9 +384,9 @@ function or(...bool) {
 }
 /** and
  *
- * 等价于 `a && b && c ....`
+ * Equivalent `a && b && c ....`
  *
- * @param bool 需要判断的值或者返回需要判断的值的函数
+ * @param bool The value to be judged or the function that returns value to be judged
  */
 function and(...bool) {
     for (const item of bool) {
@@ -396,10 +396,10 @@ function and(...bool) {
     return true;
 }
 /**
- * 对数组节流
+ * Throttling the array
  *
- * 每2个为一组输出
- * @param arr 要被节流的数组
+ * Every 2 is a set of outputs
+ * @param arr The array to be throttled
  */
 function* take2(arr) {
     let tuple = [];
@@ -441,11 +441,11 @@ function andDo(logic, ...items) {
 }
 /** orDoGet
  *
- * 等价于 `logic(a()) || logic(b()) ....`
+ * Equivalent `logic(a()) || logic(b()) ....`
  *
- * @param logic 逻辑判断函数
- * @param item 要判断的项
- * @param items 其他要判断的项
+ * @param logic Logical judgment function
+ * @param item Item to be judged
+ * @param items Other items to judge
  */
 function orDoGet(logic, ...items) {
     for (const item of items) {
@@ -456,11 +456,11 @@ function orDoGet(logic, ...items) {
 }
 /** andDoGet
  *
- * 等价于 `logic(a()) && logic(b()) ....`
+ * Equivalent `logic(a()) && logic(b()) ....`
  *
- * @param logic 逻辑判断函数
- * @param item 要判断的项
- * @param items 其他要判断的项
+ * @param logic Logical judgment function
+ * @param item Item to be judged
+ * @param items Other items to judge
  */
 function andDoGet(logic, ...items) {
     for (const item of items) {
@@ -469,17 +469,45 @@ function andDoGet(logic, ...items) {
     }
     return true;
 }
+function orDoAll(item, ...logics) {
+    for (const logic of logics) {
+        if (logic(item))
+            return true;
+    }
+    return false;
+}
+function andDoAll(item, ...logics) {
+    for (const logic of logics) {
+        if (!logic(item))
+            return false;
+    }
+    return true;
+}
+function orDoGetAll(item, ...logics) {
+    for (const logic of logics) {
+        if (logic(item()))
+            return true;
+    }
+    return false;
+}
+function andDoGetAll(item, ...logics) {
+    for (const logic of logics) {
+        if (!logic(item()))
+            return false;
+    }
+    return true;
+}
 
 /**
- * 将一个值包装成返回它的函数
- * @param value 要包装的值
+ * Wrap a value into a function that returns it
+ * @param value The value to be wrapped
  */
 function fnOf(value) {
     return () => value;
 }
 /**
- * 将一个值包装成生成它的构造函数
- * @param value 要包装的值
+ * Wrap a value into a constructor that constructs it
+ * @param value The value to be wrapped
  */
 function classOf(value) {
     value = Object(value);
@@ -490,9 +518,9 @@ function classOf(value) {
     });
 }
 /**
- * 包装一个值使其的原型为`proto`
- * @param value 要包装的值
- * @param proto 原型值
+ * Wrap a value so that its prototype is `proto``proto`
+ * @param value The value to be wrapped
+ * @param proto Prototype value
  */
 function protoOf(value, proto) {
     proto = Object(proto);
@@ -506,9 +534,9 @@ function promiseOf(value) {
     return Promise.resolve(value);
 }
 /**
- * 将一个值装箱
- * @param boxof 包装函数
- * @param value 值
+ * Box a value
+ * @param boxof Wrapper function
+ * @param value Value
  */
 function boxOf(boxof, value) {
     return boxof(value);
@@ -543,4 +571,4 @@ function typeofAny(obj, ...types) {
     return false;
 }
 
-export { eqOr, eqAnd, fEqOr, fEqAnd, neOr, neAnd, fNeOr, fNeAnd, gtOr, gtAnd, allGtOr, allGtAnd, ltOr, ltAnd, allLtOr, allLtAnd, geOr, geAnd, allGeOr, allGeAnd, leOr, leAnd, allLeOr, allLeAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, deleteAll, inOr, inAnd, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, or, and, orGroup, andGroup, orDo, andDo, orDoGet, andDoGet, fnOf, classOf, protoOf, promiseOf, boxOf, typeofOr, typeofAnd, typeofAny };
+export { eqOr, eqAnd, fEqOr, fEqAnd, neOr, neAnd, fNeOr, fNeAnd, gtOr, gtAnd, allGtOr, allGtAnd, ltOr, ltAnd, allLtOr, allLtAnd, geOr, geAnd, allGeOr, allGeAnd, leOr, leAnd, allLeOr, allLeAnd, sum, addAll, subAll, prod, mulAll, quot, divAll, modAll, powAll, leftShiftAll, rightShiftAll, uRightShiftAll, bitAndAll, bitXorAll, bitOrAll, deleteAll, inOr, inAnd, instanceofOr, instanceofAnd, AllInstanceofOr, AllInstanceofAnd, or, and, orGroup, andGroup, orDo, andDo, orDoGet, andDoGet, orDoAll, andDoAll, orDoGetAll, andDoGetAll, fnOf, classOf, protoOf, promiseOf, boxOf, typeofOr, typeofAnd, typeofAny };
