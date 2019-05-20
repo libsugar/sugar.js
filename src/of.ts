@@ -11,7 +11,7 @@ export function fnOf<T>(value: T): () => T {
  */
 export function classOf<T>(value: T): new () => T {
     value = Object(value)
-    return new Proxy(null, {
+    return new Proxy({} as any, {
         construct() {
             return value as any
         }
