@@ -511,7 +511,7 @@ function fnOf(value) {
  */
 function classOf(value) {
     value = Object(value);
-    return new Proxy(null, {
+    return new Proxy({}, {
         construct() {
             return value;
         }
