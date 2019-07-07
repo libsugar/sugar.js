@@ -26,7 +26,7 @@
   "homepage": "https://github.com/BatchOperator/BatchOperJs#readme",
   "devDependencies": {
     "rollup": "1.16.6",
-    "rollup-plugin-terser": "5.1.0",
+    "rollup-plugin-terser": "5.1.1",
     "typescript": "3.5.2"
   }
 }
