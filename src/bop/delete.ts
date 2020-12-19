@@ -21,7 +21,7 @@ export function deleteAll(obj: object, ...keys: (string | number | symbol)[]): b
 export function deleteAll(obj: object, ...keys: (string | number | symbol)[]) {
     let ret = true
     for (const key of keys) {
-        if (!(delete obj[key])) ret = false
+        if (!(delete (obj as any)[key])) ret = false
     }
     return ret
 }

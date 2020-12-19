@@ -1,1 +1,8 @@
 node_modules/
+es/
+@type/
+cjs/
+umd/
+dist/
+/sugar.js
+/sugar.mjs

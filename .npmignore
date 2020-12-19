@@ -1,8 +1,0 @@
-*.html
-src/
-*.map
-rollup.config.js
-rollup.config.*.js
-tsconfig.json
-tsconfig.*.json
-rename.js

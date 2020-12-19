@@ -33,7 +33,7 @@ function* take2<T>(arr: T[]): IterableIterator<[T, T][]> {
     for (const item of arr) {
         tuple.push(item)
         if (tuple.length == 2) {
-            yield tuple
+            yield tuple as any
             tuple = []
         }
     }
