@@ -4,7 +4,7 @@
         "target": "esnext",
         "outDir": "./cjs"
     },
-    "files": [
-        "./src/batchoper.ts"
+    "include": [
+        "./src/**/*.ts"
     ]
 }

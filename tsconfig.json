@@ -6,7 +6,7 @@
         "declaration": true,
         "declarationDir": "./@type",
     },
-    "files": [
-        "./src/batchoper.ts"
+    "include": [
+        "./src/**/*.ts"
     ]
 }

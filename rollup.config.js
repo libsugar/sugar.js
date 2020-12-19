@@ -1,7 +1,7 @@
 export default {
-    input: './es/batchoper.js',
+    input: './es/index.js',
     output: {
-        file: './dist/batchoper.js',
+        file: './dist/sugar.js',
         format: 'umd',
         name: 'uid'
     }

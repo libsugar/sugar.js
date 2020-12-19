@@ -1,32 +1,33 @@
 {
-  "name": "batchoper",
-  "version": "1.4.0",
+  "name": "libsugar",
+  "version": "2.0.0",
   "description": "",
-  "main": "batchoper.js",
-  "module": "batchoper.mjs",
-  "browser": "./dist/batchoper.min.js",
-  "umd::main": "./dist/batchoper.js",
-  "types": "./@type/batchoper.d.ts",
-  "typings": "./@type/batchoper.d.ts",
+  "main": "sugar.js",
+  "module": "sugar.mjs",
+  "browser": "./dist/sugar.min.js",
+  "umd::main": "./dist/sugar.js",
+  "types": "./@type/sugar.d.ts",
+  "typings": "./@type/sugar.d.ts",
   "scripts": {
     "build": "tsc && tsc -p tsconfig.cjs.json  && tsc -p tsconfig.umd.json && rollup -c rollup.config.cjs.js && rollup -c && rollup -c rollup.config.es.js && rollup -c rollup.config.min.js && node ./rename.js ./es"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BatchOperator/BatchOperJs.git"
+    "url": "git+https://github.com/libsugar/sugar.js.git"
   },
   "keywords": [
+    "sugar",
     "batchoper"
   ],
-  "author": "BatchOperator",
+  "author": "libsugar",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/BatchOperator/BatchOperJs/issues"
+    "url": "https://github.com/libsugar/sugar.js/issues"
   },
-  "homepage": "https://github.com/BatchOperator/BatchOperJs#readme",
+  "homepage": "https://github.com/libsugar/sugar.js#readme",
   "devDependencies": {
-    "rollup": "2.26.0",
-    "rollup-plugin-terser": "7.0.0",
-    "typescript": "3.9.7"
+    "rollup": "^2.35.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.1.3"
   }
 }
