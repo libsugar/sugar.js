@@ -1,3 +1,4 @@
+import { DefaultOrFunc, getDefault } from "./fn"
 import { None, Maybe, Voidable, isNone } from "./maybe"
 
 export interface Ok<T> { res: T }
@@ -50,6 +51,16 @@ export function mapErr<T, E, U>(v: Result<T, E>, f: (val: E) => U): Result<T, U>
 }
 
 export namespace Result {
+    export function and<T, E, U>(v: Result<T, E>, o: DefaultOrFunc<Result<U, E>>): Result<U, E> {
+        if (isErr(v)) return v
+        return getDefault(o)
+    }
+
+    export function or<T, E>(v: Result<T, E>, o: DefaultOrFunc<Result<T, E>>): Result<T, E> {
+        if (isErr(v)) return getDefault(o)
+        return v
+    }
+
     export function transpose<T, E>(v: Result<Maybe<T>, E>): Voidable<Result<T, E>> {
         if (isOk(v)) {
             if (isNone(getOk(v))) return
