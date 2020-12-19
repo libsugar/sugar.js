@@ -73,4 +73,5 @@ export namespace Maybe {
         for (const i of o) if (isNone(i)) return
         return o
     }
+
 } 
