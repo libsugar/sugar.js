@@ -1,332 +1,199 @@
-import { TEvent } from "./event";
-import { lazy, Lazy } from "./lazy";
-import { isNone, isSome } from "./maybe";
+import { TEvent } from "./event"
+import { isNone, Voidable } from "./maybe"
 
-export interface TaskLike<T> extends PromiseLike<T> {
-    cancel(): void
+export interface CancelToken {
     cancelled: boolean
-    run(): PromiseLike<T>
+    cancel(): void
+    guard(): void
+
+    reg(f: () => any): void
+    unReg(f: () => any): void
+}
+
+export class CancelGuard {
+    #source: CancelToken
+    private constructor(source: CancelToken) {
+        this.#source = source
+    }
+
+    is(source: CancelToken) {
+        return source === this.#source
+    }
+
+    static new(source: CancelToken) {
+        return new CancelGuard(source)
+    }
+}
+
+class CancelSource implements CancelToken {
+    #cancelled = false
+    #reg?: TEvent
+
+    get cancelled() {
+        return this.#cancelled
+    }
+    cancel() {
+        if (!this.#cancelled) {
+            this.#reg?.emit()
+        }
+        this.#cancelled = true
+    }
+    guard() {
+        if (this.#cancelled) throw CancelGuard.new(this)
+    }
+
+    reg(f: () => any) {
+        if (isNone(this.#reg)) this.#reg = new TEvent
+        this.#reg.once(f)
+    }
+    unReg(f: () => any) {
+        this.#reg?.off(f)
+    }
+}
+
+export function syncCancelable<R>(f: (ctx: CancelToken) => R): R | void {
+    const token = new CancelSource
+    try {
+        return f(token)
+    } catch (e) {
+        if (e instanceof CancelGuard && e.is(token)) return
+        throw e
+    }
+}
+export async function cancelable<R>(f: (ctx: CancelToken) => Promise<R>): Promise<R | void> {
+    const token = new CancelSource
+    try {
+        return await f(token)
+    } catch (e) {
+        if (e instanceof CancelGuard && e.is(token)) return
+        throw e
+    }
+}
+
+export interface TaskLike<T> extends CancelToken, PromiseLike<T | void> {
+    run(): PromiseLike<T | void>
     running: boolean
     finished: boolean
 }
 
-export type TaskOptions = {
-    delay: boolean
-}
+export class Task<T> implements TaskLike<T>, Promise<T | void> {
+    #p: Promise<T | void>
 
-export class TaskGuard {
-    #task: TaskLike<any>
-    constructor(task: TaskLike<any>) {
-        this.#task = task
-    }
+    #cancelled = false
+    #finished = false
 
-    is(task: TaskLike<any>) {
-        return task === this.#task
-    }
-}
+    #reg?: TEvent
 
-export class Task<T> implements TaskLike<T>, Promise<T> {
-
-    #fn: Lazy<Promise<T>>
-
-    #is_cancel = false
-    #is_finish = false
-
-    #event?: {
-        run?: TEvent
-        cancel?: TEvent
-        finish?: TEvent
-    }
-
-    constructor(fn: (self: Task<T>) => PromiseLike<T>, options?: TaskOptions) {
-        this.#fn = lazy(async () => {
+    constructor(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>)
+    constructor(f: (self: Task<T>) => PromiseLike<T>)
+    constructor(a: any, b?: any) {
+        if (typeof b === 'function') [a, b] = [b, a]
+        const token: Voidable<CancelToken> = b, f: (self: Task<T>) => PromiseLike<T> = a
+        token?.reg(() => this.cancel())
+        this.#p = (async () => {
             try {
-                const res = await fn(this)
-                return res
+                return await f(this)
             } catch (e) {
-                if (e instanceof TaskGuard && e.is(this))
-                    return void 0 as never
+                if (e instanceof CancelGuard && e.is(this)) return
                 throw e
             } finally {
-                this.finish()
+                this.#finished = true
             }
-        })
+        })()
+    }
 
-        if (!options?.delay) {
-            this.run()
+    cancel() {
+        if (!this.#cancelled) {
+            this.#reg?.emit()
         }
-    }
-
-    on(name: 'cancel'): Promise<void>
-    on(name: 'run'): Promise<void>
-    on(name: 'finish'): Promise<void>
-    on(name: 'cancel', f: () => void): void
-    on(name: 'run', f: () => void): void
-    on(name: 'finish', f: () => void): void
-    on(name: 'run' | 'cancel' | 'finish', f?: () => void): Promise<void> | void {
-        if (isNone(this.#event)) this.#event = {}
-        const events = this.#event
-        if (name === 'run') {
-            if (isNone(events.run)) events.run = new TEvent
-            if (isSome(f)) events.run.once(f)
-            else {
-                const run = events.run
-                return new Promise(res => {
-                    run.once(() => res())
-                })
-            }
-        } else if (name === 'cancel') {
-            if (isNone(events.cancel)) events.cancel = new TEvent
-            if (isSome(f)) events.cancel.once(f)
-            else {
-                const cancel = events.cancel
-                return new Promise(res => {
-                    cancel.once(() => res())
-                })
-            }
-        } else if (name === 'finish') {
-            if (isNone(events.finish)) events.finish = new TEvent
-            if (isSome(f)) events.finish.once(f)
-            else {
-                const finish = events.finish
-                return new Promise(res => {
-                    finish.once(() => res())
-                })
-            }
-        } else {
-            throw new TypeError(`unknow event ${JSON.stringify(`${name}`)}`)
-        }
-    }
-
-    off(name: 'cancel', f: () => void): void
-    off(name: 'run', f: () => void): void
-    off(name: 'finish', f: () => void): void
-    off(name: 'run' | 'cancel' | 'finish', f: () => void): void {
-        if (isNone(this.#event)) this.#event = {}
-        const events = this.#event
-        if (name === 'run') {
-            if (isNone(events.run)) events.run = new TEvent
-            events.run.off(f)
-        } else if (name === 'cancel') {
-            if (isNone(events.cancel)) events.cancel = new TEvent
-            events.cancel.off(f)
-        } else if (name === 'finish') {
-            if (isNone(events.finish)) events.finish = new TEvent
-            events.finish.off(f)
-        } else {
-            throw new TypeError(`unknow event ${JSON.stringify(`${name}`)}`)
-        }
-    }
-
-    get cancelled() {
-        return this.#is_cancel
-    }
-
-    get running() {
-        return !this.#is_cancel && !this.#is_finish && this.#fn.got()
-    }
-
-    get finished() {
-        return this.#is_finish
+        this.#cancelled = true
     }
 
     guard() {
-        if (this.#is_cancel || this.#is_finish) {
-            throw new TaskGuard(this)
-        }
+        if (this.#cancelled) throw CancelGuard.new(this)
     }
 
-    run() {
-        if (!this.#fn.got()) {
-            this.#event?.run?.emit()
-        }
-        return this.#fn.get()
+    reg(f: () => any) {
+        if (isNone(this.#reg)) this.#reg = new TEvent
+        this.#reg.once(f)
     }
-
-    cancel() {
-        if (!this.#is_cancel) {
-            this.#event?.cancel?.emit()
-        }
-        this.#is_cancel = true
-    }
-
-    finish() {
-        if (!this.#is_finish) {
-            this.#event?.finish?.emit()
-        }
-        this.#is_finish = true
-    }
-
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null): Promise<TResult1 | TResult2> {
-        return this.#fn.get().then(onfulfilled, onrejected)
-    }
-    async catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null): Promise<T | TResult> {
-        return this.#fn.get().catch(onrejected)
-    }
-    [Symbol.toStringTag]: string = 'Task'
-    finally(onfinally?: (() => void) | null): Promise<T> {
-        return this.#fn.get().finally(onfinally)
-    }
-
-    async use<U>(other: TaskLike<U>): Promise<U> {
-        function f() { other.cancel() }
-        this.on('cancel', f)
-        const res = await other.run()
-        this.off('cancel', f)
-        return res
-    }
-
-}
-
-
-export class TaskPool {
-    #tasks: Set<TaskLike<any>> = new Set
-
-    make<T>(f: (ctx: TaskPoolCtx<T>) => PromiseLike<T>, options?: TaskOptions): Task<T> {
-        const ctx: TaskPoolCtx<T> = new (TaskPoolCtx as any)(this, new Task(() => f(ctx), options))
-        const task = ctx.task
-        task.on('cancel', () => this.delete(task))
-        task.on('finish', () => this.delete(task))
-        this.#tasks.add(task)
-        return task
-    }
-
-    private delete<T>(task: TaskLike<T>) {
-        this.#tasks.delete(task)
-    }
-
-    run<T>(fn: (ctx: TaskPoolCtx<T>) => PromiseLike<T>, options?: TaskOptions): Task<T> {
-        return this.make(fn, options)
-    }
-
-    lazy<T>(fn: (ctx: TaskPoolCtx<T>) => PromiseLike<T>, options?: TaskOptions): Lazy<Task<T>> {
-        return new Lazy(() => this.run(fn, options))
-    }
-
-    nowTasks() {
-        return [...this.#tasks]
-    }
-
-    cancelAll() {
-        for (const task of this.#tasks) {
-            if (task instanceof TaskPoolCtx) throw new TypeError('TaskPoolCtx is not Task')
-            task.cancel()
-        }
-        this.#tasks.clear()
-    }
-
-    cancel<T>(task: TaskLike<T>) {
-        if (task instanceof TaskPoolCtx) throw new TypeError('TaskPoolCtx is not Task')
-        task.cancel()
-        return this.#tasks.delete(task)
-    }
-
-    cancelMulti<T>(tasks: TaskLike<T>[]) {
-        return tasks.map(task => {
-            if (task instanceof TaskPoolCtx) throw new TypeError('TaskPoolCtx is not Task')
-            task.cancel()
-            return this.#tasks.delete(task)
-        })
-    }
-
-    shrink() {
-        for (const task of this.#tasks) {
-            if (task.cancelled || task.finished) this.#tasks.delete(task)
-        }
-    }
-
-    runAll() {
-        for (const task of this.#tasks) {
-            task.run()
-        }
-    }
-
-    hasUncancelled() {
-        for (const task of this.#tasks) {
-            if (!task.cancelled) return true
-        }
-        return false
-    }
-    hasUnfinished() {
-        for (const task of this.#tasks) {
-            if (!task.finished) return true
-        }
-        return false
-    }
-    hasRunning() {
-        for (const task of this.#tasks) {
-            if (task.running) return true
-        }
-        return false
-    }
-    hasAlive() {
-        for (const task of this.#tasks) {
-            if (!task.cancelled && !task.finished) return true
-        }
-        return false
-    }
-
-    isEmpty() {
-        return this.size == 0
-    }
-
-    get size() {
-        return this.#tasks.size
-    }
-}
-
-export class TaskPoolCtx<T> implements TaskLike<T>, Promise<T> {
-    #pool: TaskPool
-    #task: Task<T>
-    private constructor(pool: TaskPool, task: Task<T>) {
-        this.#pool = pool
-        this.#task = task
-    }
-
-    get pool() {
-        return this.#pool
-    }
-
-    get task() {
-        return this.#task
-    }
-
-    cancel() {
-        this.#pool.cancel(this.#task)
+    unReg(f: () => any) {
+        this.#reg?.off(f)
     }
 
     get cancelled() {
-        return this.#task.cancelled
-    }
-
-    get running() {
-        return this.#task.running
+        return this.#cancelled
     }
 
     get finished() {
-        return this.#task.finished
+        return this.#finished
     }
 
-    finish() {
-        this.#task.finish()
+    get running() {
+        return !this.#cancelled && !this.#finished
     }
 
-    run(): Promise<T> {
-        return this.#task.run()
+    run(): Promise<T | void> {
+        return this.#p
     }
 
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null): Promise<TResult1 | TResult2> {
-        return this.#task.then(onfulfilled, onrejected)
+    then<TResult1 = T | void, TResult2 = never>(onfulfilled?: ((value: T | void) => TResult1 | PromiseLike<TResult1>) | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null): Promise<TResult1 | TResult2> {
+        return this.#p.then(onfulfilled, onrejected)
     }
-    async catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null): Promise<T | TResult> {
-        return this.#task.catch(onrejected)
+    async catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null): Promise<T | TResult | void> {
+        return this.#p.catch(onrejected)
     }
-    [Symbol.toStringTag]: string = 'TaskPoolCtx'
-    finally(onfinally?: (() => void) | null): Promise<T> {
-        return this.#task.finally(onfinally)
+    [Symbol.toStringTag]: string
+    finally(onfinally?: (() => void) | null): Promise<T | void> {
+        return this.#p.finally(onfinally)
     }
 
-    use<U>(other: Task<U>) {
-        return this.#task.use(other)
+    static run<T>(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    static run<T>(f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    static run<T>(a: any, b?: any): Task<T> {
+        return new Task<T>(a, b)
+    }
+
+    static exec<T>(token: CancelToken, executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
+    static exec<T>(executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
+    static exec<T>(a: any, b?: any): Task<T> {
+        if (typeof b === 'function')
+            return new Task(a, self => new Promise((res, rej) => b(self, res, rej)))
+        return new Task(self => new Promise((res, rej) => a(self, res, rej)))
+    }
+
+    static delay(token: CancelToken, ms: number): Task<void>
+    static delay(ms: number): Task<void>
+    static delay(a: any, b?: number): Task<void> {
+        if (typeof b === 'number')
+            return Task.exec(a, (self, res) => {
+                const id = setTimeout(() => res(), b);
+                self.reg(() => clearTimeout(id))
+            })
+        return Task.exec((self, res) => {
+            const id = setTimeout(() => res(), a);
+            self.reg(() => clearTimeout(id))
+        })
+    }
+
+    static fetch(token: CancelToken, input: RequestInfo, init?: RequestInit): Task<Response>
+    static fetch(input: RequestInfo, init?: RequestInit): Task<Response>
+    static fetch(...args: any[]) {
+        if (args.length >= 3) {
+            return new Task(args[0], self => {
+                const controller = new AbortController
+                const { signal } = controller
+                self.reg(() => controller.abort())
+                return fetch(args[1], { ...args[2] ?? {}, signal })
+            })
+        }
+        return new Task(self => {
+            const controller = new AbortController
+            const { signal } = controller
+            self.reg(() => controller.abort())
+            return fetch(args[0], { ...args[1] ?? {}, signal })
+        })
     }
 }
+Task.prototype[Symbol.toStringTag] = 'Task'
+
