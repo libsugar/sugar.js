@@ -6,8 +6,12 @@
         "strict": true,
         "declaration": true,
         "declarationDir": "./@type",
+        "importHelpers": true,
+        "paths": {
+            "tslib": ["./node_modules/tslib/tslib.d.ts"]
+        }
     },
     "include": [
         "./src/**/*.ts"
-    ]
+    ],
 }
