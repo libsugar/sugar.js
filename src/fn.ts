@@ -12,7 +12,7 @@ export function identity<T>(val: T): T {
 
 export function empty(): void { }
 
-export function TODO(reason?: any): never {
+export function TODO(reason: any = 'todo'): never {
     throw reason ?? 'todo'
 }
 
