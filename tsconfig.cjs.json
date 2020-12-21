@@ -5,9 +5,13 @@
         "outDir": "./cjs",
         "strict": true,
         "importHelpers": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "esModuleInterop": true,
     },
     "include": [
         "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./src/**/*.test.ts"
     ]
 }

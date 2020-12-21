@@ -6,3 +6,4 @@ umd/
 dist/
 /sugar.js
 /sugar.mjs
+coverage/

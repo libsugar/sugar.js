@@ -12,11 +12,14 @@ export function err<E>(err: E): Err<E> {
     return { err }
 }
 
-export function isOk<T, E>(v?: Maybe<Result<T, E>>): v is Ok<T> {
-    return v != null && 'res' in v
+export function isOk<T>(v?: any): v is Ok<T> {
+    return typeof v === 'object' && v !== null && 'res' in v
 }
-export function isErr<T, E>(v?: Maybe<Result<T, E>>): v is Err<E> {
-    return v != null && 'err' in v
+export function isErr<E>(v?: any): v is Err<E> {
+    return typeof v === 'object' && v !== null && 'err' in v
+}
+export function isResult<T, E>(v?: any): v is Result<T, E> {
+    return typeof v === 'object' && v !== null && ('res' in v || 'err' in v)
 }
 
 export function getOk<T>(v: Ok<T>): T
@@ -73,7 +76,11 @@ export namespace Result {
     type NestedResult<T, E> = NestedOk<T> | Err<E>
     export function flatten<N extends NestedResult<any, any>>(v: N): N extends NestedResult<infer T, infer E> ? Result<T extends Ok<any> ? never : T, E> : never {
         while (isOk(v)) {
-            v = getOk(v)
+            if (isResult(v.res)) {
+                v = v.res as any
+            } else {
+                return v as any
+            }
         }
         return v as any
     }
