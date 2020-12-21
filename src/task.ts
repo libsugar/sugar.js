@@ -175,25 +175,6 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
             self.reg(() => clearTimeout(id))
         })
     }
-
-    static fetch(token: CancelToken, input: RequestInfo, init?: RequestInit): Task<Response>
-    static fetch(input: RequestInfo, init?: RequestInit): Task<Response>
-    static fetch(...args: any[]) {
-        if (args.length >= 3) {
-            return new Task(args[0], self => {
-                const controller = new AbortController
-                const { signal } = controller
-                self.reg(() => controller.abort())
-                return fetch(args[1], { ...args[2] ?? {}, signal })
-            })
-        }
-        return new Task(self => {
-            const controller = new AbortController
-            const { signal } = controller
-            self.reg(() => controller.abort())
-            return fetch(args[0], { ...args[1] ?? {}, signal })
-        })
-    }
 }
 Task.prototype[Symbol.toStringTag] = 'Task'
 
