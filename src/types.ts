@@ -46,3 +46,8 @@ export interface MutableSetLike<T> extends SetLike<T> {
 }
 
 export type SetValue<S extends SetLike<any>> = S extends SetLike<infer V> ? V : never
+
+
+export type GetKey<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T]
+
+export type PromiseValue<T extends PromiseLike<any>> = T extends PromiseLike<infer V> ? V : never

@@ -104,9 +104,9 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
 
     cancel() {
         if (!this.#cancelled) {
+            this.#cancelled = true
             this.#reg?.emit()
         }
-        this.#cancelled = true
     }
 
     guard() {
