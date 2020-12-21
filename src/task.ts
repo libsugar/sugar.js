@@ -178,3 +178,56 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
 }
 Task.prototype[Symbol.toStringTag] = 'Task'
 
+export class TaskPool {
+    #tasks: Set<TaskLike<any>> = new Set
+
+    run<T>(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    run<T>(f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    run<T>(a: any, b?: any): Task<T> {
+        const task = new Task<T>(a, b)
+        this.#tasks.add(task)
+        task.reg(() => this.#tasks.delete(task))
+        task.then(() => this.#tasks.delete(task))
+        return task
+    }
+
+    add<T extends TaskLike<T>>(task: T): T {
+        this.#tasks.add(task)
+        task.reg(() => this.#tasks.delete(task))
+        task.then(() => this.#tasks.delete(task))
+        return task
+    }
+
+    nowTasks() {
+        return [...this.#tasks]
+    }
+
+    cancelAll() {
+        for (const task of this.#tasks) {
+            task.cancel()
+        }
+        this.#tasks.clear()
+    }
+
+    hasUncancelled() {
+        for (const task of this.#tasks) {
+            if (!task.cancelled) return true
+        }
+        return false
+    }
+
+    hasRunning() {
+        for (const task of this.#tasks) {
+            if (task.running) return true
+        }
+        return false
+    }
+
+    isEmpty() {
+        return this.size == 0
+    }
+
+    get size() {
+        return this.#tasks.size
+    }
+}
