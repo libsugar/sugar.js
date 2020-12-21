@@ -14,8 +14,8 @@ export class Lazy<T> implements Box<Voidable<T>> {
     }
 
     get(): T {
-        if ('val' in this) {
-            this.val = this.#init()
+        if (!('val' in this)) {
+            (this as any).val = (this as any).#init()
         }
         return this.val!
     }

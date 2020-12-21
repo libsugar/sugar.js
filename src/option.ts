@@ -1,4 +1,5 @@
 import { Box } from "./box"
+import { DefaultOrFunc, getDefault } from "./fn"
 import { Voidable } from "./maybe"
 
 export class Option<T> implements Box<Voidable<T>> {
@@ -28,14 +29,9 @@ export class Option<T> implements Box<Voidable<T>> {
         return Option.none()
     }
 
-    or(other: Option<T>): Option<T> {
+    or(other: DefaultOrFunc<Option<T>>): Option<T> {
         if (this.#has) return this
-        else return other
-    }
-
-    orElse(f: () => Option<T>): Option<T> {
-        if (this.#has) return this
-        else return f()
+        else return getDefault(other)
     }
 
     xor(other: Option<T>): Option<T> {
