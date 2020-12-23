@@ -6,6 +6,7 @@ export interface CancelToken {
     cancel(): void
     guard(): void
 
+    reg(): Promise<void>
     reg(f: () => any): void
     unReg(f: () => any): void
 }
@@ -42,7 +43,10 @@ class CancelSource implements CancelToken {
         if (this.#cancelled) throw CancelGuard.new(this)
     }
 
-    reg(f: () => any) {
+    reg(): Promise<void>
+    reg(f: () => any): void
+    reg(f?: () => any) {
+        if (isNone(f)) return new Promise<void>(res => this.reg(() => res()))
         if (isNone(this.#reg)) this.#reg = new TEvent
         this.#reg.once(f)
     }
@@ -84,8 +88,8 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
 
     #reg?: TEvent
 
-    constructor(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>)
     constructor(f: (self: Task<T>) => PromiseLike<T>)
+    constructor(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>)
     constructor(a: any, b?: any) {
         if (typeof b === 'function') [a, b] = [b, a]
         const token: Voidable<CancelToken> = b, f: (self: Task<T>) => PromiseLike<T> = a
@@ -113,7 +117,10 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
         if (this.#cancelled) throw CancelGuard.new(this)
     }
 
-    reg(f: () => any) {
+    reg(): Promise<void>
+    reg(f: () => any): void
+    reg(f?: () => any) {
+        if (isNone(f)) return new Promise<void>(res => this.reg(() => res()))
         if (isNone(this.#reg)) this.#reg = new TEvent
         this.#reg.once(f)
     }
@@ -148,22 +155,22 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
         return this.#p.finally(onfinally)
     }
 
-    static run<T>(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>): Task<T>
     static run<T>(f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    static run<T>(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>): Task<T>
     static run<T>(a: any, b?: any): Task<T> {
         return new Task<T>(a, b)
     }
 
-    static exec<T>(token: CancelToken, executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
     static exec<T>(executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
+    static exec<T>(token: CancelToken, executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
     static exec<T>(a: any, b?: any): Task<T> {
         if (typeof b === 'function')
             return new Task(a, self => new Promise((res, rej) => b(self, res, rej)))
         return new Task(self => new Promise((res, rej) => a(self, res, rej)))
     }
 
-    static delay(token: CancelToken, ms: number): Task<void>
     static delay(ms: number): Task<void>
+    static delay(token: CancelToken, ms: number): Task<void>
     static delay(a: any, b?: number): Task<void> {
         if (typeof b === 'number')
             return Task.exec(a, (self, res) => {
