@@ -6,14 +6,17 @@
   "module": "sugar.mjs",
   "browser": "./dist/sugar.min.js",
   "umd::main": "./dist/sugar.js",
-  "types": "./@type/sugar.d.ts",
-  "typings": "./@type/sugar.d.ts",
+  "types": "./type/sugar.d.ts",
+  "typings": "./type/sugar.d.ts",
   "files": [
-    "./@type/**/*.d.ts",
-    "./cjs/**/*.js",
-    "./dist/**/*.js",
-    "./es/**/*.mjs",
-    "./umd/**/*.js"
+    "src/**/*.ts",
+    "type/**/*.d.ts",
+    "cjs/**/*.js",
+    "dist/**/*.js",
+    "es/**/*.mjs",
+    "umd/**/*.js",
+    "sugar.js",
+    "sugar.mjs"
   ],
   "scripts": {
     "tsc": "tsc",
@@ -46,7 +49,8 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
-  "dependencies": {
+  "dependencies": {},
+  "optionalDependencies": {
     "tslib": "^2.0.3"
   }
 }

@@ -1,9 +1,10 @@
 node_modules/
 es/
-@type/
+type/
 cjs/
 umd/
 dist/
 /sugar.js
 /sugar.mjs
 coverage/
+/libsugar-*.tgz

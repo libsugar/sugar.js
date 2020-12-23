@@ -6,7 +6,7 @@
         "outDir": "./es",
         "strict": true,
         "declaration": true,
-        "declarationDir": "./@type",
+        "declarationDir": "./type",
         "importHelpers": true,
         "esModuleInterop": true,
         "paths": {
