@@ -4,14 +4,17 @@ import { isSome } from "./maybe";
 import { Option } from "./option";
 import { MapKey, MutableMapLike, MapValue, MapLike } from "./types";
 
+/** Extended Map */
 export function MapEx<M extends MapLike<any, any>>(map: M) {
     return new ExMap(map)
 }
 
+/** Mutable Extended Map */
 export function MutMapEx<M extends MutableMapLike<any, any>>(map: M) {
     return new MutableExMap(map)
 }
 
+/** Extended Map */
 export class ExMap<M extends MapLike<any, any>> implements Box<M>, MapLike<MapKey<M>, MapValue<M>> {
     constructor(public val: M) { }
 
@@ -22,6 +25,7 @@ export class ExMap<M extends MapLike<any, any>> implements Box<M>, MapLike<MapKe
         return this.val.has(key)
     }
 
+    /** If it does not exist, return to the default value */
     getOrDefault(key: MapKey<M>, defv: DefaultOrFunc<MapValue<M>>): MapValue<M> {
         if (this.has(key)) {
             return this.get(key)!
@@ -30,9 +34,11 @@ export class ExMap<M extends MapLike<any, any>> implements Box<M>, MapLike<MapKe
         }
     }
 
-    getAndThen(key: MapKey<M>): Promise<void>
+    /** Get and pass to the callback */
     getAndThen(key: MapKey<M>, then: (val: MapValue<M>) => any): void
-    getAndThen(key: MapKey<M>, then?: (val: MapValue<M>) => any): void | Promise<void> {
+    /** Get as Promise*/
+    getAndThen(key: MapKey<M>): Promise<MapValue<M>>
+    getAndThen(key: MapKey<M>, then?: (val: MapValue<M>) => any): void | Promise<MapValue<M>> {
         if (isSome(then)) {
             return new Promise(res => this.getAndThen(key, res))
         }
@@ -41,6 +47,8 @@ export class ExMap<M extends MapLike<any, any>> implements Box<M>, MapLike<MapKe
         }
     }
 
+    /** Try to get  
+     * Option instead of Maybe to ensure that the value of None can be distinguished */
     tryGet(key: MapKey<M>): Option<MapValue<M>> {
         if (this.has(key)) {
             return Option.some(this.get(key)!)
@@ -48,6 +56,7 @@ export class ExMap<M extends MapLike<any, any>> implements Box<M>, MapLike<MapKe
     }
 }
 
+/** Mutable Extended Map */
 export class MutableExMap<M extends MutableMapLike<any, any>> extends ExMap<M> implements MutableMapLike<MapKey<M>, MapValue<M>> {
     constructor(val: M) { super(val) }
 
@@ -59,6 +68,7 @@ export class MutableExMap<M extends MutableMapLike<any, any>> extends ExMap<M> i
         return this.val.delete(key)
     }
 
+    /** Get if has, add if not */
     getOrAdd(key: MapKey<M>, init: () => MapValue<M>): MapValue<M> {
         if (this.has(key)) {
             return this.get(key)!

@@ -1,10 +1,12 @@
 import { MutMapEx } from "./map"
 import { TupleTail } from "./types"
 
+/** Type safe event */
 export class TEvent<A extends any[] = []> {
     #fns = new Set<(...args: A) => any>()
     #onces = new Set<(...args: A) => any>()
 
+    /** Emit the event */
     emit(...args: A) {
         for (const fn of this.#fns) {
             new Promise<void>(res => {
@@ -18,15 +20,18 @@ export class TEvent<A extends any[] = []> {
         this.#onces.clear()
     }
 
+    /** Register event */
     on(f: (...args: A) => any) {
         this.#fns.add(f)
     }
 
+    /** Register event and only trigger once*/
     once(f: (...args: A) => any) {
         this.#fns.add(f)
         this.#onces.add(f)
     }
 
+    /** Unregister */
     off(f: (...args: A) => any) {
         this.#fns.delete(f)
         this.#onces.delete(f)
