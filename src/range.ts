@@ -1,4 +1,6 @@
+import { fEqOr } from "./bop"
 import { also } from "./effect"
+import { MathEx } from "./math"
 import { Nums } from "./number"
 
 declare const TheRange: unique symbol
@@ -42,13 +44,17 @@ export class TRangeToEq<T> extends RangeBase {
 function rangeIter(step: number, from: number, to: number) {
     if (from === -Infinity) from = Number.MIN_SAFE_INTEGER
     if (to === Infinity) to = Number.MAX_SAFE_INTEGER
-    if (from > to) step = -step
+    let c = -1
+    if (from > to) {
+        step = -step
+        c = 1
+    }
     return {
         [Symbol.iterator](): IterableIterator<number> {
             return this
         },
         next(): IteratorResult<number> {
-            if (from < to)
+            if (MathEx.cmp(from, to) === c)
                 return also({ done: false, value: from }, () => from += step)
             return { done: true } as IteratorResult<number>
         }
@@ -58,13 +64,17 @@ function rangeIter(step: number, from: number, to: number) {
 function rangeEqIter(step: number, from: number, to: number) {
     if (from === -Infinity) from = Number.MIN_SAFE_INTEGER
     if (to === Infinity) to = Number.MAX_SAFE_INTEGER
-    if (from > to) step = -step
+    let c = -1
+    if (from > to) {
+        step = -step
+        c = 1
+    }
     return {
         [Symbol.iterator](): IterableIterator<number> {
             return this
         },
         next(): IteratorResult<number> {
-            if (from <= to)
+            if (fEqOr(MathEx.cmp(from, to), c, 0))
                 return also({ done: false, value: from }, () => from += step)
             return { done: true } as IteratorResult<number>
         }
@@ -84,7 +94,7 @@ export class NRangeTo extends TRangeTo<number> implements Iterable<number> {
     constructor(to: number) { super(to) }
 
     [Symbol.iterator]() {
-        return rangeIter(1, -Infinity, this.to)
+        return rangeIter(1, 0, this.to)
     }
 }
 /** `from..` */
@@ -108,7 +118,7 @@ export class NRangeToEq extends TRangeToEq<number> implements Iterable<number>{
     constructor(to: number) { super(to) }
 
     [Symbol.iterator]() {
-        return rangeEqIter(1, -Infinity, this.to)
+        return rangeEqIter(1, 0, this.to)
     }
 }
 
@@ -122,13 +132,17 @@ function rangeIntIter(step: bigint, from: bigint, to?: bigint) {
             }
         }
     }
-    if (from > to) step = -step
+    let c = -1n
+    if (from > to) {
+        step = -step
+        c = 1n
+    }
     return {
         [Symbol.iterator](): IterableIterator<bigint> {
             return this
         },
         next(): IteratorResult<bigint> {
-            if (from < to)
+            if (MathEx.cmp(from, to) === c)
                 return also({ done: false, value: from }, () => from += step)
             return { done: true } as IteratorResult<bigint>
         }
@@ -136,13 +150,17 @@ function rangeIntIter(step: bigint, from: bigint, to?: bigint) {
 }
 
 function rangeIntEqIter(step: bigint, from: bigint, to: bigint) {
-    if (from > to) step = -step
+    let c = -1n
+    if (from > to) {
+        step = -step
+        c = 1n
+    }
     return {
         [Symbol.iterator](): IterableIterator<bigint> {
             return this
         },
         next(): IteratorResult<bigint> {
-            if (from <= to)
+            if (fEqOr(MathEx.cmp(from, to), c, 0n))
                 return also({ done: false, value: from }, () => from += step)
             return { done: true } as IteratorResult<bigint>
         }
@@ -160,6 +178,10 @@ export class IRange extends TRange<bigint> implements Iterable<bigint> {
 /** `..to` */
 export class IRangeTo extends TRangeTo<bigint> {
     constructor(to: bigint) { super(to) }
+
+    [Symbol.iterator]() {
+        return rangeIntIter(1n, 0n, this.to)
+    }
 }
 /** `from..` */
 export class IRangeFrom extends TRangeFrom<bigint> implements Iterable<bigint>{
@@ -180,6 +202,10 @@ export class IRangeEq extends TRangeEq<bigint> implements Iterable<bigint>{
 /** `..=to` */
 export class IRangeToEq extends TRangeToEq<bigint> {
     constructor(to: bigint) { super(to) }
+
+    [Symbol.iterator]() {
+        return rangeIntEqIter(1n, 0n, this.to)
+    }
 }
 
 const all = new RangeAll

@@ -2,7 +2,7 @@ import { npm, node, sub, once, queue } from 'darl'
 
 export const build = once([
     queue(
-        npm`tsc`,
+        npm`tsc`('--', '-p', 'tsconfig.es.json'),
         sub(
             npm`rollup`('--', '-c'),
             npm`rollup`('--', '-c', 'rollup.config.cjs.js'),

@@ -56,4 +56,25 @@ export namespace MathEx {
 
     export const RAD_PER_DEG = 180 / Math.PI
     export const DEG_PER_RAD = Math.PI / 180
+
+    export function unit(value: number): -1 | 1
+    export function unit(value: bigint): -1n | 1n
+    export function unit(v: any): any {
+        if (typeof v === 'bigint') return v < 0n ? -1n : 1n
+        return isNaN(v) ? NaN : v < 0 ? -1 : v > 0 ? 1 : 1 / v < 0 ? -1 : 1
+    }
+
+    export function sign(value: number): -1 | 1 | 0 | -0
+    export function sign(value: bigint): -1n | 1n | 0n
+    export function sign(v: any): any {
+        if (typeof v === 'bigint') return v < 0n ? -1n : v > 0n ? 1n : 0n
+        return Math.sign(v)
+    }
+
+    export function cmp(a: number, b: number): -1 | 0 | 1
+    export function cmp(a: bigint, b: bigint): -1n | 0n | 1n
+    export function cmp(a: any, b: any): any {
+        if (typeof a === 'bigint') return a > b ? 1n : a < b ? -1n : 0n
+        return a > b ? 1 : a < b ? -1 : 0
+    }
 }
