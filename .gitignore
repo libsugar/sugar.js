@@ -8,3 +8,4 @@ dist/
 /sugar.mjs
 coverage/
 /libsugar-*.tgz
+docs/
