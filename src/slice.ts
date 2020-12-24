@@ -11,17 +11,17 @@ export class Span<A extends ArrayLike<any>> {
         this.#from = from
         this.#to = to
         return new Proxy(this, {
-            has: (target, property) => {
+            has(target, property) {
                 if (typeof property === 'number') return target.has(property)
                 return Reflect.has(target, property)
             },
-            get: (target, property, receiver) => {
+            get(target, property, receiver) {
                 if (typeof property === 'number') return target.get(property)
-                if (eqOr(property, 'get', 'set', 'slice')) return this[(property as any)].bind(this)
-                if (eqOr(property, 'length')) return this[(property as any)]
+                if (eqOr(property, 'get', 'set', 'slice')) return Reflect.get(target, property, receiver).bind(target)
+                if (eqOr(property, 'length')) return target[(property as any)]
                 return Reflect.get(target, property, receiver)
             },
-            set: (target, property, value, receiver) => {
+            set(target, property, value, receiver) {
                 if (typeof property === 'number') return target.set(property, value)
                 return Reflect.set(target, property, value, receiver)
             },
