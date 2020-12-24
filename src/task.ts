@@ -1,16 +1,24 @@
 import { TEvent } from "./event"
 import { isNone, Voidable } from "./maybe"
 
+/** Cancellation Token */
 export interface CancelToken {
-    cancelled: boolean
+    /** Has it been cancelled or whether cancellation has been requested */
+    readonly cancelled: boolean
+    /** Communicates a request for cancellation */
     cancel(): void
+    /** If cancelled, throw `CancelGuard` */
     guard(): void
 
+    /** Register an event that will be triggered when cancelled */
+    reg(f: () => void): void
+    /** Waiting for cancellation */
     reg(): Promise<void>
-    reg(f: () => any): void
-    unReg(f: () => any): void
+    /** Unregister event */
+    unReg(f: () => void): void
 }
 
+/** Cancel Guard */
 export class CancelGuard {
     #source: CancelToken
     private constructor(source: CancelToken) {
@@ -26,6 +34,7 @@ export class CancelGuard {
     }
 }
 
+/** Cancellation provider */
 class CancelSource implements CancelToken {
     #cancelled = false
     #reg?: TEvent
@@ -55,6 +64,7 @@ class CancelSource implements CancelToken {
     }
 }
 
+/** Sync cancelable */
 export function syncCancelable<R>(f: (ctx: CancelToken) => R): R | void {
     const token = new CancelSource
     try {
@@ -64,6 +74,7 @@ export function syncCancelable<R>(f: (ctx: CancelToken) => R): R | void {
         throw e
     }
 }
+/** Async cancelable */
 export async function cancelable<R>(f: (ctx: CancelToken) => Promise<R>): Promise<R | void> {
     const token = new CancelSource
     try {
@@ -74,12 +85,17 @@ export async function cancelable<R>(f: (ctx: CancelToken) => Promise<R>): Promis
     }
 }
 
+/** Task Like */
 export interface TaskLike<T> extends CancelToken, PromiseLike<T | void> {
+    /** Run task */
     run(): PromiseLike<T | void>
+    /** Is running */
     running: boolean
+    /** Whether finished */
     finished: boolean
 }
 
+/** Cancelable async task */
 export class Task<T> implements TaskLike<T>, Promise<T | void> {
     #p: Promise<T | void>
 
@@ -88,7 +104,9 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
 
     #reg?: TEvent
 
+    /** Creates a new Task */
     constructor(f: (self: Task<T>) => PromiseLike<T>)
+    /** Creates a new Task with CancelToken */
     constructor(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>)
     constructor(a: any, b?: any) {
         if (typeof b === 'function') [a, b] = [b, a]
@@ -106,6 +124,7 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
         })()
     }
 
+    /** Communicates a request for cancellation */
     cancel() {
         if (!this.#cancelled) {
             this.#cancelled = true
@@ -113,55 +132,81 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
         }
     }
 
+    /** If cancelled, throw CancelGuard */
     guard() {
         if (this.#cancelled) throw CancelGuard.new(this)
     }
 
-    reg(): Promise<void>
+    /** Register an event that will be triggered when cancelled */
     reg(f: () => any): void
+    /** Waiting for cancellation */
+    reg(): Promise<void>
     reg(f?: () => any) {
         if (isNone(f)) return new Promise<void>(res => this.reg(() => res()))
         if (isNone(this.#reg)) this.#reg = new TEvent
         this.#reg.once(f)
     }
+    /** Unregister event */
     unReg(f: () => any) {
         this.#reg?.off(f)
     }
 
+    /** Has it been cancelled or whether cancellation has been requested */
     get cancelled() {
         return this.#cancelled
     }
 
+    /** Whether finished */
     get finished() {
         return this.#finished
     }
 
+    /** Is running */
     get running() {
         return !this.#cancelled && !this.#finished
     }
 
+    /** Run task  
+     * 
+     * Even if this function is not called the task will still run
+    */
     run(): Promise<T | void> {
         return this.#p
     }
 
+    /** Attaches callbacks for the resolution and/or rejection of the Promise. */
     then<TResult1 = T | void, TResult2 = never>(onfulfilled?: ((value: T | void) => TResult1 | PromiseLike<TResult1>) | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null): Promise<TResult1 | TResult2> {
         return this.#p.then(onfulfilled, onrejected)
     }
+    /** Attaches a callback for only the rejection of the Promise. */
     async catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null): Promise<T | TResult | void> {
         return this.#p.catch(onrejected)
     }
     [Symbol.toStringTag]: string
+    /** Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The resolved value cannot be modified from the callback. */
     finally(onfinally?: (() => void) | null): Promise<T | void> {
         return this.#p.finally(onfinally)
     }
 
+    /** Run Task */
     static run<T>(f: (self: Task<T>) => PromiseLike<T>): Task<T>
+    /** Run Task with CancelToken */
     static run<T>(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>): Task<T>
     static run<T>(a: any, b?: any): Task<T> {
         return new Task<T>(a, b)
     }
 
+    /** Run task with promise parameters 
+     * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+     * a resolve callback used to resolve the promise with a value or the result of another promise,
+     * and a reject callback used to reject the promise with a provided reason or error.
+    */
     static exec<T>(executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
+    /** Run task with promise parameters with CancelToken 
+     * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+     * a resolve callback used to resolve the promise with a value or the result of another promise,
+     * and a reject callback used to reject the promise with a provided reason or error.
+    */
     static exec<T>(token: CancelToken, executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
     static exec<T>(a: any, b?: any): Task<T> {
         if (typeof b === 'function')
@@ -169,9 +214,11 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
         return new Task(self => new Promise((res, rej) => a(self, res, rej)))
     }
 
-    static delay(ms: number): Task<void>
-    static delay(token: CancelToken, ms: number): Task<void>
-    static delay(a: any, b?: number): Task<void> {
+    /** Cancelable async delay */
+    static delay(ms?: number): Task<void>
+    /** Cancelable async delay with CancelToken */
+    static delay(token: CancelToken, ms?: number): Task<void>
+    static delay(a?: any, b?: number): Task<void> {
         if (typeof b === 'number')
             return Task.exec(a, (self, res) => {
                 const id = setTimeout(() => res(), b);

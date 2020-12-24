@@ -2,9 +2,9 @@ import { MutMapEx } from "./map"
 import { TupleTail } from "./types"
 
 /** Type safe event */
-export class TEvent<A extends any[] = []> {
-    #fns = new Set<(...args: A) => any>()
-    #onces = new Set<(...args: A) => any>()
+export class TEvent<A extends unknown[] = []> {
+    #fns = new Set<(...args: A) => void>()
+    #onces = new Set<(...args: A) => void>()
 
     /** Emit the event */
     emit(...args: A) {
@@ -18,6 +18,92 @@ export class TEvent<A extends any[] = []> {
             this.#fns.delete(once)
         }
         this.#onces.clear()
+    }
+
+    /** Register event */
+    on(f: (...args: A) => void) {
+        this.#fns.add(f)
+    }
+
+    /** Register event and only trigger once*/
+    once(f: (...args: A) => void) {
+        this.#fns.add(f)
+        this.#onces.add(f)
+    }
+
+    /** Unregister */
+    off(f: (...args: A) => void) {
+        this.#fns.delete(f)
+        this.#onces.delete(f)
+    }
+}
+
+/** Event pool */
+export class PEvents {
+    #regs = MutMapEx(new Map<string, TEvent<any>>())
+
+    /** Emit the event */
+    emit<N extends string, A extends unknown[]>(name: N, ...args: A): void
+    /** Emit the event */
+    emit<T extends [name: string, ...args: unknown[]]>(name: T[0], ...args: TupleTail<T>): void
+    /** Emit the event */
+    emit<T extends { name: string, args: unknown[] }>(name: T['name'], ...args: T['args']): void
+    emit(name: string, ...args: unknown[]) {
+        this.#regs.get(name)?.emit(...args)
+    }
+
+    /** Register event */
+    on<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
+    /** Register event */
+    on<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
+    /** Register event */
+    on<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
+    on(name: string, f: (...args: unknown[]) => unknown) {
+        const e = this.#regs.getOrAdd(name, () => new TEvent)
+        e.on(f)
+    }
+
+    /** Register event and only trigger once*/
+    once<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
+    /** Register event and only trigger once*/
+    once<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
+    /** Register event and only trigger once*/
+    once<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
+    once(name: string, f: (...args: unknown[]) => unknown) {
+        const e = this.#regs.getOrAdd(name, () => new TEvent)
+        e.once(f)
+    }
+
+    /** Unregister */
+    off<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
+    /** Unregister */
+    off<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
+    /** Unregister */
+    off<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
+    off(name: string, f: (...args: unknown[]) => unknown) {
+        this.#regs.get(name)?.off(f)
+    }
+}
+
+/** Async type safe event */
+export class ATEvent<A extends any[] = []> {
+    #fns = new Set<(...args: A) => Promise<void>>()
+    #onces = new Set<(...args: A) => Promise<void>>()
+
+    /** Emit the event */
+    async emit(...args: A) {
+        const fns = this.#fns
+        const tasks = [...(function* () {
+            for (const fn of fns) {
+                yield fn(...args)
+            }
+        })()]
+        const onces = this.#onces
+        for (const once of onces) {
+            fns.delete(once)
+        }
+        onces.clear()
+        await Promise.all(tasks)
     }
 
     /** Register event */
@@ -35,40 +121,5 @@ export class TEvent<A extends any[] = []> {
     off(f: (...args: A) => any) {
         this.#fns.delete(f)
         this.#onces.delete(f)
-    }
-}
-
-
-export class PEvents {
-    #regs = MutMapEx(new Map<string, TEvent<any>>())
-
-    emit<N extends string, A extends unknown[]>(name: N, ...args: A): void
-    emit<T extends [name: string, ...args: unknown[]]>(name: T[0], ...args: TupleTail<T>): void
-    emit<T extends { name: string, args: unknown[] }>(name: T['name'], ...args: T['args']): void
-    emit(name: string, ...args: unknown[]) {
-        this.#regs.get(name)?.emit(...args)
-    }
-
-    on<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
-    on<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
-    on<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
-    on(name: string, f: (...args: unknown[]) => unknown) {
-        const e = this.#regs.getOrAdd(name, () => new TEvent)
-        e.on(f)
-    }
-
-    once<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
-    once<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
-    once<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
-    once(name: string, f: (...args: unknown[]) => unknown) {
-        const e = this.#regs.getOrAdd(name, () => new TEvent)
-        e.once(f)
-    }
-
-    off<N extends string, A extends unknown[]>(name: N, fn: (...args: A) => unknown): void
-    off<T extends [name: string, ...args: unknown[]]>(name: T[0], fn: (...args: TupleTail<T>) => unknown): void
-    off<T extends { name: string, args: unknown[] }>(name: T['name'], fn: (...args: T['args']) => unknown): void
-    off(name: string, f: (...args: unknown[]) => unknown) {
-        this.#regs.get(name)?.off(f)
     }
 }
