@@ -6,24 +6,24 @@ export function run<U>(f: () => U): U {
 /** Do nothing
  * 
  * ```ts
- * let a: undefined = run()
+ * let a: undefined = call()
  * ```
 */
 export function call(): void
 /** Run now 
  * 
  * ```ts
- * let b: 0 = run(() => 0)
+ * let b: 0 = call(() => 0)
  * ```
 */
 export function call<U>(f: () => U): U
 /** Call function 
  * 
  * ```ts
- * let a: undefined = run()
- * let b: 0 = run(() => 0)
- * let c: 1 = run(1, v => v)
- * let d: 3 = run(1, 2, (a, b) => a + b)
+ * let a: undefined = call()
+ * let b: 0 = call(() => 0)
+ * let c: 1 = call(1, v => v)
+ * let d: 3 = call(1, 2, (a, b) => a + b)
  * ```
 */
 export function call<A extends any[], U>(...args: [...args: A, f: (...args: A) => U]): U
