@@ -1,3 +1,4 @@
+/** Extended Math */
 export namespace MathEx {
 
     /** `2π` */

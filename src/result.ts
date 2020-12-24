@@ -1,42 +1,70 @@
 import { DefaultOrFunc, getDefault } from "./fn"
 import { None, Maybe, Voidable, isNone } from "./maybe"
 
+/** Means success */
 export interface Ok<T> { res: T }
+/** Means failure */
 export interface Err<E> { err: E }
+/** Union of success or failure 
+ * ```ts
+ * type Result<T, E> = Ok<T> | Err<E>
+ * ```
+*/
 export type Result<T, E> = Ok<T> | Err<E>
 
+/** Make a `Ok<T>` */
 export function ok<T>(res: T): Ok<T> {
     return { res }
 }
+/** Make a `Err<E>` */
 export function err<E>(err: E): Err<E> {
     return { err }
 }
 
+/** Check value is `OK<T>` */
 export function isOk<T>(v?: any): v is Ok<T> {
     return typeof v === 'object' && v !== null && 'res' in v
 }
+/** Check value is `Err<E>` */
 export function isErr<E>(v?: any): v is Err<E> {
     return typeof v === 'object' && v !== null && 'err' in v
 }
+/** Check value is `Result<T, E>` */
 export function isResult<T, E>(v?: any): v is Result<T, E> {
     return typeof v === 'object' && v !== null && ('res' in v || 'err' in v)
 }
 
+/** Get `T` in `Ok<T>` */
 export function getOk<T>(v: Ok<T>): T
-export function getOk<E>(v: Err<E>): None
+/** Get nothing */
+export function getOk<E>(v: Err<E>): undefined
+/** Get `T` in `Result<T, E>` */
 export function getOk<T, E>(v: Result<T, E>): Voidable<T>
+/** Get nothing */
 export function getOk<T, E>(v?: undefined): undefined
+/** Get nothing */
 export function getOk<T, E>(v?: null): null
+/** Get nothing */
 export function getOk<T, E>(v?: None): None
+/** Get `T` in `Result<T, E>` */
+export function getOk<T, E>(v?: Maybe<Result<T, E>>): Voidable<T>
 export function getOk<T, E>(v?: Maybe<Result<T, E>>): Voidable<T> {
     return (v as any).res
 }
-export function getErr<T>(v: Ok<T>): None
+/** Get `E` in `Err<E>` */
 export function getErr<E>(v: Err<E>): E
+/** Get nothing */
+export function getErr<T>(v: Ok<T>): undefined
+/** Get `E` in `Result<T, E>` */
 export function getErr<T, E>(v: Result<T, E>): Voidable<E>
+/** Get nothing */
 export function getErr<T, E>(v?: undefined): undefined
+/** Get nothing */
 export function getErr<T, E>(v?: null): null
+/** Get nothing */
 export function getErr<T, E>(v?: None): None
+/** Get `E` in `Result<T, E>` */
+export function getErr<T, E>(v?: Maybe<Result<T, E>>): Voidable<E>
 export function getErr<T, E>(v?: Maybe<Result<T, E>>): Voidable<E> {
     return (v as any).err
 }

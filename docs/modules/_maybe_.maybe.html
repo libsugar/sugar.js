@@ -69,6 +69,14 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>May have no value</p>
+						<pre><code class="language-ts"><span class="hljs-keyword">type</span> Maybe&lt;T&gt; = T | None</code></pre>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-type-parameters">
 				<h3>Type parameters</h3>
 				<ul class="tsd-type-parameters">
@@ -112,9 +120,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L35">src/maybe.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L64">src/maybe.ts:64</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return undefined if the value is None, otherwise return other.</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -147,9 +160,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L21">src/maybe.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L39">src/maybe.ts:39</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Map if there is a value, otherwise return undefined</p>
+								</div>
+								<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+									<h2>Example</h2>
+								</a>
+								<pre><code class="language-ts"><span class="hljs-keyword">let</span> a: <span class="hljs-number">2</span> = map(<span class="hljs-number">1</span>, <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-number">1</span>)
+<span class="hljs-keyword">let</span> b: <span class="hljs-literal">undefined</span> = map(<span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-number">1</span>)</code></pre>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -200,9 +223,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L25">src/maybe.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L51">src/maybe.ts:51</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Map if there is a value, otherwise return default value</p>
+								</div>
+								<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+									<h2>Example</h2>
+								</a>
+								<pre><code class="language-ts"><span class="hljs-keyword">let</span> a: <span class="hljs-number">2</span> = map(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-number">1</span>)
+<span class="hljs-keyword">let</span> b: <span class="hljs-number">3</span> = map(<span class="hljs-literal">null</span>, <span class="hljs-number">3</span>, <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-number">1</span>)</code></pre>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -256,9 +289,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L30">src/maybe.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L58">src/maybe.ts:58</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>If there is a value, pack it as ok, otherwise pack err * ```</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -291,9 +329,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L45">src/maybe.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L76">src/maybe.ts:76</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return the value if the value is value, otherwise return other</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -323,9 +366,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L66">src/maybe.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L101">src/maybe.ts:101</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Replace the value in the box</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -355,9 +403,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L61">src/maybe.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L95">src/maybe.ts:95</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Take the value, set the value in the box to undefined</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -384,9 +437,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L40">src/maybe.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L70">src/maybe.ts:70</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return undefined if the value is None, otherwise call f with the value and return the result</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -437,9 +495,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L56">src/maybe.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L89">src/maybe.ts:89</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Transpose to result</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -469,9 +532,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L50">src/maybe.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L82">src/maybe.ts:82</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>return value if exactly one of <code>v</code>, <code>other</code>  is value, otherwise return undefined</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -501,9 +569,20 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/0232b60/src/maybe.ts#L70">src/maybe.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/maybe.ts#L114">src/maybe.ts:114</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>As long as any value in the tuple is None, return undefined</p>
+								</div>
+								<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+									<h2>Example</h2>
+								</a>
+								<pre><code class="language-ts"><span class="hljs-keyword">let</span> a: [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>] = zip(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)
+<span class="hljs-keyword">let</span> b: <span class="hljs-literal">undefined</span> = zip(<span class="hljs-number">1</span>, <span class="hljs-literal">null</span>, <span class="hljs-number">3</span>)
+<span class="hljs-keyword">let</span> c: <span class="hljs-literal">undefined</span> = zip(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-literal">undefined</span>)</code></pre>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
