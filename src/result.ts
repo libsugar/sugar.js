@@ -1,5 +1,6 @@
 import { DefaultOrFunc, getDefault } from "./fn"
 import { None, Maybe, Voidable, isNone } from "./maybe"
+import { UnionToIntersection } from "./types"
 
 /** Means success */
 export interface Ok<T> { res: T }
@@ -92,6 +93,7 @@ export namespace Result {
         return v
     }
 
+    /** Transpose Result to Maybe */
     export function transpose<T, E>(v: Result<Maybe<T>, E>): Voidable<Result<T, E>> {
         if (isOk(v)) {
             if (isNone(getOk(v))) return
@@ -101,8 +103,20 @@ export namespace Result {
     }
 
     type NestedOk<T> = Ok<T> | Ok<NestedOk<T>>
-    type NestedResult<T, E> = NestedOk<T> | Err<E>
-    export function flatten<N extends NestedResult<any, any>>(v: N): N extends NestedResult<infer T, infer E> ? Result<T extends Ok<any> ? never : T, E> : never {
+    type NestedResult<T, E> = Result<T, E> | Ok<NestedResult<T, E>>
+
+    type FlattenResult<N> = N extends NestedOk<infer T> ? FlattenResult<T> : N extends Err<any> ? N : Ok<N>
+
+    /** Flatten result
+     * 
+     * ## Example
+     * ```ts
+     * let a: Result<1, 2> = flatten<Result<Result<Result<1, 2>, 2>, 2>>(ok(ok(ok(1)))) 
+     * let b: Ok<1> = flatten<Ok<Ok<Ok<1>>>>(ok(ok(ok(1)))) 
+     * let c: Err<2> = flatten<Ok<Ok<Err<2>>>>(ok(ok(err(2)))) 
+     * ```
+     */
+    export function flatten<N extends NestedResult<any, any>>(v: N): FlattenResult<N> {
         while (isOk(v)) {
             if (isResult(v.res)) {
                 v = v.res as any

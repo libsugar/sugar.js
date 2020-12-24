@@ -95,6 +95,7 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported"><a href="_result_.result.html#flattenresult" class="tsd-kind-icon">Flatten<wbr>Result</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported"><a href="_result_.result.html#nestedok" class="tsd-kind-icon">Nested<wbr>Ok</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported"><a href="_result_.result.html#nestedresult" class="tsd-kind-icon">Nested<wbr>Result</a></li>
 							</ul>
@@ -114,12 +115,28 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Type aliases</h2>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported">
+					<a name="flattenresult" class="tsd-anchor"></a>
+					<h3>Flatten<wbr>Result</h3>
+					<div class="tsd-signature tsd-kind-icon">Flatten<wbr>Result&lt;N&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">N</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">NestedOk</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">infer </span> T<span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">FlattenResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">Err</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Ok</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L108">src/result.ts:108</a></li>
+						</ul>
+					</aside>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>N</h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported">
 					<a name="nestedok" class="tsd-anchor"></a>
 					<h3>Nested<wbr>Ok</h3>
 					<div class="tsd-signature tsd-kind-icon">Nested<wbr>Ok&lt;T&gt;<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_result_.ok.html" class="tsd-signature-type">Ok</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_result_.ok.html" class="tsd-signature-type">Ok</a><span class="tsd-signature-symbol">&lt;</span><a href="_result_.result.html#nestedok" class="tsd-signature-type">NestedOk</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L103">src/result.ts:103</a></li>
+							<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L105">src/result.ts:105</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -132,10 +149,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported">
 					<a name="nestedresult" class="tsd-anchor"></a>
 					<h3>Nested<wbr>Result</h3>
-					<div class="tsd-signature tsd-kind-icon">Nested<wbr>Result&lt;T, E&gt;<span class="tsd-signature-symbol">:</span> <a href="_result_.result.html#nestedok" class="tsd-signature-type">NestedOk</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_result_.err.html" class="tsd-signature-type">Err</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">E</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">Nested<wbr>Result&lt;T, E&gt;<span class="tsd-signature-symbol">:</span> <a href="_result_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">E</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_result_.ok.html" class="tsd-signature-type">Ok</a><span class="tsd-signature-symbol">&lt;</span><a href="_result_.result.html#nestedresult" class="tsd-signature-type">NestedResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">E</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L104">src/result.ts:104</a></li>
+							<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L106">src/result.ts:106</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -161,7 +178,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L85">src/result.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L86">src/result.ts:86</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -193,15 +210,26 @@
 					<a name="flatten" class="tsd-anchor"></a>
 					<h3>flatten</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-namespace tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">flatten&lt;N&gt;<span class="tsd-signature-symbol">(</span>v<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">NestedResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">infer </span> T<span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">infer </span> E<span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">Ok</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">E</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">never</span></li>
+						<li class="tsd-signature tsd-kind-icon">flatten&lt;N&gt;<span class="tsd-signature-symbol">(</span>v<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_result_.result.html#flattenresult" class="tsd-signature-type">FlattenResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L105">src/result.ts:105</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L119">src/result.ts:119</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Flatten result</p>
+								</div>
+								<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+									<h2>Example</h2>
+								</a>
+								<pre><code class="language-ts"><span class="hljs-keyword">let</span> a: Result&lt;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>&gt; = flatten&lt;Result&lt;Result&lt;Result&lt;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>&gt;, <span class="hljs-number">2</span>&gt;, <span class="hljs-number">2</span>&gt;&gt;(ok(ok(ok(<span class="hljs-number">1</span>))))
+<span class="hljs-keyword">let</span> b: Ok&lt;<span class="hljs-number">1</span>&gt; = flatten&lt;Ok&lt;Ok&lt;Ok&lt;<span class="hljs-number">1</span>&gt;&gt;&gt;&gt;(ok(ok(ok(<span class="hljs-number">1</span>))))
+<span class="hljs-keyword">let</span> c: Err&lt;<span class="hljs-number">2</span>&gt; = flatten&lt;Ok&lt;Ok&lt;Err&lt;<span class="hljs-number">2</span>&gt;&gt;&gt;&gt;(ok(ok(err(<span class="hljs-number">2</span>))))</code></pre>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -214,7 +242,7 @@
 									<h5>v: <span class="tsd-signature-type">N</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">N</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">NestedResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">infer </span> T<span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">infer </span> E<span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">Ok</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">E</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">never</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="_result_.result.html#flattenresult" class="tsd-signature-type">FlattenResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">N</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -228,7 +256,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L90">src/result.ts:90</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L91">src/result.ts:91</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -263,9 +291,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/f8736bb/src/result.ts#L95">src/result.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/libsugar/sugar.js/blob/e2a5e1f/src/result.ts#L97">src/result.ts:97</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Transpose Result to Maybe</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -305,6 +338,9 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported">
+						<a href="_result_.result.html#flattenresult" class="tsd-kind-icon">Flatten<wbr>Result</a>
+					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-namespace tsd-has-type-parameter tsd-is-not-exported">
 						<a href="_result_.result.html#nestedok" class="tsd-kind-icon">Nested<wbr>Ok</a>
 					</li>
