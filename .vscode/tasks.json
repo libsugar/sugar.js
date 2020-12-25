@@ -12,6 +12,13 @@
             "type": "npm",
             "script": "test",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "doc",
+            "problemMatcher": [],
+            "label": "npm: doc",
+            "detail": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\""
         }
     ]
 }
