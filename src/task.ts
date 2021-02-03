@@ -1,4 +1,5 @@
 import { TEvent } from "./event"
+import { abort } from "./fn"
 import { isNone, Voidable } from "./maybe"
 
 /** Cancellation Token */
@@ -95,9 +96,12 @@ export interface TaskLike<T> extends CancelToken, PromiseLike<T | void> {
     finished: boolean
 }
 
+const TaskNoInit = Symbol('TaskNoInit')
+
 /** Cancelable async task */
 export class Task<T> implements TaskLike<T>, Promise<T | void> {
-    #p: Promise<T | void>
+    // @ts-ignore
+    #p: Promise<T | void> 
 
     #cancelled = false
     #finished = false
@@ -109,9 +113,12 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     /** Creates a new Task with CancelToken */
     constructor(token: CancelToken, f: (self: Task<T>) => PromiseLike<T>)
     constructor(a: any, b?: any) {
+        if (a === TaskNoInit) return
         if (typeof b === 'function') [a, b] = [b, a]
         const token: Voidable<CancelToken> = b, f: (self: Task<T>) => PromiseLike<T> = a
-        token?.reg(() => this.cancel())
+        if (token?.cancelled === true) return Task.abort() 
+        const cancel = () => this.cancel()
+        token?.reg(cancel)
         this.#p = (async () => {
             try {
                 return await f(this)
@@ -120,6 +127,7 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
                 throw e
             } finally {
                 this.#finished = true
+                token?.unReg(cancel)
             }
         })()
     }
@@ -135,6 +143,11 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     /** If cancelled, throw CancelGuard */
     guard() {
         if (this.#cancelled) throw CancelGuard.new(this)
+    }
+    /** If cancelled will not continue */
+    aguard(): Promise<void> {
+        if (this.#cancelled) return abort()
+        else return Promise.resolve()
     }
 
     /** Register an event that will be triggered when cancelled */
@@ -209,8 +222,10 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     */
     static exec<T>(token: CancelToken, executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T>
     static exec<T>(a: any, b?: any): Task<T> {
-        if (typeof b === 'function')
+        if (typeof b === 'function') {
+            if (a?.cancelled === true) return Task.abort()
             return new Task(a, self => new Promise((res, rej) => b(self, res, rej)))
+        }
         return new Task(self => new Promise((res, rej) => a(self, res, rej)))
     }
 
@@ -219,15 +234,185 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     /** Cancelable async delay with CancelToken */
     static delay(token: CancelToken, ms?: number): Task<void>
     static delay(a?: any, b?: number): Task<void> {
-        if (typeof b === 'number')
+        if (typeof b === 'number') { 
+            if (a?.cancelled === true) return Task.abort()
             return Task.exec(a, (self, res) => {
-                const id = setTimeout(() => res(), b);
-                self.reg(() => clearTimeout(id))
+                const f = () => clearTimeout(id)
+                const id = setTimeout(() => {
+                    self.unReg(f)
+                    res()
+                }, b);
+                self.reg(f)
             })
+        }  
         return Task.exec((self, res) => {
-            const id = setTimeout(() => res(), a);
-            self.reg(() => clearTimeout(id))
+            const f = () => clearTimeout(id)
+            const id = setTimeout(() => {
+                self.unReg(f)
+                res()
+            }, a);
+            self.reg(f)
         })
+    }
+
+    /** Yield time slice and not continue if cancelled */
+    static yield(token?: CancelToken): Task<void> {
+        if (isNone(token)) return Task.exec((self, res) => {
+            queueMicrotask(() => {
+                if (!self.#cancelled) res()
+            })
+        })
+        if (token.cancelled) return Task.abort()
+        return Task.exec(token, (self, res) => {
+            queueMicrotask(() => {
+                if (!(self.#cancelled || token.cancelled)) res()
+            })
+        })
+    }
+
+    /** Yield time slice and not continue if cancelled, using this as CancelToken */
+    yield(): Task<void> {
+        return Task.yield(this)
+    }
+
+    /** Cancelable async delay, using this as CancelToken */
+    delay(ms?: number): Task<void> {
+        return Task.delay(this, ms)
+    }
+
+    /** Run Task, using this as CancelToken */
+    subRun<T>(f: (self: Task<T>) => PromiseLike<T>): Task<T> {
+        return Task.run(this, f)
+    }
+
+    /** Run task with promise parameters, using this as CancelToken
+     * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+     * a resolve callback used to resolve the promise with a value or the result of another promise,
+     * and a reject callback used to reject the promise with a provided reason or error.
+    */
+    exec<T>(executor: (self: Task<T>, resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Task<T> {
+       return Task.exec(this, executor)
+    }
+
+    /** Creates a new cancelled task
+     * @returns A cancelled task */
+    static abort(): Task<never> {
+        const task = new Task<never>(TaskNoInit as any)
+        task.#p = abort()
+        task.#cancelled = true
+        return task
+    }
+
+    /**
+     * Creates a new resolved task.
+     * @returns A resolved task.
+     */
+    static resolve(): Task<void>
+    /**
+     * Creates a new resolved task for the provided value.
+     * @param value A task.
+     * @returns A task whose internal state matches the provided task.
+     */
+    static resolve<T>(value: T | PromiseLike<T>): Task<T>
+    static resolve<T>(value?: T | PromiseLike<T>): Task<T>{
+        const task = new Task<T>(TaskNoInit as any)
+        task.#p = Promise.resolve(value!)
+        task.#finished = true
+        return task
+    }
+
+    /**
+     * Creates a new rejected promise for the provided reason.
+     * @param reason The reason the promise was rejected.
+     * @returns A new rejected Promise.
+     */
+    static reject<T = never>(reason?: any): Task<T> {
+        const task = new Task<T>(TaskNoInit as any)
+        task.#p = Promise.reject(reason)
+        task.#finished = true
+        return task
+    }
+
+    /** Wait or cancel all task */
+    static all<T extends any[]>(token: CancelToken, ...args: T): Task<{ [K in keyof T]: T[K] extends PromiseLike<infer V> ? V : T[K] }> {
+        return Task.exec<any>(token, (self, res) => {
+            const fs: (() => void)[] = [];
+            (async () => {
+                try {
+                    await Promise.all(args.map(v => {
+                        if ('cancel' in v) {
+                            const f = () => v.cancel()
+                            fs.push(f)
+                            self.reg(f)
+                        }
+                        return v
+                    })).then(res)
+                } catch (e) {
+                    for (const f of fs) {
+                        f()
+                    }
+                    throw e
+                } finally {
+                    for (const f of fs) {
+                        self.unReg(f)
+                    }
+                }
+            })()
+        })
+    }
+    /** Wait or cancel all task */
+    all<T extends any[]>(...args: T): Task<{ [K in keyof T]: T[K] extends PromiseLike<infer V> ? V : T[K] }> {
+        return Task.all(this, ...args)
+    }
+
+    /** Wait one and cancel other task */
+    static race<T>(token: CancelToken, ...args: T[]): Task<T extends PromiseLike<infer U> ? U : T> {
+        return Task.exec<any>(token, (self, res) => {
+            const fs: (() => void)[] = [];
+            (async () => {
+                try {
+                    await Promise.race(args.map(v => {
+                        if ('cancel' in v) {
+                            const f = () => (v as any).cancel()
+                            fs.push(f)
+                            self.reg()
+                        }
+                        return v
+                    })).then(res)
+                } finally {
+                    for (const f of fs) {
+                        f()
+                        self.unReg(f)
+                    }
+                }
+            })()
+        })
+    }
+    /** Wait one and cancel other task */
+    race<T>(...args: T[]): Task<T extends PromiseLike<infer U> ? U : T> {
+        return Task.race(this, ...args)
+    }
+
+    static async scope<T extends TaskLike<any>>(token: CancelToken, promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    static async scope<T extends PromiseLike<any>>(token: CancelToken, promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    static async scope<T>(token: CancelToken, promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    static async scope<T>(token: CancelToken, promise: T): Promise<T extends PromiseLike<infer R> ? R : T> {
+        let f: (() => void) | undefined
+        if ('cancel' in promise) {
+            f = () => (promise as any).cancel()
+            token.reg(f)
+        }
+        try {
+            return await (promise as any)
+        } finally {
+            if (f != null) token.unReg(f)
+        }
+    }
+    scope<T extends TaskLike<any>>(promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    scope<T extends PromiseLike<any>>(promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    scope<T>(promise: T): Promise<T extends PromiseLike<infer R> ? R : T>
+    scope<T>(promise: T): Promise<T extends PromiseLike<infer R> ? R : T> {
+        return Task.scope(this, promise)
     }
 }
 Task.prototype[Symbol.toStringTag] = 'Task'

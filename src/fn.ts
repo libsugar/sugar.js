@@ -24,3 +24,8 @@ export function TODO(reason: any = 'todo'): never {
 export function raise(err: any): never {
     throw err
 }
+
+/** Promise that will never continue */
+export function abort(): Promise<never> {
+    return new Promise(empty)
+}
