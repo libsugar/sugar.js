@@ -1,13 +1,13 @@
 {
   "name": "libsugar",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "",
   "main": "sugar.js",
   "module": "sugar.mjs",
   "browser": "./dist/sugar.min.js",
   "umd::main": "./dist/sugar.js",
-  "types": "./type/sugar.d.ts",
-  "typings": "./type/sugar.d.ts",
+  "types": "./type/index.d.ts",
+  "typings": "./type/index.d.ts",
   "files": [
     "src/**/*.ts",
     "type/**/*.d.ts",
