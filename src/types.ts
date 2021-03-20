@@ -195,3 +195,24 @@ export type GetKey<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof 
  * ```
  */
 export type PromiseValue<T extends PromiseLike<any>> = T extends PromiseLike<infer V> ? V : never
+
+/**
+ * ```ts
+ * LiteralObj<{ a: 1 } & { b: 2 }> => { a: 1, b: 2 }
+ * ```
+ */
+export type LiteralObj<T> = T extends object ? { [K in keyof T]: T[K] } : never
+
+/**
+ * Structure like a linked list
+ */
+export type LinkedTuple<T> = [T] | [T, LinkedTuple<T>]
+
+/**
+ * Take the union of depth tuple items, same as `T[number]` on Array
+ * 
+ * ```ts
+ * LinkedTupleUnion<[1, [2, [3]]]> => 1 | 2 | 3
+ * ```
+ */
+export type LinkedTupleUnion<T> = T extends LinkedTuple<infer R> ? R : never
