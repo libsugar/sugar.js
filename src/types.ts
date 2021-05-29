@@ -2,7 +2,7 @@
 /** Union to Intersection 
  * 
  * ```ts
- * UnionToIntersection<1 | 2 | 3> => 1 & 2 & 3
+ * UnionToIntersection<{ a: 1 } | { b: 2 } | { c: 3 }> => { a: 1 } & { b: 2 } & { c: 3 }
  * ```
 */
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
@@ -81,7 +81,7 @@ type _TupleN<T, N extends number, A extends any[] = []> = A['length'] extends N 
  * TupleN<T, 5> => [T, T, T, T, T]
  * ```
  */
-export type TupleN<T, N extends number> = _TupleN<T, N>
+export type TupleN<T, N extends number> = number extends N ? T[] : _TupleN<T, N>
 
 /**
  * Make all properties in T writeable
@@ -216,3 +216,24 @@ export type LinkedTuple<T> = [T] | [T, LinkedTuple<T>]
  * ```
  */
 export type LinkedTupleUnion<T> = T extends LinkedTuple<infer R> ? R : never
+
+/**
+ * Take Array Element Type
+ * 
+ * ```ts
+ * ArrayElement<1[]> => 1
+ * ```
+ */
+export type ArrayElement<A> = A extends (infer T)[] ? T : never
+
+/** Prompt typescript this type is an array  */
+export type ArrayGuard<A extends any[]> = A extends any[] ? A : never
+
+type _FlatTuple<A extends any[], R extends any[] = []> = 0 extends A['length'] ? R : _FlatTuple<TupleTail<A>, [...R, ...(A[0] extends any[] ? _FlatTuple<A[0]> : [A[0]])]>
+/** Flatten deep tuples
+ * 
+ * ```ts
+ * FlatTuple<[[1,[2]], [[[3]]]]> => [1, 2, 3]
+ * ```
+ */
+export type FlatTuple<A extends any[]> = _FlatTuple<A>

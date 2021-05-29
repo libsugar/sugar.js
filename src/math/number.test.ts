@@ -1,4 +1,4 @@
-import { Nums } from "./number"
+import { Nums } from "../number"
 
 test('zero', () => {
     expect(Nums.zero(5)).toBe(0)

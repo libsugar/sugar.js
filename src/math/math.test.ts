@@ -1,4 +1,4 @@
-import { MathEx } from "./math"
+import { MathEx } from "."
 
 test('abs', () => {
     expect(MathEx.abs(-1)).toBe(1)

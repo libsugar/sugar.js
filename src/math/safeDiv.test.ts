@@ -1,4 +1,4 @@
-import { asitDiv, safeDiv } from './safeDiv'
+import { asitDiv, safeDiv } from '../safeDiv'
 
 test('safeDiv', () => {
     expect(safeDiv(1, 2)).toBe(1 / 2)
