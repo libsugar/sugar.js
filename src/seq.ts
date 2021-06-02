@@ -1,161 +1,182 @@
+import { Flu } from "./flu"
 import { Voidable } from "./maybe"
 import { Option } from "./option"
 
 export function seq<T>(iter: Iterable<T>): Seq<T> {
-    return new Seq(iter)
+    return new Seq(() => iter)
 }
 
 export class Seq<T> implements Iterable<T> {
-    constructor(public readonly iter: Iterable<T>) { }
+    constructor(public readonly iter: () => Iterable<T>) { }
 
     [Symbol.iterator](): Iterator<T> {
-        return this.iter[Symbol.iterator]()
+        return this.iter()[Symbol.iterator]()
+    }
+
+    static by<T>(iter: () => Iterable<T>): Seq<T> {
+        return new Seq(iter)
+    }
+
+    static of<T>(...iter: T[]): Seq<T> {
+        return seq(iter)
+    }
+
+    flu(): Flu<T> {
+        return Flu.from(this)
+    }
+
+    toFlu(): T extends infer R | Promise<infer R> ? Flu<R> : never {
+        return Flu.fromIter(this as any) as any
     }
 
     collect(): T[] {
-        return [...this.iter]
+        return collect(this)
     }
 
     join(separator?: string): string {
-        return join(this.iter, separator)
+        return join(this, separator)
     }
 
     count(): number {
-        return count(this.iter)
+        return count(this)
     }
 
     first(): Voidable<T> {
-        return first(this.iter)
+        return first(this)
     }
 
     firstO(): Option<T> {
-        return firstO(this.iter)
+        return firstO(this)
     }
 
     last(): Voidable<T> {
-        return last(this.iter)
+        return last(this)
     }
 
     lastO(): Option<T> {
-        return lastO(this.iter)
+        return lastO(this)
     }
 
     nth(n: number): Voidable<T> {
-        return nth(this.iter, n)
+        return nth(this, n)
     }
 
     nthO(n: number): Option<T> {
-        return nthO(this.iter, n)
+        return nthO(this, n)
     }
 
     stepBy(step: number): Seq<T> {
-        return seq(stepBy(this.iter, step))
+        return new Seq(() => stepBy(this, step))
     }
 
     chain(other: Iterable<T>): Seq<T> {
-        return seq(chain(this.iter, other))
+        return new Seq(() => chain(this, other))
     }
 
     zip<U>(other: Iterable<U>): Seq<[T, U]> {
-        return seq(zip(this.iter, other))
+        return new Seq(() => zip(this, other))
     }
 
     unzip(f: (v: T) => unknown): [T[], T[]] {
-        return unzip(this.iter, f)
+        return unzip(this, f)
     }
 
     map<R>(f: (v: T) => R): Seq<R> {
-        return seq(map(this.iter, f))
+        return new Seq(() => map(this, f))
     }
 
     forEach(f: (v: T) => unknown): void {
-        return forEach(this.iter, f)
+        return forEach(this, f)
     }
 
     filter(f: (v: T) => unknown): Seq<T>
     filter<S extends T>(f: (v: T) => v is S): Seq<S>
     filter<S extends T>(f: (v: T) => v is S): Seq<S> {
-        return seq(filter(this.iter, f))
+        return new Seq(() => filter(this, f))
     }
 
     enumerate(): Seq<[number, T]> {
-        return seq(enumerate(this.iter))
+        return new Seq(() => enumerate(this))
     }
 
     skip(n: number): Seq<T> {
-        return seq(skip(this.iter, n))
+        return new Seq(() => skip(this, n))
     }
 
     take(n: number): Seq<T> {
-        return seq(take(this.iter, n))
+        return new Seq(() => take(this, n))
     }
 
     scan<R>(init: R, f: (acc: R, val: T) => R): Seq<R> {
-        return seq(scan(this.iter, init, f))
+        return new Seq(() => scan(this, init, f))
     }
 
     flatMap<R>(f: (v: T) => Iterable<R>): Seq<R> {
-        return seq(flatMap(this.iter, f))
+        return new Seq(() => flatMap(this, f))
     }
 
     flatten(): T extends Iterable<infer R> ? Seq<R> : never {
-        return seq(flatten(this.iter as any)) as any
+        return new Seq(() => flatten(this as any)) as any
     }
 
     also(f: (v: T) => void): Seq<T> {
-        return seq(also(this.iter, f))
+        return new Seq(() => also(this, f))
     }
 
     fold<R>(init: R, f: (acc: R, val: T) => R): R {
-        return fold(this.iter, init, f)
+        return fold(this, init, f)
     }
 
     reduce(f: (acc: T, val: T) => T): T {
-        return reduce(this.iter, f)
+        return reduce(this, f)
     }
 
     all(f: (v: T) => unknown): boolean
     all<S extends T>(f: (v: T) => v is S): this is Seq<S>
     all<S extends T>(f: (v: T) => v is S): this is Seq<S> {
-        return all(this.iter, f)
+        return all(this, f)
     }
 
     any(f: (v: T) => unknown): boolean {
-        return any(this.iter, f)
+        return any(this, f)
     }
 
     find(f: (v: T) => unknown): Voidable<T> {
-        return find(this.iter, f)
+        return find(this, f)
     }
 
     findO(f: (v: T) => unknown): Option<T> {
-        return findO(this.iter, f)
+        return findO(this, f)
     }
 
     position(f: (v: T) => unknown): number {
-        return position(this.iter, f)
+        return position(this, f)
     }
 
     indexOf(v: T): number {
-        return indexOf(this.iter, v)
+        return indexOf(this, v)
     }
 
     max(): Voidable<T> {
-        return max(this.iter)
+        return max(this)
     }
 
     maxO(): Option<T> {
-        return maxO(this.iter)
+        return maxO(this)
     }
 
     min(): Voidable<T> {
-        return min(this.iter)
+        return min(this)
     }
 
     minO(): Option<T> {
-        return minO(this.iter)
+        return minO(this)
     }
 
+}
+
+export function of<T>(...iter: T[]): Iterable<T> {
+    return iter
 }
 
 export function collect<T>(iter: Iterable<T>): T[] {
