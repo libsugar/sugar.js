@@ -1,8 +1,5 @@
 export * from './number'
-export * from './linear'
 export * from './safeDiv'
-
-import { Matrix } from './matrix'
 
 /** Extended Math */
 export namespace MathEx {
@@ -229,20 +226,4 @@ export function fibonacciLoop(n: any): any {
         [a, b] = [b, a + b]
     }
     return b
-}
-
-/** Fibonacci sequence in `O(logₙ)` */
-export function fibonacciMatrix(n: number): number
-export function fibonacciMatrix(n: any): any {
-    if (n <= 1) return n
-    let base = [[1, 1], [1, 0]]
-    let res = [[1, 0], [0, 1]]
-    while (n) {
-        if (n & 1) {
-            res = Matrix.mul(res, base)
-        }
-        base = Matrix.powBy(base, 2)
-        n >>= 1
-    }
-    return res[0][1]
 }
