@@ -41,6 +41,10 @@ export class Seq<T> implements Iterable<T> {
         return count(this)
     }
 
+    isEmpty(): boolean {
+        return isEmpty(this)
+    }
+
     first(): Voidable<T> {
         return first(this)
     }
@@ -69,8 +73,8 @@ export class Seq<T> implements Iterable<T> {
         return new Seq(() => stepBy(this, step))
     }
 
-    chain(other: Iterable<T>): Seq<T> {
-        return new Seq(() => chain(this, other))
+    chain(other: Iterable<T>, ...more: Iterable<T>[]): Seq<T> {
+        return new Seq(() => chain(this, other, ...more))
     }
 
     zip<U>(other: Iterable<U>): Seq<[T, U]> {
@@ -85,8 +89,16 @@ export class Seq<T> implements Iterable<T> {
         return new Seq(() => map(this, f))
     }
 
+    fill<R>(v: R): Seq<R> {
+        return new Seq(() => fill(this, v))
+    }
+
     forEach(f: (v: T) => unknown): void {
         return forEach(this, f)
+    }
+
+    run(): void {
+        return run(this)
     }
 
     filter(f: (v: T) => unknown): Seq<T>
@@ -95,7 +107,7 @@ export class Seq<T> implements Iterable<T> {
         return new Seq(() => filter(this, f))
     }
 
-    enumerate(): Seq<[number, T]> {
+    enumerate(): Seq<[T, number]> {
         return new Seq(() => enumerate(this))
     }
 
@@ -193,6 +205,13 @@ export function count<T>(iter: Iterable<T>): number {
     return [...iter].length
 }
 
+export function isEmpty<T>(iter: Iterable<T>): boolean {
+    if ('length' in iter) return (iter as any).length == 0
+    if ('size' in iter) return (iter as any).size == 0
+    for (const _ of iter) return true
+    return false
+}
+
 export function first<T>(iter: Iterable<T>): Voidable<T> {
     for (const i of iter) return i
 }
@@ -254,9 +273,12 @@ export function* stepBy<T>(iter: Iterable<T>, step: number): Iterable<T> {
     }
 }
 
-export function* chain<T>(a: Iterable<T>, b: Iterable<T>): Iterable<T> {
+export function* chain<T>(a: Iterable<T>, b: Iterable<T>, ...more: Iterable<T>[]): Iterable<T> {
     yield* a
     yield* b
+    for (const iter of more) {
+        yield* iter
+    }
 }
 
 export function* zip<A, B>(a: Iterable<A>, b: Iterable<B>): Iterable<[A, B]> {
@@ -286,10 +308,20 @@ export function* map<T, R>(iter: Iterable<T>, f: (v: T) => R): Iterable<R> {
     }
 }
 
+export function* fill<T, R>(iter: Iterable<T>, v: R): Iterable<R> {
+    for (const _ of iter) {
+        yield v
+    }
+}
+
 export function forEach<T>(iter: Iterable<T>, f: (v: T) => unknown): void {
     for (const i of iter) {
         f(i)
     }
+}
+
+export function run<T>(iter: Iterable<T>): void {
+    for (const _ of iter) { }
 }
 
 export function* filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S): Iterable<S> {
@@ -298,29 +330,29 @@ export function* filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S):
     }
 }
 
-export function* enumerate<T>(iter: Iterable<T>): Iterable<[number, T]> {
+export function* enumerate<T>(iter: Iterable<T>): Iterable<[T, number]> {
     let i = 0
     for (const e of iter) {
-        yield [i, e]
+        yield [e, i]
         i++
     }
 }
 
 export function* skip<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [i, e] of enumerate(iter)) {
+    for (const [e, i] of enumerate(iter)) {
         if (i > n) yield e
     }
 }
 
 export function* take<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [i, e] of enumerate(iter)) {
+    for (const [e, i] of enumerate(iter)) {
         yield e
-        if (i > n) return
+        if (i >= n - 1) return
     }
 }
 
 export function* slice<T>(iter: Iterable<T>, from: number, to: number): Iterable<T> {
-    for (const [i, e] of enumerate(iter)) {
+    for (const [e, i] of enumerate(iter)) {
         if (i > from) yield e
         if (i > to) return
     }
@@ -399,14 +431,14 @@ export function findO<T>(a: Iterable<T>, f: (v: T) => unknown): Option<T> {
 }
 
 export function position<T>(a: Iterable<T>, f: (v: T) => unknown): number {
-    for (const [i, v] of enumerate(a)) {
-        if (f(v)) return i
+    for (const [e, i] of enumerate(a)) {
+        if (f(e)) return i
     }
     return -1
 }
 
 export function indexOf<T>(a: Iterable<T>, v: T): number {
-    for (const [i, e] of enumerate(a)) {
+    for (const [e, i] of enumerate(a)) {
         if (e == v) return i
     }
     return -1

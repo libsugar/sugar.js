@@ -1,5 +1,6 @@
 import { Voidable } from "./maybe"
 import { Option } from "./option"
+import { delay as Delay } from './delay'
 
 export function flu<T>(iter: AsyncIterable<T>): Flu<T> {
     return new Flu(() => iter)
@@ -28,6 +29,12 @@ export class Flu<T> implements AsyncIterable<T> {
         return flu(fromIter(iter))
     }
 
+    static fromCallback<T>(): CbFlu<[T]>
+    static fromCallback<A extends unknown[], T = A[0], This = never>(map?: (this: This, ...args: A) => T): CbFlu<A, T, This>
+    static fromCallback<A extends unknown[], T = A[0], This = never>(map?: (this: This, ...args: A) => T): CbFlu<A, T, This> {
+        return new CbFlu(map)
+    }
+
     collect(): Promise<T[]> {
         return collect(this)
     }
@@ -38,6 +45,10 @@ export class Flu<T> implements AsyncIterable<T> {
 
     count(): Promise<number> {
         return count(this)
+    }
+
+    isEmpty(): Promise<boolean> {
+        return isEmpty(this)
     }
 
     first(): Promise<Voidable<T>> {
@@ -68,8 +79,8 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => stepBy(this, step))
     }
 
-    chain(other: AsyncIterable<T>): Flu<T> {
-        return new Flu(() => chain(this, other))
+    chain(other: AsyncIterable<T>, ...more: AsyncIterable<T>[]): Flu<T> {
+        return new Flu(() => chain(this, other, ...more))
     }
 
     zip<U>(other: AsyncIterable<U>): Flu<[T, U]> {
@@ -88,8 +99,16 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => mapWait(this, f))
     }
 
+    fill<R>(v: R): Flu<R> {
+        return new Flu(() => fill(this, v))
+    }
+
     forEach(f: (v: T) => unknown | Promise<unknown>): Promise<void> {
         return forEach(this, f)
+    }
+
+    run(): Promise<void> {
+        return run(this)
     }
 
     filter(f: (v: T) => unknown | Promise<unknown>): Flu<T>
@@ -98,7 +117,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => filter(this, f))
     }
 
-    enumerate(): Flu<[number, T]> {
+    enumerate(): Flu<[T, number]> {
         return new Flu(() => enumerate(this))
     }
 
@@ -130,9 +149,6 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => flatten(this as any)) as any
     }
 
-    await(): T extends infer R | Promise<infer R> ? Flu<R> : never {
-        return new Flu(() => wait(this as any)) as any
-    }
     wait(): T extends infer R | Promise<infer R> ? Flu<R> : never {
         return new Flu(() => wait(this as any)) as any
     }
@@ -204,6 +220,84 @@ export class Flu<T> implements AsyncIterable<T> {
     merge<U>(other: AsyncIterable<U>): Flu<T | U> {
         return new Flu(() => merge(this, other))
     }
+
+    delay(ms?: Voidable<number>): Flu<T>
+    delay(f: (v: T) => unknown): Flu<T>
+    delay(ms: Voidable<number>, f: (v: T) => unknown): Flu<T>
+    delay(a: any, b?: any): Flu<T> {
+        if (typeof a === 'number') return new Flu(() => delay(this, a, b))
+        return new Flu(() => delay(this, void 0, a))
+    }
+
+    retry(count: number): Flu<T>
+    retry<E = unknown>(f: (err: E, count: number) => unknown): Flu<T>
+    retry<E = unknown>(cond: number | ((err: E, count: number) => unknown)): Flu<T>
+    retry<E = unknown>(cond: number | ((err: E, count: number) => unknown) = Infinity): Flu<T> {
+        return new Flu(() => retry(this.iter, cond))
+    }
+
+    timestamp(): Flu<[value: T, timestamp: number]> {
+        return new Flu(() => timestamp(this))
+    }
+
+    throttle(ms: number): Flu<T> {
+        return new Flu(() => throttle(this, ms))
+    }
+
+    debounce(ms: number): Flu<T> {
+        return new Flu(() => debounce(this, ms))
+    }
+
+    audit(ms: number): Flu<T> {
+        return new Flu(() => audit(this, ms))
+    }
+
+    buffer(n: number, mode: 'count' | 'time' = 'count'): Flu<T[]> {
+        return new Flu(() => buffer(this, n, mode))
+    }
+}
+
+export interface CbFlu<A extends unknown[], T = A[0], This = never> extends Flu<T> {
+    cb(this: This, ...arg: A): void
+    end(): void
+    readonly isEnd: boolean
+}
+export class CbFlu<A extends unknown[], T = A[0], This = never> extends Flu<T> {
+    constructor(map?: (this: This, ...args: A) => T) {
+        let isEnd = false
+        let end: (v: {}) => void
+        const endp = new Promise<{}>(r => end = r)
+        endp.then(() => isEnd = true)
+        let res: Voidable<(v: { v: T }) => void>
+        let p: Promise<{ v: T }> = new Promise((r) => res = r)
+        function cb(v: T) { res?.({ v }); p = new Promise((r) => res = r) }
+        async function* gen(): AsyncIterable<T> {
+            for (; ;) {
+                if (isEnd) return
+                const v = await Promise.race<{ v: T } | {}>([p, endp])
+                if ('v' in v) yield v.v
+                else return
+            }
+        }
+        //return [new Flu(gen), map != null ? function (this: This, ...args: A) { cb(map.call(this, ...args)) } : cb, () => (isEnd = true, end({}))] as any
+        super(gen)
+        Object.defineProperties(this, {
+            cb: {
+                value: map != null ? function (this: This, ...args: A) { cb(map.call(this, ...args)) } : cb,
+                enumerable: true,
+            },
+            end: {
+                value: () => (isEnd = true, end({})),
+                enumerable: true,
+            },
+            isEnd: {
+                get() {
+                    return isEnd
+                },
+                enumerable: true,
+            },
+        })
+    }
 }
 
 export async function* fromIter<T>(iter: Iterable<T | Promise<T>>): AsyncIterable<T> {
@@ -238,6 +332,11 @@ export async function join<T>(iter: AsyncIterable<T>, separator?: string): Promi
 
 export async function count<T>(iter: AsyncIterable<T>): Promise<number> {
     return (await collect(iter)).length
+}
+
+export async function isEmpty<T>(iter: AsyncIterable<T>): Promise<boolean> {
+    for await (const _ of iter) return true
+    return false
 }
 
 export async function first<T>(iter: AsyncIterable<T>): Promise<Voidable<T>> {
@@ -299,9 +398,12 @@ export async function* stepBy<T>(iter: AsyncIterable<T>, step: number): AsyncIte
     }
 }
 
-export async function* chain<T>(a: AsyncIterable<T>, b: AsyncIterable<T>): AsyncIterable<T> {
+export async function* chain<T>(a: AsyncIterable<T>, b: AsyncIterable<T>, ...more: AsyncIterable<T>[]): AsyncIterable<T> {
     yield* a
     yield* b
+    for (const iter of more) {
+        yield* iter
+    }
 }
 
 export async function* zip<A, B>(a: AsyncIterable<A>, b: AsyncIterable<B>): AsyncIterable<[A, B]> {
@@ -337,10 +439,20 @@ export async function* mapWait<T, R>(iter: AsyncIterable<T>, f: (v: T) => R | Pr
     }
 }
 
+export async function* fill<T, R>(iter: AsyncIterable<T>, v: R): AsyncIterable<R> {
+    for await (const _ of iter) {
+        yield v
+    }
+}
+
 export async function forEach<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<void> {
     for await (const i of iter) {
         await f(i)
     }
+}
+
+export async function run<T>(iter: AsyncIterable<T>): Promise<void> {
+    for await (const _ of iter) { }
 }
 
 export async function* filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T) => v is S): AsyncIterable<S> {
@@ -349,29 +461,29 @@ export async function* filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T) 
     }
 }
 
-export async function* enumerate<T>(iter: AsyncIterable<T>): AsyncIterable<[number, T]> {
+export async function* enumerate<T>(iter: AsyncIterable<T>): AsyncIterable<[T, number]> {
     let i = 0
     for await (const e of iter) {
-        yield [i, e]
+        yield [e, i]
         i++
     }
 }
 
 export async function* skip<T>(iter: AsyncIterable<T>, n: number): AsyncIterable<T> {
-    for await (const [i, e] of enumerate(iter)) {
+    for await (const [e, i] of enumerate(iter)) {
         if (i > n) yield e
     }
 }
 
 export async function* take<T>(iter: AsyncIterable<T>, n: number): AsyncIterable<T> {
-    for await (const [i, e] of enumerate(iter)) {
+    for await (const [e, i] of enumerate(iter)) {
         yield e
-        if (i > n) return
+        if (i >= n - 1) return
     }
 }
 
 export async function* slice<T>(iter: AsyncIterable<T>, from: number, to: number): AsyncIterable<T> {
-    for await (const [i, e] of enumerate(iter)) {
+    for await (const [e, i] of enumerate(iter)) {
         if (i > from) yield e
         if (i > to) return
     }
@@ -482,14 +594,14 @@ export async function findO<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promi
 }
 
 export async function position<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<number> {
-    for await (const [i, v] of enumerate(a)) {
-        if (await f(v)) return i
+    for await (const [e, i] of enumerate(a)) {
+        if (await f(e)) return i
     }
     return -1
 }
 
 export async function indexOf<T>(a: AsyncIterable<T>, v: T): Promise<number> {
-    for await (const [i, e] of enumerate(a)) {
+    for await (const [e, i] of enumerate(a)) {
         if (e == v) return i
     }
     return -1
@@ -497,7 +609,7 @@ export async function indexOf<T>(a: AsyncIterable<T>, v: T): Promise<number> {
 
 export async function indexOfWait<T>(a: AsyncIterable<T>, v: T | Promise<T>): Promise<number> {
     const vV = await v
-    for await (const [i, e] of enumerate(a)) {
+    for await (const [e, i] of enumerate(a)) {
         if (e == vV) return i
     }
     return -1
@@ -566,9 +678,146 @@ export async function* merge<A, B>(a: AsyncIterable<A>, b: AsyncIterable<B>): As
             if (r.b.done) {
                 yield* Continue(an, ai)
                 return
-            } 
+            }
             yield r.b.value
             bn = bi.next()
+        }
+    }
+}
+
+export async function* delay<T>(iter: AsyncIterable<T>, ms?: Voidable<number>, f?: (v: T) => unknown): AsyncIterable<T> {
+    if (f != null) {
+        for await (const e of iter) {
+            if (f(e)) await Delay(ms)
+            yield e
+        }
+    } else {
+        for await (const e of iter) {
+            await Delay(ms)
+            yield e
+        }
+    }
+}
+
+export async function* retry<T, E = unknown>(iterFn: () => AsyncIterable<T>, count: number | ((err: E, count: number) => unknown) = Infinity): AsyncIterable<T> {
+    if (typeof count === 'function') {
+        let i = 0
+        for (; ;) {
+            const iter = iterFn()
+            try {
+                for await (const e of iter) {
+                    yield e
+                }
+                return
+            } catch (e) {
+                i++
+                if (count(e, i)) continue
+                throw e
+            }
+        }
+    } else {
+        for (; ;) {
+            const iter = iterFn()
+            try {
+                for await (const e of iter) {
+                    yield e
+                }
+                return
+            } catch (e) {
+                count--
+                if (count > 0) continue
+                throw e
+            }
+        }
+    }
+}
+
+export async function* timestamp<T>(iter: AsyncIterable<T>): AsyncIterable<[value: T, timestamp: number]> {
+    for await (const e of iter) {
+        yield [e, +new Date]
+    }
+}
+
+export async function* throttle<T>(iter: AsyncIterable<T>, ms: number = 300): AsyncIterable<T> {
+    let last = +new Date
+    for await (const e of iter) {
+        const now = +new Date
+        if (last + ms <= now) {
+            yield e
+            last = now
+        }
+    }
+}
+
+export async function* debounce<T>(iter: AsyncIterable<T>, ms: number = 300): AsyncIterable<T> {
+    let timeout: any, res: (v: { v: T }) => void, end: (v: {}) => void, endp = new Promise<{}>(r => end = r)
+    queueMicrotask(async () => {
+        for await (const v of iter) {
+            if (timeout) clearTimeout(timeout)
+            timeout = setTimeout(() => res?.({ v }), ms)
+        }
+        end({})
+    })
+    for (; ;) {
+        const v = await Promise.race<{ v: T } | {}>([new Promise<{ v: T }>(r => res = r), endp])
+        if ('v' in v) yield v.v
+        else return
+    }
+}
+
+export async function* audit<T>(iter: AsyncIterable<T>, ms: number = 300): AsyncIterable<T> {
+    let e: T, first = true, end: (v: {}) => void, endp = new Promise<{}>(r => end = r)
+    queueMicrotask(async () => {
+        for await (const v of iter) {
+            e = v
+            first = false
+        }
+        end({})
+    })
+    let timeout
+    for (; ;) {
+        const v = await Promise.race<{ v: T } | {}>([new Promise<{ v: T }>(res => timeout = setTimeout(() => res({ v: e }), ms)), endp])
+        clearTimeout(timeout)
+        if ('v' in v) {
+            if (first) continue
+            yield v.v
+        }
+        else return
+    }
+}
+
+export async function* buffer<T>(iter: AsyncIterable<T>, n: number, mode: 'count' | 'time' = 'count'): AsyncIterable<T[]> {
+    if (n <= 0) {
+        for await (const e of iter) yield [e]
+    } else if (mode == 'count') {
+        let buffer: T[] = []
+        for await (const e of iter) {
+            buffer.push(e)
+            if (buffer.length >= n) yield buffer
+            buffer = []
+        }
+        if (buffer.length != 0) yield buffer
+    } else {
+        let buffer: T[] = [], first = true, end: (v: {}) => void, endp = new Promise<{}>(r => end = r)
+        queueMicrotask(async () => {
+            for await (const v of iter) {
+                buffer.push(v)
+                first = false
+            }
+            end({})
+        })
+        let timeout
+        for (; ;) {
+            const v = await Promise.race<{ v: T[] } | {}>([new Promise<{ v: T[] }>(res => timeout = setTimeout(() => (res({ v: buffer }), buffer = []), n)), endp])
+            clearTimeout(timeout)
+            if ('v' in v) {
+                if (first) continue
+                yield v.v
+            }
+            else {
+                if (buffer.length != 0) yield buffer
+                return
+            }
         }
     }
 }
