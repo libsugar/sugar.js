@@ -260,8 +260,16 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => breakBy(this))
     }
 
-    breakIf(f: (v: T) => unknown): Flu<T> {
+    breakBy(f: (v: T) => unknown): Flu<T> {
         return new Flu(() => breakBy(this, f))
+    }
+
+    takeIf(f: (v: T) => unknown): Flu<T> {
+        return new Flu(() => takeIf(this, f))
+    }
+
+    startBy(f: (v: T) => unknown): Flu<T> {
+        return new Flu(() => startBy(this, f))
     }
 
     skipIf(f: (v: T) => unknown): Flu<T> {
@@ -276,10 +284,12 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => forEnd(this))
     }
 
+    breakAt(f: (v: T) => unknown): Flu<T>
     breakAt(single: PromiseLike<unknown>): Flu<T>
     breakAt(single: AsyncIterable<unknown>): Flu<T>
-    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
-    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
+    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown> | ((v: T) => unknown)): Flu<T>
+    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown> | ((v: T) => unknown)): Flu<T> {
+        if (typeof single === 'function') return this.breakBy(single)
         return new Flu(() => breakAt(this, single))
     }
 
@@ -290,11 +300,20 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => breakAt(this, single))
     }
 
+    startAt(f: (v: T) => unknown): Flu<T>
+    startAt(single: PromiseLike<unknown>): Flu<T>
+    startAt(single: AsyncIterable<unknown>): Flu<T>
+    startAt(single: AsyncIterable<unknown> | PromiseLike<unknown> | ((v: T) => unknown)): Flu<T>
+    startAt(single: AsyncIterable<unknown> | PromiseLike<unknown> | ((v: T) => unknown)): Flu<T> {
+        if (typeof single === 'function') return this.startBy(single)
+        return new Flu(() => startAt(this, single))
+    }
+
     skipUntil(single: PromiseLike<unknown>): Flu<T>
     skipUntil(single: AsyncIterable<unknown>): Flu<T>
     skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
     skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
-        return new Flu(() => skipUntil(this, single))
+        return new Flu(() => startAt(this, single))
     }
 }
 
@@ -864,10 +883,32 @@ export async function* breakBy<T>(iter: AsyncIterable<T>, f?: (v: T) => unknown)
     }
 }
 
-export async function* skipIf<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T> {
+export async function* takeIf<T>(iter: AsyncIterable<T>, f?: (v: T) => unknown): AsyncIterable<T> {
+    if (f == null) return
     for await (const e of iter) {
-        if (f(e)) continue
-        return
+        if (!f(e)) return
+    }
+}
+
+export async function* skipIf<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T> {
+    const it = iter[Symbol.asyncIterator]()
+    let p = it.next()
+    for (; ;) {
+        const r = await p
+        if (r.done) return
+        if (!f(r.value)) return yield* Continue(p, it)
+        p = it.next()
+    }
+}
+
+export async function* startBy<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T> {
+    const it = iter[Symbol.asyncIterator]()
+    let p = it.next()
+    for (; ;) {
+        const r = await p
+        if (r.done) return
+        if (f(r.value)) return yield* Continue(p, it)
+        p = it.next()
     }
 }
 
@@ -902,7 +943,7 @@ export async function* breakAt<T>(iter: AsyncIterable<T>, single: AsyncIterable<
     }
 }
 
-export async function* skipUntil<T>(iter: AsyncIterable<T>, single: AsyncIterable<unknown> | PromiseLike<unknown>): AsyncIterable<T> {
+export async function* startAt<T>(iter: AsyncIterable<T>, single: AsyncIterable<unknown> | PromiseLike<unknown>): AsyncIterable<T> {
     if (Symbol.asyncIterator in single) {
         single = first(single as AsyncIterable<unknown>)
     }
