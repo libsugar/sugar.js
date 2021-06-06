@@ -36,7 +36,7 @@ export class Flu<T> implements AsyncIterable<T> {
     }
 
     collect(): Promise<T[]> {
-        return collect(this)
+        return collect(this.iter())
     }
 
     join(separator?: string): Promise<string> {
@@ -44,35 +44,35 @@ export class Flu<T> implements AsyncIterable<T> {
     }
 
     count(): Promise<number> {
-        return count(this)
+        return count(this.iter())
     }
 
     isEmpty(): Promise<boolean> {
-        return isEmpty(this)
+        return isEmpty(this.iter())
     }
 
     first(): Promise<Voidable<T>> {
-        return first(this)
+        return first(this.iter())
     }
 
     firstO(): Promise<Option<T>> {
-        return firstO(this)
+        return firstO(this.iter())
     }
 
     last(): Promise<Voidable<T>> {
-        return last(this)
+        return last(this.iter())
     }
 
     lastO(): Promise<Option<T>> {
-        return lastO(this)
+        return lastO(this.iter())
     }
 
     nth(n: number): Promise<Voidable<T>> {
-        return nth(this, n)
+        return nth(this.iter(), n)
     }
 
     nthO(n: number): Promise<Option<T>> {
-        return nthO(this, n)
+        return nthO(this.iter(), n)
     }
 
     stepBy(step: number): Flu<T> {
@@ -87,8 +87,11 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => zip(this, other))
     }
 
-    unzip(f: (v: T) => unknown | PromiseLike<unknown>): Promise<[T[], T[]]> {
-        return unzip(this, f)
+    unzip(): Promise<[
+        (T extends [infer A, any] | readonly [infer A, any] ? A : T extends (infer R)[] ? R : unknown)[],
+        (T extends [any, infer B] | readonly [any, infer B] ? B : T extends (infer R)[] ? R : unknown)[],
+    ]> {
+        return unzip(this.iter() as any) as any
     }
 
     map<R>(f: (v: T) => R): Flu<R> {
@@ -446,15 +449,16 @@ export async function nthO<T>(iter: AsyncIterable<T>, n: number): Promise<Option
 }
 
 export async function* stepBy<T>(iter: AsyncIterable<T>, step: number): AsyncIterable<T> {
-    if (step < 0) step = 0
-    let i = 0
+    if (step < 1) step = 1
+    let i = 0, first = true
     for await (const e of iter) {
-        if (i == step) {
+        if (first || i >= step) {
             yield e
-            i = 0
+            i = 1
         } else {
             i++
         }
+        first = false
     }
 }
 
@@ -478,11 +482,11 @@ export async function* zip<A, B>(a: AsyncIterable<A>, b: AsyncIterable<B>): Asyn
     }
 }
 
-export async function unzip<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<[T[], T[]]> {
-    let [a, b]: [T[], T[]] = [[], []]
+export async function unzip<A, B>(iter: AsyncIterable<[A, B]>): Promise<[A[], B[]]> {
+    let [a, b]: [A[], B[]] = [[], []]
     for await (const i of iter) {
-        if (await f(i)) a.push(i)
-        else b.push(i)
+        a.push(i[0])
+        b.push(i[1])
     }
     return [a, b]
 }
@@ -531,22 +535,26 @@ export async function* enumerate<T>(iter: AsyncIterable<T>): AsyncIterable<[T, n
 
 export async function* skip<T>(iter: AsyncIterable<T>, n: number): AsyncIterable<T> {
     for await (const [e, i] of enumerate(iter)) {
-        if (i > n) yield e
+        if (i >= n) yield e
     }
 }
 
 export async function* take<T>(iter: AsyncIterable<T>, n: number): AsyncIterable<T> {
     for await (const [e, i] of enumerate(iter)) {
         yield e
-        if (i >= n - 1) return
+        if (i + 1 >= n) return
     }
 }
 
 export async function* slice<T>(iter: AsyncIterable<T>, from: number, to: number): AsyncIterable<T> {
     for await (const [e, i] of enumerate(iter)) {
-        if (i > from) yield e
-        if (i > to) return
+        if (i >= from) yield e
+        if (i + 1 >= to) return
     }
+}
+
+export function sub<T>(iter: AsyncIterable<T>, from: number, count: number): AsyncIterable<T> {
+    return slice(iter, from, count + from)
 }
 
 export async function* scan<T, R>(iter: AsyncIterable<T>, init: R, f: (acc: R, val: T) => R): AsyncIterable<R> {

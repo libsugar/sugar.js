@@ -30,43 +30,43 @@ export class Seq<T> implements Iterable<T> {
     }
 
     collect(): T[] {
-        return collect(this)
+        return collect(this.iter())
     }
 
     join(separator?: string): string {
-        return join(this, separator)
+        return join(this.iter(), separator)
     }
 
     count(): number {
-        return count(this)
+        return count(this.iter())
     }
 
     isEmpty(): boolean {
-        return isEmpty(this)
+        return isEmpty(this.iter())
     }
 
     first(): Voidable<T> {
-        return first(this)
+        return first(this.iter())
     }
 
     firstO(): Option<T> {
-        return firstO(this)
+        return firstO(this.iter())
     }
 
     last(): Voidable<T> {
-        return last(this)
+        return last(this.iter())
     }
 
     lastO(): Option<T> {
-        return lastO(this)
+        return lastO(this.iter())
     }
 
     nth(n: number): Voidable<T> {
-        return nth(this, n)
+        return nth(this.iter(), n)
     }
 
     nthO(n: number): Option<T> {
-        return nthO(this, n)
+        return nthO(this.iter(), n)
     }
 
     stepBy(step: number): Seq<T> {
@@ -81,8 +81,12 @@ export class Seq<T> implements Iterable<T> {
         return new Seq(() => zip(this, other))
     }
 
-    unzip(f: (v: T) => unknown): [T[], T[]] {
-        return unzip(this, f)
+    unzip(): [
+        (T extends [infer A, any] | readonly [infer A, any] | (infer A)[] ? A : unknown)[],
+        (T extends [any, infer B] | readonly [any, infer B] | (infer B)[] ? B : unknown)[],
+    ]
+    unzip(): any {
+        return unzip(this.iter() as any) as any
     }
 
     map<R>(f: (v: T) => R): Seq<R> {
@@ -94,11 +98,11 @@ export class Seq<T> implements Iterable<T> {
     }
 
     forEach(f: (v: T) => unknown): void {
-        return forEach(this, f)
+        return forEach(this.iter(), f)
     }
 
     run(): void {
-        return run(this)
+        return run(this.iter())
     }
 
     filter(f: (v: T) => unknown): Seq<T>
@@ -117,6 +121,14 @@ export class Seq<T> implements Iterable<T> {
 
     take(n: number): Seq<T> {
         return new Seq(() => take(this, n))
+    }
+    
+    slice(from: number, to: number): Seq<T> {
+        return new Seq(() => slice(this, from, to))
+    }
+
+    sub(from: number, count: number): Seq<T> {
+        return new Seq(() => sub(this, from, count))
     }
 
     scan<R>(init: R, f: (acc: R, val: T) => R): Seq<R> {
@@ -202,14 +214,16 @@ export function join<T>(iter: Iterable<T>, separator?: string): string {
 export function count<T>(iter: Iterable<T>): number {
     if ('length' in iter) return (iter as any).length
     if ('size' in iter) return (iter as any).size
-    return [...iter].length
+    let i = 0
+    for (const _ of iter) i++
+    return i
 }
 
 export function isEmpty<T>(iter: Iterable<T>): boolean {
     if ('length' in iter) return (iter as any).length == 0
     if ('size' in iter) return (iter as any).size == 0
-    for (const _ of iter) return true
-    return false
+    for (const _ of iter) return false
+    return true
 }
 
 export function first<T>(iter: Iterable<T>): Voidable<T> {
@@ -261,15 +275,16 @@ export function nthO<T>(iter: Iterable<T>, n: number): Option<T> {
 }
 
 export function* stepBy<T>(iter: Iterable<T>, step: number): Iterable<T> {
-    if (step < 0) step = 0
-    let i = 0
+    if (step < 1) step = 1
+    let i = 0, first = true
     for (const e of iter) {
-        if (i == step) {
+        if (first || i >= step) {
             yield e
-            i = 0
+            i = 1
         } else {
             i++
         }
+        first = false
     }
 }
 
@@ -293,11 +308,11 @@ export function* zip<A, B>(a: Iterable<A>, b: Iterable<B>): Iterable<[A, B]> {
     }
 }
 
-export function unzip<T>(iter: Iterable<T>, f: (v: T) => unknown): [T[], T[]] {
-    let [a, b]: [T[], T[]] = [[], []]
+export function unzip<A, B>(iter: Iterable<[A, B]>): [A[], B[]] {
+    let [a, b]: [A[], B[]] = [[], []]
     for (const i of iter) {
-        if (f(i)) a.push(i)
-        else b.push(i)
+        a.push(i[0])
+        b.push(i[1])
     }
     return [a, b]
 }
@@ -340,23 +355,28 @@ export function* enumerate<T>(iter: Iterable<T>): Iterable<[T, number]> {
 
 export function* skip<T>(iter: Iterable<T>, n: number): Iterable<T> {
     for (const [e, i] of enumerate(iter)) {
-        if (i > n) yield e
+        if (i >= n) yield e
     }
 }
 
 export function* take<T>(iter: Iterable<T>, n: number): Iterable<T> {
     for (const [e, i] of enumerate(iter)) {
         yield e
-        if (i >= n - 1) return
+        if (i + 1 >= n) return
     }
 }
 
 export function* slice<T>(iter: Iterable<T>, from: number, to: number): Iterable<T> {
     for (const [e, i] of enumerate(iter)) {
-        if (i > from) yield e
-        if (i > to) return
+        if (i >= from) yield e
+        if (i + 1 >= to) return
     }
 }
+
+export function sub<T>(iter: Iterable<T>, from: number, count: number): Iterable<T> {
+    return slice(iter, from, count + from)
+}
+
 
 export function* scan<T, R>(iter: Iterable<T>, init: R, f: (acc: R, val: T) => R): Iterable<R> {
     let acc = init

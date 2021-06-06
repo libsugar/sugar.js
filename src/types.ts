@@ -7,6 +7,8 @@
 */
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
 
+type x = UnionToIntersection<[1[], -1[]] | [2[], -2[]] | [3[], -3[]] | [4[], -4[]] | [5[], -5[]]>
+
 /** Last of Union 
  * 
  * ```ts

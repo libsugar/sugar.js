@@ -5,5 +5,5 @@ test('flu1', async () => {
         .map(v => v * 2)
         .take(3)
         .collect()
-   expect(r).toEqual([2, 4, 6])
+    expect(r).toEqual([2, 4, 6])
 })
