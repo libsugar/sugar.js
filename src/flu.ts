@@ -87,7 +87,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => zip(this, other))
     }
 
-    unzip(f: (v: T) => unknown | Promise<unknown>): Promise<[T[], T[]]> {
+    unzip(f: (v: T) => unknown | PromiseLike<unknown>): Promise<[T[], T[]]> {
         return unzip(this, f)
     }
 
@@ -95,7 +95,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => map(this, f))
     }
 
-    mapWait<R>(f: (v: T) => R | Promise<R>): Flu<R> {
+    mapWait<R>(f: (v: T) => R | PromiseLike<R>): Flu<R> {
         return new Flu(() => mapWait(this, f))
     }
 
@@ -103,7 +103,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => fill(this, v))
     }
 
-    forEach(f: (v: T) => unknown | Promise<unknown>): Promise<void> {
+    forEach(f: (v: T) => unknown | PromiseLike<unknown>): Promise<void> {
         return forEach(this, f)
     }
 
@@ -111,7 +111,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return run(this)
     }
 
-    filter(f: (v: T) => unknown | Promise<unknown>): Flu<T>
+    filter(f: (v: T) => unknown | PromiseLike<unknown>): Flu<T>
     filter<S extends T>(f: (v: T) => v is S): Flu<S>
     filter<S extends T>(f: (v: T) => v is S): Flu<S> {
         return new Flu(() => filter(this, f))
@@ -137,7 +137,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => scan(this, init, f))
     }
 
-    scanWait<R>(init: R | Promise<R>, f: (acc: R, val: T) => R | Promise<R>): Flu<R> {
+    scanWait<R>(init: R | PromiseLike<R>, f: (acc: R, val: T) => R | PromiseLike<R>): Flu<R> {
         return new Flu(() => scanWait(this, init, f))
     }
 
@@ -149,11 +149,11 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => flatten(this as any)) as any
     }
 
-    wait(): T extends infer R | Promise<infer R> ? Flu<R> : never {
+    wait(): T extends infer R | PromiseLike<infer R> ? Flu<R> : never {
         return new Flu(() => wait(this as any)) as any
     }
 
-    also(f: (v: T) => unknown | Promise<unknown>): Flu<T> {
+    also(f: (v: T) => unknown | PromiseLike<unknown>): Flu<T> {
         return new Flu(() => also(this, f))
     }
 
@@ -161,7 +161,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return fold(this, init, f)
     }
 
-    foldWait<R>(init: R | Promise<R>, f: (acc: R, val: T) => R | Promise<R>): Promise<R> {
+    foldWait<R>(init: R | PromiseLike<R>, f: (acc: R, val: T) => R | PromiseLike<R>): Promise<R> {
         return foldWait(this, init, f)
     }
 
@@ -169,27 +169,27 @@ export class Flu<T> implements AsyncIterable<T> {
         return reduce(this, f)
     }
 
-    reduceWait(f: (acc: T, val: T) => T | Promise<T>): Promise<T> {
+    reduceWait(f: (acc: T, val: T) => T | PromiseLike<T>): Promise<T> {
         return reduceWait(this, f)
     }
 
-    all(f: (v: T) => unknown | Promise<unknown>): Promise<boolean> {
+    all(f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
         return all(this, f)
     }
 
-    any(f: (v: T) => unknown | Promise<unknown>): Promise<boolean> {
+    any(f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
         return any(this, f)
     }
 
-    find(f: (v: T) => unknown | Promise<unknown>): Promise<Voidable<T>> {
+    find(f: (v: T) => unknown | PromiseLike<unknown>): Promise<Voidable<T>> {
         return find(this, f)
     }
 
-    findO(f: (v: T) => unknown | Promise<unknown>): Promise<Option<T>> {
+    findO(f: (v: T) => unknown | PromiseLike<unknown>): Promise<Option<T>> {
         return findO(this, f)
     }
 
-    position(f: (v: T) => unknown | Promise<unknown>): Promise<number> {
+    position(f: (v: T) => unknown | PromiseLike<unknown>): Promise<number> {
         return position(this, f)
     }
 
@@ -197,7 +197,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return indexOf(this, v)
     }
 
-    indexOfWait(v: T | Promise<T>): Promise<number> {
+    indexOfWait(v: T | PromiseLike<T>): Promise<number> {
         return indexOfWait(this, v)
     }
 
@@ -254,6 +254,47 @@ export class Flu<T> implements AsyncIterable<T> {
 
     buffer(n: number, mode: 'count' | 'time' = 'count'): Flu<T[]> {
         return new Flu(() => buffer(this, n, mode))
+    }
+
+    break(): Flu<T> {
+        return new Flu(() => breakBy(this))
+    }
+
+    breakIf(f: (v: T) => unknown): Flu<T> {
+        return new Flu(() => breakBy(this, f))
+    }
+
+    skipIf(f: (v: T) => unknown): Flu<T> {
+        return new Flu(() => skipIf(this, f))
+    }
+
+    drop(): Flu<void> {
+        return new Flu(() => drop(this))
+    }
+
+    forEnd(): Flu<any> {
+        return new Flu(() => forEnd(this))
+    }
+
+    breakAt(single: PromiseLike<unknown>): Flu<T>
+    breakAt(single: AsyncIterable<unknown>): Flu<T>
+    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
+    breakAt(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
+        return new Flu(() => breakAt(this, single))
+    }
+
+    takeUntil(single: PromiseLike<unknown>): Flu<T>
+    takeUntil(single: AsyncIterable<unknown>): Flu<T>
+    takeUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
+    takeUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
+        return new Flu(() => breakAt(this, single))
+    }
+
+    skipUntil(single: PromiseLike<unknown>): Flu<T>
+    skipUntil(single: AsyncIterable<unknown>): Flu<T>
+    skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
+    skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
+        return new Flu(() => skipUntil(this, single))
     }
 }
 
@@ -418,7 +459,7 @@ export async function* zip<A, B>(a: AsyncIterable<A>, b: AsyncIterable<B>): Asyn
     }
 }
 
-export async function unzip<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<[T[], T[]]> {
+export async function unzip<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<[T[], T[]]> {
     let [a, b]: [T[], T[]] = [[], []]
     for await (const i of iter) {
         if (await f(i)) a.push(i)
@@ -433,7 +474,7 @@ export async function* map<T, R>(iter: AsyncIterable<T>, f: (v: T) => R): AsyncI
     }
 }
 
-export async function* mapWait<T, R>(iter: AsyncIterable<T>, f: (v: T) => R | Promise<R>): AsyncIterable<R> {
+export async function* mapWait<T, R>(iter: AsyncIterable<T>, f: (v: T) => R | PromiseLike<R>): AsyncIterable<R> {
     for await (const i of iter) {
         yield await f(i)
     }
@@ -445,7 +486,7 @@ export async function* fill<T, R>(iter: AsyncIterable<T>, v: R): AsyncIterable<R
     }
 }
 
-export async function forEach<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<void> {
+export async function forEach<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<void> {
     for await (const i of iter) {
         await f(i)
     }
@@ -497,7 +538,7 @@ export async function* scan<T, R>(iter: AsyncIterable<T>, init: R, f: (acc: R, v
     }
 }
 
-export async function* scanWait<T, R>(iter: AsyncIterable<T>, init: R | Promise<R>, f: (acc: R, val: T) => R | Promise<R>): AsyncIterable<R> {
+export async function* scanWait<T, R>(iter: AsyncIterable<T>, init: R | PromiseLike<R>, f: (acc: R, val: T) => R | PromiseLike<R>): AsyncIterable<R> {
     let acc = await init
     for await (const i of iter) {
         acc = await f(acc, i)
@@ -517,13 +558,13 @@ export async function* flatten<T>(iter: AsyncIterable<AsyncIterable<T>>): AsyncI
     }
 }
 
-export async function* wait<T>(iter: AsyncIterable<T | Promise<T>>): AsyncIterable<T> {
+export async function* wait<T>(iter: AsyncIterable<T | PromiseLike<T>>): AsyncIterable<T> {
     for await (const i of iter) {
         yield await i
     }
 }
 
-export async function* also<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): AsyncIterable<T> {
+export async function* also<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): AsyncIterable<T> {
     for await (const i of iter) {
         await f(i)
         yield i
@@ -538,7 +579,7 @@ export async function fold<T, R>(a: AsyncIterable<T>, init: R, f: (acc: R, val: 
     return acc
 }
 
-export async function foldWait<T, R>(a: AsyncIterable<T>, init: R | Promise<R>, f: (acc: R, val: T) => R | Promise<R>): Promise<R> {
+export async function foldWait<T, R>(a: AsyncIterable<T>, init: R | PromiseLike<R>, f: (acc: R, val: T) => R | PromiseLike<R>): Promise<R> {
     let acc = await init
     for await (const i of a) {
         acc = await f(acc, i)
@@ -556,7 +597,7 @@ export async function reduce<T>(a: AsyncIterable<T>, f: (acc: T, val: T) => T): 
     return acc!
 }
 
-export async function reduceWait<T>(a: AsyncIterable<T>, f: (acc: T, val: T) => T | Promise<T>): Promise<T> {
+export async function reduceWait<T>(a: AsyncIterable<T>, f: (acc: T, val: T) => T | PromiseLike<T>): Promise<T> {
     let acc: T | undefined, first = true
     for await (const i of a) {
         if (first) (acc = i, first = false)
@@ -566,34 +607,34 @@ export async function reduceWait<T>(a: AsyncIterable<T>, f: (acc: T, val: T) => 
     return acc!
 }
 
-export async function all<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<boolean> {
+export async function all<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
     for await (const i of a) {
         if (!await f(i)) return false
     }
     return true
 }
 
-export async function any<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<boolean> {
+export async function any<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
     for await (const i of a) {
         if (await f(i)) return true
     }
     return false
 }
 
-export async function find<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<Voidable<T>> {
+export async function find<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<Voidable<T>> {
     for await (const i of a) {
         if (await f(i)) return i
     }
 }
 
-export async function findO<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<Option<T>> {
+export async function findO<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<Option<T>> {
     for await (const i of a) {
         if (await f(i)) return Option.some(i)
     }
     return Option.None
 }
 
-export async function position<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promise<unknown>): Promise<number> {
+export async function position<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<number> {
     for await (const [e, i] of enumerate(a)) {
         if (await f(e)) return i
     }
@@ -607,7 +648,7 @@ export async function indexOf<T>(a: AsyncIterable<T>, v: T): Promise<number> {
     return -1
 }
 
-export async function indexOfWait<T>(a: AsyncIterable<T>, v: T | Promise<T>): Promise<number> {
+export async function indexOfWait<T>(a: AsyncIterable<T>, v: T | PromiseLike<T>): Promise<number> {
     const vV = await v
     for await (const [e, i] of enumerate(a)) {
         if (e == vV) return i
@@ -668,17 +709,11 @@ export async function* merge<A, B>(a: AsyncIterable<A>, b: AsyncIterable<B>): As
     for (; ;) {
         const r = await Promise.race([an.then(a => ({ a })), bn.then(b => ({ b }))])
         if ('a' in r) {
-            if (r.a.done) {
-                yield* Continue(bn, bi)
-                return
-            }
+            if (r.a.done) return yield* Continue(bn, bi)
             yield r.a.value
             an = ai.next()
         } else {
-            if (r.b.done) {
-                yield* Continue(an, ai)
-                return
-            }
+            if (r.b.done) return yield* Continue(an, ai)
             yield r.b.value
             bn = bi.next()
         }
@@ -819,5 +854,70 @@ export async function* buffer<T>(iter: AsyncIterable<T>, n: number, mode: 'count
                 return
             }
         }
+    }
+}
+
+export async function* breakBy<T>(iter: AsyncIterable<T>, f?: (v: T) => unknown): AsyncIterable<T> {
+    if (f == null) return
+    for await (const e of iter) {
+        if (f(e)) return
+    }
+}
+
+export async function* skipIf<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T> {
+    for await (const e of iter) {
+        if (f(e)) continue
+        return
+    }
+}
+
+export async function* drop<T>(iter: AsyncIterable<T>): AsyncIterable<void> {
+    for await (const _ of iter) {
+        yield
+    }
+}
+
+export async function* forEnd<T>(iter: AsyncIterable<T>): AsyncIterable<any> {
+    for await (const _ of iter) { }
+}
+
+export async function* breakAt<T>(iter: AsyncIterable<T>, single: AsyncIterable<unknown> | PromiseLike<unknown>): AsyncIterable<T> {
+    if (Symbol.asyncIterator in single) {
+        single = first(single as AsyncIterable<unknown>)
+    }
+    const endp = new Promise<{}>(async r => {
+        await single
+        r({})
+    })
+    const it = iter[Symbol.asyncIterator]()
+    let p = it.next().then(v => ({ v }))
+    for (; ;) {
+        const r = await Promise.race<{ v: IteratorResult<T> } | {}>([p, endp])
+        if ('v' in r) {
+            if (r.v.done) return
+            yield r.v.value
+            p = it.next().then(v => ({ v }))
+        }
+        else return
+    }
+}
+
+export async function* skipUntil<T>(iter: AsyncIterable<T>, single: AsyncIterable<unknown> | PromiseLike<unknown>): AsyncIterable<T> {
+    if (Symbol.asyncIterator in single) {
+        single = first(single as AsyncIterable<unknown>)
+    }
+    const endp = new Promise<{}>(async r => {
+        await single
+        r({})
+    })
+    const it = iter[Symbol.asyncIterator]()
+    let p = it.next()
+    for (; ;) {
+        const r = await Promise.race<{ v: IteratorResult<T> } | {}>([p.then(v => ({ v })), endp])
+        if ('v' in r) {
+            if (r.v.done) return
+            p = it.next()
+        }
+        else return yield* Continue(p, it)
     }
 }
