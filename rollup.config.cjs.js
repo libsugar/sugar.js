@@ -5,7 +5,7 @@ export default {
     output: {
         file: './sugar.js',
         format: 'cjs',
-        name: 'uid'
+        name: 'sugar'
     },
     plugins: [resolve()]
 };

@@ -5,7 +5,7 @@ export default {
     output: {
         file: './dist/sugar.js',
         format: 'umd',
-        name: 'uid'
+        name: 'sugar'
     },
     plugins: [resolve()]
 };

@@ -5,7 +5,7 @@ export default {
     output: {
         file: './sugar.mjs',
         format: 'es',
-        name: 'uid'
+        name: 'sugar'
     },
     plugins: [resolve()]
 };
