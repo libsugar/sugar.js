@@ -1,4 +1,5 @@
 import { seq } from './seq'
+import { Option } from './option'
 
 test('seq1', () => {
     const r = seq([1, 2, 3, 4, 5])
@@ -117,4 +118,120 @@ test('seq slice', () => {
 test('seq sub', () => {
     const r = seq([1, 2, 3, 4, 5]).sub(2, 3).collect()
     expect(r).toEqual([3, 4, 5])
+})
+
+test('seq scan', () => {
+    const r = seq([1, 2, 3, 4, 5]).scan(10, a => a + 1).collect()
+    expect(r).toEqual([11, 12, 13, 14, 15])
+})
+
+test('seq flatMap', () => {
+    const r = seq([1, 2, 3, 4, 5]).flatMap(a => [a, a + 1]).collect()
+    expect(r).toEqual([1, 2, 2, 3, 3, 4, 4, 5, 5, 6])
+})
+
+test('seq flatten', () => {
+    const r = seq([[1], [2, 3], [4, 5, 6]]).flatten().collect()
+    expect(r).toEqual([1, 2, 3, 4, 5, 6])
+})
+
+test('seq also', () => {
+    const arr: number[] = []
+    seq([1, 2, 3, 4, 5]).also(a => arr.push(a)).run()
+    expect(arr).toEqual([1, 2, 3, 4, 5])
+})
+
+test('seq fold1', () => {
+    const r = seq([1, 2, 3, 4, 5]).fold(0, (a, v) => a + v)
+    expect(r).toBe(15)
+})
+
+test('seq fold2', () => {
+    const r = seq([1, 2, 3, 4, 5]).fold(1, (a, v) => a + v)
+    expect(r).toBe(16)
+})
+
+test('seq reduce', () => {
+    const r = seq([1, 2, 3, 4, 5]).reduce((a, v) => a + v)
+    expect(r).toBe(15)
+})
+
+test('seq all1', () => {
+    const r = seq([1, 2, 3, 4, 5]).all(a => a > 3)
+    expect(r).toBe(false)
+})
+
+test('seq all2', () => {
+    const r = seq([1, 2, 3, 4, 5]).all(a => a > 0)
+    expect(r).toBe(true)
+})
+
+test('seq any1', () => {
+    const r = seq([1, 2, 3, 4, 5]).any(a => a > 3)
+    expect(r).toBe(true)
+})
+
+test('seq any2', () => {
+    const r = seq([1, 2, 3, 4, 5]).any(a => a > 5)
+    expect(r).toBe(false)
+})
+
+test('seq find1', () => {
+    const r = seq([1, 2, 3, 4, 5]).find(a => a > 1)
+    expect(r).toBe(2)
+})
+
+test('seq find2', () => {
+    const r = seq([1, 2, 3, 4, 5]).find(a => a > 5)
+    expect(r).toBe(void 0)
+})
+
+test('seq findO1', () => {
+    const r = seq([1, 2, 3, 4, 5]).findO(a => a > 1)
+    expect(r).toEqual(Option.some(2))
+})
+
+test('seq findO2', () => {
+    const r = seq([1, 2, 3, 4, 5]).findO(a => a > 5)
+    expect(r).toEqual(Option.none())
+})
+
+test('seq position1', () => {
+    const r = seq([1, 2, 3, 4, 5]).position(a => a > 1)
+    expect(r).toBe(1)
+})
+
+test('seq position2', () => {
+    const r = seq([1, 2, 3, 4, 5]).position(a => a > 5)
+    expect(r).toBe(-1)
+})
+
+test('seq indexOf1', () => {
+    const r = seq([1, 2, 3, 4, 5]).indexOf(2)
+    expect(r).toBe(1)
+})
+
+test('seq indexOf2', () => {
+    const r = seq([1, 2, 3, 4, 5]).indexOf(0)
+    expect(r).toBe(-1)
+})
+
+test('seq max', () => {
+    const r = seq([1, 2, 3, 4, 5]).max()
+    expect(r).toBe(5)
+})
+
+test('seq min', () => {
+    const r = seq([1, 2, 3, 4, 5]).min()
+    expect(r).toBe(1)
+})
+
+test('seq maxO', () => {
+    const r = seq([1, 2, 3, 4, 5]).maxO()
+    expect(r).toEqual(Option.some(5))
+})
+
+test('seq minO', () => {
+    const r = seq([1, 2, 3, 4, 5]).minO()
+    expect(r).toEqual(Option.some(1))
 })
