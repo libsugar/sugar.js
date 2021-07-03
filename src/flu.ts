@@ -79,7 +79,7 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => stepBy(this, step))
     }
 
-    chain(other: AsyncIterable<T>, ...more: AsyncIterable<T>[]): Flu<T> {
+    chain(other: AsyncIterable<T> | Iterable<T>, ...more: (AsyncIterable<T> | Iterable<T>)[]): Flu<T> {
         return new Flu(() => chain(this, other, ...more))
     }
 
@@ -136,6 +136,10 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => slice(this, from, to))
     }
 
+    sub(from: number, count: number): Flu<T> {
+        return new Flu(() => sub(this, from, count))
+    }
+
     scan<R>(init: R, f: (acc: R, val: T) => R): Flu<R> {
         return new Flu(() => scan(this, init, f))
     }
@@ -144,11 +148,11 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => scanWait(this, init, f))
     }
 
-    flatMap<R>(f: (v: T) => AsyncIterable<R>): Flu<R> {
+    flatMap<R>(f: (v: T) => AsyncIterable<R> | Iterable<R>): Flu<R> {
         return new Flu(() => flatMap(this, f))
     }
 
-    flatten(): T extends AsyncIterable<infer R> ? Flu<R> : never {
+    flatten(): T extends AsyncIterable<infer R> ? Flu<R> : T extends Iterable<infer R> ? Flu<R> : never {
         return new Flu(() => flatten(this as any)) as any
     }
 
@@ -208,16 +212,8 @@ export class Flu<T> implements AsyncIterable<T> {
         return max(this)
     }
 
-    maxO(): Promise<Option<T>> {
-        return maxO(this)
-    }
-
     min(): Promise<Voidable<T>> {
         return min(this)
-    }
-
-    minO(): Promise<Option<T>> {
-        return minO(this)
     }
 
     merge<U>(other: AsyncIterable<U>): Flu<T | U> {
@@ -462,7 +458,7 @@ export async function* stepBy<T>(iter: AsyncIterable<T>, step: number): AsyncIte
     }
 }
 
-export async function* chain<T>(a: AsyncIterable<T>, b: AsyncIterable<T>, ...more: AsyncIterable<T>[]): AsyncIterable<T> {
+export async function* chain<T>(a: AsyncIterable<T> | Iterable<T>, b: AsyncIterable<T> | Iterable<T>, ...more: (AsyncIterable<T> | Iterable<T>)[]): AsyncIterable<T> {
     yield* a
     yield* b
     for (const iter of more) {
@@ -573,13 +569,13 @@ export async function* scanWait<T, R>(iter: AsyncIterable<T>, init: R | PromiseL
     }
 }
 
-export async function* flatMap<T, R>(iter: AsyncIterable<T>, f: (v: T) => AsyncIterable<R>): AsyncIterable<R> {
+export async function* flatMap<T, R>(iter: AsyncIterable<T>, f: (v: T) => AsyncIterable<R> | Iterable<R>): AsyncIterable<R> {
     for await (const i of iter) {
         yield* f(i)
     }
 }
 
-export async function* flatten<T>(iter: AsyncIterable<AsyncIterable<T>>): AsyncIterable<T> {
+export async function* flatten<T>(iter: AsyncIterable<AsyncIterable<T> | Iterable<T>>): AsyncIterable<T> {
     for await (const i of iter) {
         yield* i
     }
@@ -692,15 +688,6 @@ export async function max<T>(a: AsyncIterable<T>): Promise<Voidable<T>> {
     return r
 }
 
-export async function maxO<T>(a: AsyncIterable<T>): Promise<Option<T>> {
-    let r: Voidable<T>, first = true
-    for await (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i > r!) r = i
-    }
-    return first ? Option.None : Option.some(r)
-}
-
 export async function min<T>(a: AsyncIterable<T>): Promise<Voidable<T>> {
     let r: Voidable<T>, first = true
     for await (const i of a) {
@@ -708,15 +695,6 @@ export async function min<T>(a: AsyncIterable<T>): Promise<Voidable<T>> {
         else if (i < r!) r = i
     }
     return r
-}
-
-export async function minO<T>(a: AsyncIterable<T>): Promise<Option<T>> {
-    let r: Voidable<T>, first = true
-    for await (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i < r!) r = i
-    }
-    return first ? Option.None : Option.some(r)
 }
 
 async function* Continue<T>(n: Promise<IteratorResult<T>>, iter: AsyncIterator<T>): AsyncIterable<T> {
