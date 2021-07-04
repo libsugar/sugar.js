@@ -2,7 +2,9 @@ import { Box } from "./box"
 import { DefaultOrFunc, getDefault } from "./fn"
 import { Voidable } from "./maybe"
 
-/** Optional values */
+/** Optional values 
+ * @deprecated
+*/
 export class Option<T> implements Box<Voidable<T>> {
     val: Voidable<T>
     #has: boolean
