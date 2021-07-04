@@ -29,3 +29,8 @@ export function raise(err: any): never {
 export function abort(): Promise<never> {
     return new Promise(empty)
 }
+
+/** Yield time slice */
+export function Yield(): Promise<void> {
+    return Promise.resolve()
+}

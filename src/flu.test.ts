@@ -187,16 +187,6 @@ test('flu find2', async () => {
     expect(r).toBe(void 0)
 })
 
-test('flu findO1', async () => {
-    const r = await Flu.from([1, 2, 3, 4, 5]).findO(a => a > 1)
-    expect(r).toEqual(Option.some(2))
-})
-
-test('flu findO2', async () => {
-    const r = await Flu.from([1, 2, 3, 4, 5]).findO(a => a > 5)
-    expect(r).toEqual(Option.none())
-})
-
 test('flu position1', async () => {
     const r = await Flu.from([1, 2, 3, 4, 5]).position(a => a > 1)
     expect(r).toBe(1)
@@ -226,3 +216,4 @@ test('flu min', async () => {
     const r = await Flu.from([1, 2, 3, 4, 5]).min()
     expect(r).toBe(1)
 })
+

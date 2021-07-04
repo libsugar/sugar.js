@@ -1,6 +1,6 @@
 {
   "name": "libsugar",
-  "version": "2.4.0",
+  "version": "2.4.0-pre.0",
   "description": "",
   "main": "sugar.js",
   "module": "sugar.mjs",

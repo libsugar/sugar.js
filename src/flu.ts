@@ -192,10 +192,6 @@ export class Flu<T> implements AsyncIterable<T> {
         return find(this, f)
     }
 
-    findO(f: (v: T) => unknown | PromiseLike<unknown>): Promise<Option<T>> {
-        return findO(this, f)
-    }
-
     position(f: (v: T) => unknown | PromiseLike<unknown>): Promise<number> {
         return position(this, f)
     }
@@ -394,8 +390,8 @@ export async function count<T>(iter: AsyncIterable<T>): Promise<number> {
 }
 
 export async function isEmpty<T>(iter: AsyncIterable<T>): Promise<boolean> {
-    for await (const _ of iter) return true
-    return false
+    for await (const _ of iter) return false
+    return true
 }
 
 export async function first<T>(iter: AsyncIterable<T>): Promise<Voidable<T>> {
@@ -648,13 +644,6 @@ export async function find<T>(a: AsyncIterable<T>, f: (v: T) => unknown | Promis
     for await (const i of a) {
         if (await f(i)) return i
     }
-}
-
-export async function findO<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<Option<T>> {
-    for await (const i of a) {
-        if (await f(i)) return Option.some(i)
-    }
-    return Option.None
 }
 
 export async function position<T>(a: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<number> {
