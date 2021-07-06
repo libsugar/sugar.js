@@ -1,11 +1,12 @@
 import resolve from 'rollup-plugin-node-resolve'
+import typescript from '@rollup/plugin-typescript'
 
 export default {
-    input: './es/index.js',
+    input: './src/index.ts',
     output: {
         file: './sugar.js',
         format: 'cjs',
         name: 'sugar'
     },
-    plugins: [resolve()]
+    plugins: [typescript(), resolve()]
 };

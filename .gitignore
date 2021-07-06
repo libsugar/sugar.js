@@ -1,9 +1,12 @@
 node_modules/
 es/
+esm/
 type/
 cjs/
 umd/
 dist/
+lib/
+tsout/
 /sugar.js
 /sugar.mjs
 coverage/

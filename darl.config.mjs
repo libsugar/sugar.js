@@ -2,15 +2,15 @@ import { npm, node, sub, once, queue } from 'darl'
 
 export const build = once([
     queue(
-        npm`tsc`('--', '-p', 'tsconfig.es.json'),
+        npm`tsc`('--', '-p', 'tsconfig.build.json'),
         sub(
-            npm`rollup`('--', '-c'),
-            npm`rollup`('--', '-c', 'rollup.config.cjs.js'),
-            npm`rollup`('--', '-c', 'rollup.config.es.js'),
-            npm`rollup`('--', '-c', 'rollup.config.min.js'),
+            npm`babel`('--', '--config-file', './babel.config.esm.mjs', 'es', '-d', 'esm', '--out-file-extension', '.mjs'),
+            npm`babel`('--', '--config-file', './babel.config.umd.mjs', 'es', '-d', 'umd'),
         ),
-        node`./rename.js`('./es'),
     ),
     npm`tsc`('--', '-p', 'tsconfig.cjs.json'),
-    npm`tsc`('--', '-p', 'tsconfig.umd.json'),
+    npm`rollup`('--', '-c'),
+    npm`rollup`('--', '-c', 'rollup.config.cjs.js'),
+    npm`rollup`('--', '-c', 'rollup.config.es.js'),
+    npm`rollup`('--', '-c', 'rollup.config.min.js'),
 ])

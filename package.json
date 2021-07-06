@@ -1,9 +1,9 @@
 {
   "name": "libsugar",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "",
-  "main": "sugar.js",
-  "module": "sugar.mjs",
+  "main": "./cjs/index.js",
+  "module": "./esm/index.mjs",
   "browser": "./dist/sugar.min.js",
   "umd::main": "./dist/sugar.js",
   "types": "./type/index.d.ts",
@@ -13,14 +13,35 @@
     "type/**/*.d.ts",
     "cjs/**/*.js",
     "dist/**/*.js",
-    "es/**/*.mjs",
+    "es/**/*.js",
+    "esm/**/*.mjs",
     "umd/**/*.js",
     "sugar.js",
     "sugar.mjs"
   ],
+  "exports": {
+    ".": {
+      "import": "./esm/index.mjs",
+      "require": "./cjs/index.js"
+    },
+    "./*": {
+      "import": "./esm/*.mjs",
+      "require": "./cjs/*.js"
+    },
+    "./bop/*": {
+      "import": "./esm/bop/*.mjs",
+      "require": "./cjs/bop/*.js"
+    },
+    "./math/*": {
+      "import": "./esm/math/*.mjs",
+      "require": "./cjs/math/*.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "tsc": "tsc",
     "rollup": "rollup",
+    "babel": "babel",
     "build": "darl build",
     "test": "jest --coverage",
     "doc": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\""
@@ -40,7 +61,14 @@
   },
   "homepage": "https://github.com/libsugar/sugar.js#readme",
   "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-transform-modules-umd": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.14.7",
+    "@rollup/plugin-typescript": "^8.2.1",
     "@types/jest": "^26.0.19",
+    "babel-plugin-add-import-extension": "^1.5.1",
     "darl": "^2.1.1",
     "jest": "^26.6.3",
     "rollup": "^2.35.1",
@@ -48,10 +76,9 @@
     "rollup-plugin-terser": "^7.0.2",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.21.2",
     "typescript": "^4.1.3"
   },
-  "dependencies": {},
   "optionalDependencies": {
     "tslib": "^2.0.3"
   }
