@@ -237,3 +237,11 @@ type _FlatTuple<A extends any[], R extends any[] = []> = 0 extends A['length'] ?
  * ```
  */
 export type FlatTuple<A extends any[]> = _FlatTuple<A>
+
+/** Get all object field path deeply
+ * 
+ * ```ts
+ * ObjPath<{ a: { b: { c: 1 } }[] }> => "a" | `a.${number}` | "a.length" | "a.toString" | "a.toLocaleString" | "a.pop" | "a.push" | "a.concat" | "a.join" | "a.reverse" | "a.shift" | "a.slice" | "a.sort" | "a.splice" | "a.unshift" | ... 18 more ... | `a.${number}.b.c`
+ * ```
+*/
+export type ObjPath<T> = T extends object ? Extract<keyof T, string | number> | `${Extract<keyof T, string | number>}` | { [K in Extract<keyof T, string | number>]: `${K}.${ObjPath<T[K]>}` }[Extract<keyof T, string | number>] : never
