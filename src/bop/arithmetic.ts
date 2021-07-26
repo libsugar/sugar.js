@@ -6,6 +6,7 @@
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function sum<N extends number>(num: N): N
 /** sum
@@ -16,6 +17,7 @@ export function sum<N extends number>(num: N): N
  * 
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function sum(num: number, ...numbers: number[]): number
 export function sum(num: number, ...others: number[]) {
@@ -32,6 +34,7 @@ export function sum(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function addAll<N extends number>(num: N): N
 /** addAll
@@ -42,6 +45,7 @@ export function addAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function addAll(num: number, ...numbers: number[]): number
 export function addAll(num: number, ...others: number[]) {
@@ -58,6 +62,7 @@ export function addAll(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function subAll<N extends number>(num: N): N
 /** subAll
@@ -68,6 +73,7 @@ export function subAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function subAll(num: number, ...numbers: number[]): number
 export function subAll(num: number, ...others: number[]) {
@@ -84,6 +90,7 @@ export function subAll(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function prod<N extends number>(num: N): N
 /** prod
@@ -94,6 +101,7 @@ export function prod<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function prod(num: number, ...numbers: number[]): number
 export function prod(num: number, ...others: number[]) {
@@ -110,6 +118,7 @@ export function prod(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function mulAll<N extends number>(num: N): N
 /** sum
@@ -120,6 +129,7 @@ export function mulAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function mulAll(num: number, ...numbers: number[]): number
 export function mulAll(num: number, ...others: number[]) {
@@ -136,6 +146,7 @@ export function mulAll(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function quot<N extends number>(num: N): N
 /** quot
@@ -146,6 +157,7 @@ export function quot<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function quot(num: number, ...numbers: number[]): number
 export function quot(num: number, ...others: number[]) {
@@ -161,6 +173,7 @@ export function quot(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function divAll<N extends number>(num: N): N
 /** divAll
@@ -171,6 +184,7 @@ export function divAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function divAll(num: number, ...numbers: number[]): number
 export function divAll(num: number, ...others: number[]) {
@@ -187,6 +201,7 @@ export function divAll(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function modAll<N extends number>(num: N): N
 /** modAll
@@ -197,6 +212,7 @@ export function modAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function modAll(num: number, ...numbers: number[]): number
 export function modAll(num: number, ...others: number[]) {
@@ -213,6 +229,7 @@ export function modAll(num: number, ...others: number[]) {
  *
  * @param num Target number
  * @returns Return target number directly
+ * @deprecated
  */
 export function powAll<N extends number>(num: N): N
 /** powAll
@@ -223,6 +240,7 @@ export function powAll<N extends number>(num: N): N
  *
  * @param num First number
  * @param numbers Other numbers
+ * @deprecated
  */
 export function powAll(num: number, ...numbers: number[]): number
 export function powAll(num: number, ...others: number[]) {
