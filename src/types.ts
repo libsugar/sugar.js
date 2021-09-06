@@ -238,6 +238,33 @@ type _FlatTuple<A extends any[], R extends any[] = []> = 0 extends A['length'] ?
  */
 export type FlatTuple<A extends any[]> = _FlatTuple<A>
 
+/** Get all object key value entries
+ * 
+ * ```ts
+ * ObjEntry<{ a: 1, b: 2 }> => ['a', 1] | ['b', 2]
+ * ```
+ */
+type _ObjEntry<T, P extends keyof T> = { [K in P]: [K, T[K]] }[P]
+export type ObjEntry<T> = _ObjEntry<T, keyof T>
+
+/** Get value by key for object key value entries
+ * 
+ * ```ts
+ * EntryValue<['a', 1] | ['b', 2], 'a'> => 1
+ * ```
+ */
+export type EntryValue<E extends [any, any], K extends E[0]> = E extends [K, infer V] ? V : never
+
+type x = EntryValue<[number, 1] | [string, 2], 1>
+
+/** Get key by value object key value entries
+ * 
+ * ```ts
+ * EntryKey<['a', 1] | ['b', 2], 1> => 'a'
+ * ```
+ */
+export type EntryKey<E extends [any, any], V extends E[1]> = E extends [infer K, V] ? K : never
+
 /** Get all object field path deeply
  * 
  * ```ts
@@ -250,7 +277,15 @@ export type ObjPath<T> = T extends object ? Extract<keyof T, string | number> | 
  * Get object value by field path deeply
  * 
  * ```ts
- * ObjPathValue<{ a: { b: { c: 1 } } }, 'a.b.c'> => 1
+ * ValByPath<{ a: { b: { c: 1 } } }, 'a.b.c'> => 1
  * ```
  */
-export type ObjPathValue<T, K extends ObjPath<T>> = K extends `${infer A}.${infer Last}` ? A extends keyof T ? Last extends ObjPath<T[A]> ? ObjPathValue<T[A], Last> : T[A] : never : K extends keyof T ? T[K] : never
+export type ValByPath<T, K extends ObjPath<T>> = K extends `${infer A}.${infer Last}` ? A extends keyof T ? Last extends ObjPath<T[A]> ? ValByPath<T[A], Last> : T[A] : never : K extends keyof T ? T[K] : never
+
+// export type ObjPathEntry<T> =
+//     T extends object
+//     ? { [K in Extract<keyof T, string | number>]: [K, T[K]] }
+//     //| `${Extract<keyof T, string | number>}` | { [K in Extract<keyof T, string | number>]: `${K}.${ObjPath<T[K]>}` }[Extract<keyof T, string | number>]
+//     : never
+
+// type a = ObjPathEntry<{ a: { b: { c: 1 } }[] }>
