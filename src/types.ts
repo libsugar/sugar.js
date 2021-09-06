@@ -245,3 +245,12 @@ export type FlatTuple<A extends any[]> = _FlatTuple<A>
  * ```
 */
 export type ObjPath<T> = T extends object ? Extract<keyof T, string | number> | `${Extract<keyof T, string | number>}` | { [K in Extract<keyof T, string | number>]: `${K}.${ObjPath<T[K]>}` }[Extract<keyof T, string | number>] : never
+
+/**
+ * Get object value by field path deeply
+ * 
+ * ```ts
+ * ObjPathValue<{ a: { b: { c: 1 } } }, 'a.b.c'> => 1
+ * ```
+ */
+export type ObjPathValue<T, K extends ObjPath<T>> = K extends `${infer A}.${infer Last}` ? A extends keyof T ? Last extends ObjPath<T[A]> ? ObjPathValue<T[A], Last> : T[A] : never : K extends keyof T ? T[K] : never
