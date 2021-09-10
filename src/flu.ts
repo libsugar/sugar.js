@@ -483,15 +483,17 @@ export async function unzip<A, B>(iter: AsyncIterable<[A, B]>): Promise<[A[], B[
     return [a, b]
 }
 
-export async function* map<T, R>(iter: AsyncIterable<T>, f: (v: T) => R): AsyncIterable<R> {
+export async function* map<T, R>(iter: AsyncIterable<T>, f: (v: T, index: number) => R): AsyncIterable<R> {
+    let index = 0
     for await (const i of iter) {
-        yield f(i)
+        yield f(i, index++)
     }
 }
 
-export async function* mapWait<T, R>(iter: AsyncIterable<T>, f: (v: T) => R | PromiseLike<R>): AsyncIterable<R> {
+export async function* mapWait<T, R>(iter: AsyncIterable<T>, f: (v: T, index: number) => R | PromiseLike<R>): AsyncIterable<R> {
+    let index = 0
     for await (const i of iter) {
-        yield await f(i)
+        yield await f(i, index++)
     }
 }
 
@@ -501,9 +503,10 @@ export async function* fill<T, R>(iter: AsyncIterable<T>, v: R): AsyncIterable<R
     }
 }
 
-export async function forEach<T>(iter: AsyncIterable<T>, f: (v: T) => unknown | PromiseLike<unknown>): Promise<void> {
+export async function forEach<T>(iter: AsyncIterable<T>, f: (v: T, index: number) => unknown | PromiseLike<unknown>): Promise<void> {
+    let index = 0
     for await (const i of iter) {
-        await f(i)
+        await f(i, index++)
     }
 }
 
@@ -738,7 +741,7 @@ export async function* retry<T, E = unknown>(iterFn: () => AsyncIterable<T>, cou
                     yield e
                 }
                 return
-            } catch (e) {
+            } catch (e: any) {
                 i++
                 if (count(e, i)) continue
                 throw e

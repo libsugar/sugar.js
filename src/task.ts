@@ -1,4 +1,4 @@
-import { TEvent } from "./event"
+import { TypedEvent } from "./event"
 import { abort } from "./fn"
 import { isNone, Voidable } from "./maybe"
 
@@ -38,7 +38,7 @@ export class CancelGuard {
 /** Cancellation provider */
 class CancelSource implements CancelToken {
     #cancelled = false
-    #reg?: TEvent
+    #reg?: TypedEvent
 
     get cancelled() {
         return this.#cancelled
@@ -57,7 +57,7 @@ class CancelSource implements CancelToken {
     reg(f: () => any): void
     reg(f?: () => any) {
         if (isNone(f)) return new Promise<void>(res => this.reg(() => res()))
-        if (isNone(this.#reg)) this.#reg = new TEvent
+        if (isNone(this.#reg)) this.#reg = new TypedEvent
         this.#reg.once(f)
     }
     unReg(f: () => any) {
@@ -106,7 +106,7 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     #cancelled = false
     #finished = false
 
-    #reg?: TEvent
+    #reg?: TypedEvent
 
     /** Creates a new Task */
     constructor(f: (self: Task<T>) => PromiseLike<T>)
@@ -156,7 +156,7 @@ export class Task<T> implements TaskLike<T>, Promise<T | void> {
     reg(): Promise<void>
     reg(f?: () => any) {
         if (isNone(f)) return new Promise<void>(res => this.reg(() => res()))
-        if (isNone(this.#reg)) this.#reg = new TEvent
+        if (isNone(this.#reg)) this.#reg = new TypedEvent
         this.#reg.once(f)
     }
     /** Unregister event */
