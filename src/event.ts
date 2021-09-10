@@ -1,8 +1,16 @@
 import { MutMapEx } from "./map"
 import { TupleTail } from "./types"
 
+/** Type safe event interface */
+export interface IEvent<A extends unknown[] = []> {
+    emit(...args: A): void
+    on(f: (...args: A) => void): void
+    once(f: (...args: A) => void): void
+    off(f: (...args: A) => void): void
+}
+
 /** Type safe event */
-export class TEvent<A extends unknown[] = []> {
+export class TEvent<A extends unknown[] = []> implements IEvent<A> {
     #fns = new Set<(...args: A) => void>()
     #onces = new Set<(...args: A) => void>()
 
