@@ -6,6 +6,9 @@ export function seq<T>(iter: Iterable<T>): Seq<T> {
     return new Seq(() => iter)
 }
 
+/** Seq(sequence), A iterator / sequence / enumerator
+ * @template T item type
+ */
 export class Seq<T> implements Iterable<T> {
     constructor(public readonly iter: () => Iterable<T>) { }
 

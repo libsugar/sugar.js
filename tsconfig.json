@@ -9,6 +9,7 @@
         "declarationDir": "type",
         "importHelpers": true,
         "esModuleInterop": true,
+        "experimentalDecorators": true,
         "paths": {
             "tslib": ["./node_modules/tslib/tslib.d.ts"]
         }

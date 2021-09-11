@@ -6,6 +6,9 @@ export function flu<T>(iter: AsyncIterable<T>): Flu<T> {
     return new Flu(() => iter)
 }
 
+/** Flu(Fluxes), A async iterator / stream / flow
+ * @template T item type
+ */
 export class Flu<T> implements AsyncIterable<T> {
     constructor(public readonly iter: () => AsyncIterable<T>) { }
 
@@ -514,17 +517,17 @@ export async function run<T>(iter: AsyncIterable<T>): Promise<void> {
     for await (const _ of iter) { }
 }
 
-export async function* filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T) => v is S): AsyncIterable<S> {
+export async function* filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T, index: number) => v is S): AsyncIterable<S> {
+    let index = 0
     for await (const i of iter) {
-        if (await (f(i) as any)) yield i as any
+        if (await (f(i, index++) as any)) yield i as any
     }
 }
 
 export async function* enumerate<T>(iter: AsyncIterable<T>): AsyncIterable<[T, number]> {
-    let i = 0
+    let index = 0
     for await (const e of iter) {
-        yield [e, i]
-        i++
+        yield [e, index++]
     }
 }
 
@@ -552,11 +555,11 @@ export function sub<T>(iter: AsyncIterable<T>, from: number, count: number): Asy
     return slice(iter, from, count + from)
 }
 
-export async function* scan<T, R>(iter: AsyncIterable<T>, init: R, f: (acc: R, val: T) => R): AsyncIterable<R> {
+export async function* scan<T, R>(iter: AsyncIterable<T>, init: R, f: (acc: R, val: T, index: number) => R): AsyncIterable<R> {
     let acc = init
+    let index = 0
     for await (const i of iter) {
-        acc = f(acc, i)
-        yield acc
+        yield acc = f(acc, i, index++)
     }
 }
 

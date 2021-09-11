@@ -7,9 +7,14 @@ export type EventLikeParameters<T extends EventLike<any>> = T extends EventLike<
 
 /** Type safe event interface */
 export interface EventLike<A extends unknown[] = []> {
+    /** Emit event */
     emit(...args: A): void
+    /** Register to listen  */
     on(f: (...args: A) => void): void
+    /** Unlisten */
     off(f: (...args: A) => void): void
+    /** Count listeners  */
+    readonly size: number
 }
 
 
@@ -39,6 +44,13 @@ export class SimpleEvent<A extends unknown[] = []> implements EventLike<A> {
     off(f: (...args: A) => void): void {
         const fns = getOrInit(this.#fns, () => new Set)
         fns.delete(f)
+    }
+    get size() {
+        let size = 0
+        runWhenInit(this.#fns, fns => {
+            size = fns.size
+        })
+        return size
     }
 }
 
@@ -80,6 +92,14 @@ export class TypedEvent<A extends unknown[] = []> implements OnceableEventLike<A
     off(f: (...args: A) => void) {
         runWhenInit(this.#fns, fns => fns.delete(f))
         runWhenInit(this.#onces, onces => onces.delete(f))
+    }
+
+    get size() {
+        let size = 0
+        runWhenInit(this.#fns, fns => {
+            size = fns.size
+        })
+        return size
     }
 }
 
@@ -175,6 +195,15 @@ export class EventHub<P extends { [K in string | string | symbol]: EventLike<unk
         const regs = getOrInit<MutableExMap<Map<keyof P, P[keyof P]>>>(this.#regs, () => MutMapEx(new Map))
         const e = regs.getOrAdd(name, () => this.#init[name]()) as any as OnceableEventLike<any>
         e.once(f)
+    }
+
+    /** count fns */
+    count<K extends keyof P>(name: K): number {
+        let count = 0
+        runWhenInit(this.#regs, regs => {
+            regs.getAndThen(name, e => count = e.size)
+        })
+        return count
     }
 }
 
