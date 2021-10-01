@@ -42,11 +42,3 @@ export function promiseOf<T>(value: T | PromiseLike<T>): Promise<any>
 export function promiseOf(value?: any): any {
     return Promise.resolve(value)
 }
-/**
- * Box a value
- * @param boxof Wrapper function
- * @param value Value
- */
-export function boxOf<T, B>(boxof: (value: T) => B, value: T): B {
-    return boxof(value)
-}

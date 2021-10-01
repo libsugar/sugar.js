@@ -1,4 +1,7 @@
 
+/** `false` like value, `NaN` is not in here */
+export type Falsely = false | 0 | -0 | '' | undefined | null | void
+
 /** Union to Intersection 
  * 
  * ```ts
@@ -177,7 +180,6 @@ export interface MutableSetLike<T> extends SetLike<T> {
  */
 export type SetValue<S extends SetLike<any>> = S extends SetLike<infer V> ? V : never
 
-
 /**
  * ```ts
  * GetKey<{ a: 1 }, 1> => 'a'
@@ -195,6 +197,9 @@ export type GetKey<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof 
  * ```
  */
 export type PromiseValue<T extends PromiseLike<any>> = T extends PromiseLike<infer V> ? V : never
+
+/** Obtain the return type of an async function  */
+export type AsyncReturnType<T extends (...args: unknown[]) => Promise<unknown>> = T extends (...args: unknown[]) => Promise<infer R> ? R : never
 
 /**
  * ```ts
