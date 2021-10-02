@@ -1,5 +1,6 @@
 import { Voidable } from "./maybe";
 
+/** Iterator Walker */
 export class Walker<T> implements IterableIterator<T>, Iterator<T> {
     constructor(iter: Iterable<T>) {
         this.#iter = iter[Symbol.iterator]()
@@ -9,6 +10,7 @@ export class Walker<T> implements IterableIterator<T>, Iterator<T> {
     #current_peek: Voidable<T>
     #current_peek_is_down = false
 
+    /** Peek next value */
     peek(): Voidable<T> {
         if (this.#has_peek) return this.#current_peek
         const r = this.#iter.next()
@@ -27,6 +29,7 @@ export class Walker<T> implements IterableIterator<T>, Iterator<T> {
         return this
     }
 
+    /** Move to next */
     next(): IteratorResult<T, void> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return { done: true, value: (void 0)! }
@@ -37,7 +40,8 @@ export class Walker<T> implements IterableIterator<T>, Iterator<T> {
         }
         return this.#iter.next()
     }
-    
+
+    /** Eat current peek value */
     eat(): Voidable<T> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return
@@ -47,7 +51,8 @@ export class Walker<T> implements IterableIterator<T>, Iterator<T> {
             return value
         }
     }
-    
+
+    /** Eat peek or move to next */
     take(): Voidable<T> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return
@@ -65,6 +70,7 @@ export class Walker<T> implements IterableIterator<T>, Iterator<T> {
     }
 }
 
+/** AsyncIterator Walker */
 export class AWalker<T> implements AsyncIterableIterator<T>, AsyncIterator<T> {
     constructor(iter: AsyncIterable<T>) {
         this.#iter = iter[Symbol.asyncIterator]()
@@ -74,6 +80,7 @@ export class AWalker<T> implements AsyncIterableIterator<T>, AsyncIterator<T> {
     #current_peek: Voidable<T>
     #current_peek_is_down = false
 
+    /** Peek next value */
     async peek(): Promise<Voidable<T>> {
         if (this.#has_peek) return this.#current_peek
         const r = await this.#iter.next()
@@ -92,6 +99,7 @@ export class AWalker<T> implements AsyncIterableIterator<T>, AsyncIterator<T> {
         return this
     }
 
+    /** Move to next */
     async next(): Promise<IteratorResult<T, void>> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return { done: true, value: (void 0)! }
@@ -102,7 +110,8 @@ export class AWalker<T> implements AsyncIterableIterator<T>, AsyncIterator<T> {
         }
         return this.#iter.next()
     }
-    
+
+    /** Eat current peek value */
     eat(): Voidable<T> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return
@@ -112,7 +121,8 @@ export class AWalker<T> implements AsyncIterableIterator<T>, AsyncIterator<T> {
             return value
         }
     }
-    
+
+    /** Eat peek or move to next */
     async take(): Promise<Voidable<T>> {
         if (this.#has_peek) {
             if (this.#current_peek_is_down) return
