@@ -50,7 +50,8 @@
     "build": "darl build",
     "postbuild": "node ./dev/postbuild.mjs",
     "test": "jest --coverage",
-    "doc": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\""
+    "doc": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\"",
+    "postdoc": "node ./dev/postdoc.mjs"
   },
   "repository": {
     "type": "git",
