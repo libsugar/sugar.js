@@ -1,6 +1,6 @@
 {
   "name": "libsugar",
-  "version": "2.8.0",
+  "version": "2.8.5",
   "description": "",
   "main": "./cjs/index.js",
   "module": "./esm/index.mjs",
@@ -9,6 +9,7 @@
   "types": "./type/index.d.ts",
   "typings": "./type/index.d.ts",
   "files": [
+    "/**/*.d.ts",
     "src/**/*.ts",
     "type/**/*.d.ts",
     "cjs/**/*.js",
@@ -51,7 +52,9 @@
     "postbuild": "node ./dev/postbuild.mjs",
     "test": "jest --coverage",
     "doc": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\"",
-    "postdoc": "node ./dev/postdoc.mjs"
+    "postdoc": "node ./dev/postdoc.mjs",
+    "do:pack": "node ./dev/publish.mjs pack",
+    "do:publish": "node ./dev/publish.mjs"
   },
   "repository": {
     "type": "git",
