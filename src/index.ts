@@ -1,3 +1,4 @@
+export * from './async'
 export * from './bop/index'
 export * from './box'
 export * from './delay'
