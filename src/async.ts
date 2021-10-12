@@ -1,4 +1,3 @@
-import { microtask } from "./delay"
 import { Maybe, None } from "./maybe"
 
 /** Asynchronous pool options  */
@@ -8,7 +7,7 @@ export interface AsyncPoolOption {
 }
 
 /** Asynchronous tasks queued for execution */
-type AsyncPoolQueue = { f: () => PromiseLike<void>, then: () => void }[]
+type AsyncPoolQueue = { f: () => PromiseLike<any>, then: (v: any) => void, err: (e: any) => void }[]
 
 /** Asynchronous pool  
  * Used to ensure that the number of asynchronous executions at the same time does not exceed the limit  */
@@ -36,10 +35,10 @@ export class AsyncPool {
     #queue: AsyncPoolQueue = []
 
     /** Waiting in the pool  */
-    async #add(p: () => PromiseLike<void>) {
+    async #add<T>(p: () => PromiseLike<T>) {
         this.#pool++
         try {
-            await p()
+            return await p()
         } finally {
             this.#pool--
             this.#afterRun()
@@ -47,26 +46,22 @@ export class AsyncPool {
     }
 
     /** After a certain task is completed  */
-    async #afterRun() {
+    #afterRun() {
         if (this.#queue.length == 0) return
         if (this.#limit == null || (this.#limit > 0 && this.#pool < this.#limit)) {
-            const { f, then } = this.#queue.shift()!
-            try {
-                await this.#add(f)
-            } finally {
-                then()
-            }
+            const { f, then, err } = this.#queue.shift()!
+            this.#add(f).then(then, err)
         }
     }
 
     /** Run asynchronous tasks in the pool  
      * Task may be delayed to start execution 
     */
-    async run(f: () => PromiseLike<void>) {
+    async run<T>(f: () => PromiseLike<T>) {
         if (this.#limit == null || (this.#limit > 0 && this.#pool < this.#limit)) {
-            await this.#add(f)
+            return await this.#add(f)
         } else {
-            await new Promise<void>(then => this.#queue.push({ f, then }))
+            return await new Promise<T>((then, err) => this.#queue.push({ f, then, err }))
         }
     }
 }
