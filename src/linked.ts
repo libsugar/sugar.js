@@ -1,5 +1,6 @@
 import { Box } from "./box"
-import { count, map } from './seq'
+import { also } from "./effect"
+import { count, map, skip } from './seq'
 
 /** Doubly Linked List */
 export class Linked<T> implements Iterable<T> {
@@ -26,14 +27,20 @@ export class Linked<T> implements Iterable<T> {
     }
 
     get size() {
-        return count(this)
+        return count(this.nodes())
     }
     get length() {
-        return count(this)
+        return count(this.nodes())
     }
 
     *[Symbol.iterator](): Iterator<T> {
         for (let node = this.head; node != null; node = node.next) {
+            yield node.val
+        }
+    }
+
+    *backItems(): Iterable<T> {
+        for (let node = this.last; node != null; node = node.prev) {
             yield node.val
         }
     }
@@ -44,14 +51,21 @@ export class Linked<T> implements Iterable<T> {
         }
     }
 
+    *backNodes(): Iterable<LinkedNode<T>> {
+        for (let node = this.last; node != null; node = node.prev) {
+            yield node
+        }
+    }
+
     clear() {
         this.head = this.last = void 0
     }
 
-    push(val: T): void
-    push(val: T, ...vals: T[]): void
+    push(val: T): LinkedNode<T>
+    push(...vals: T[]): void
     push(...vals: T[]) {
-        return this.pushNode(...map(vals, val => new LinkedNode(val)))
+        if (vals.length == 1) return also(new LinkedNode(vals[0]), n => this.pushNode(n))
+        else return this.pushNode(...map(vals, val => new LinkedNode(val)))
     }
     pushNode(...nodes: LinkedNode<T>[]) {
         if (nodes.length === 0) return
@@ -70,13 +84,21 @@ export class Linked<T> implements Iterable<T> {
     }
 
     unshift(val: T): void
-    unshift(val: T, ...vals: T[]): void
+    unshift(...vals: T[]): void
     unshift(...vals: T[]) {
-        return this.unshiftNode(...map(vals, val => new LinkedNode(val)))
+        if (vals.length == 1) return also(new LinkedNode(vals[0]), n => this.unshiftNode(n))
+        else return this.unshiftNode(...map(vals, val => new LinkedNode(val)))
     }
     unshiftNode(...nodes: LinkedNode<T>[]) {
         if (nodes.length === 0) return
-        if (nodes.length > 1) for (const node of nodes) this.unshiftNode(node)
+        if (nodes.length > 1) {
+            let target = nodes[0]
+            this.unshiftNode(target)
+            for (const node of skip(nodes, 1)) {
+                this.addAfterNode(target, node)
+                target = node
+            }
+        }
         else {
             const node = nodes[0]
             if (this.isEmpty) {
@@ -121,34 +143,39 @@ export class Linked<T> implements Iterable<T> {
     }
 
     addAfter(target: LinkedNode<T>, val: T) {
-        return this.addAfterNode(target, new LinkedNode(val))
+        const n = new LinkedNode(val)
+        return this.addAfterNode(target, n)
     }
     addAfterNode(target: LinkedNode<T>, node: LinkedNode<T>) {
         if (target === this.last) return this.pushNode(node)
         node.prev = target
         node.next = target.next
+        if (node.next != null) node.next.prev = node
         target.next = node
     }
 
     addBefore(target: LinkedNode<T>, val: T) {
-        return this.addBeforeNode(target, new LinkedNode(val))
+        const n = new LinkedNode(val)
+        return this.addBeforeNode(target, n)
     }
     addBeforeNode(target: LinkedNode<T>, node: LinkedNode<T>) {
         if (target === this.head) return this.unshiftNode(node)
         node.next = target
         node.prev = target.prev
+        if (node.prev != null) node.prev.next = node
         target.prev = node
     }
 
     remove(target: LinkedNode<T>) {
         if (this.isEmpty) return
-        if (target === this.head) return this.shiftNode()
-        if (target === this.last) return this.popNode()
+        if (target === this.head) return (this.shiftNode(), target)
+        if (target === this.last) return (this.popNode(), target)
         const prev = target.prev!
         const next = target.next!
         prev.next = next
         next.prev = prev
         target.prev = target.next = void 0
+        return target
     }
 }
 
