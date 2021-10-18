@@ -7,3 +7,7 @@
 Like syntactic sugar, but is library
 
 [Documentation](https://libsugar.github.io/sugar.js/)
+
+> The main goal of the libsugar project is to eliminate the differences in the standard library between different languages and the secondary goal is to provide many sweet tools 
+
+![](./libsuga.socialr.js.png)
