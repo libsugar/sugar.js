@@ -11,3 +11,5 @@ tsout/
 /sugar.mjs
 coverage/
 /libsugar-*.tgz
+/publish
+/pack
