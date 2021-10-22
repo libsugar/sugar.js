@@ -1,24 +1,38 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "npm",
-            "script": "build",
-            "problemMatcher": []
-        },
-        {
-            "type": "npm",
-            "script": "test",
-            "problemMatcher": []
-        },
-        {
-            "type": "npm",
-            "script": "doc",
-            "problemMatcher": [],
-            "label": "npm: doc",
-            "detail": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\""
-        }
-    ]
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "doc",
+      "problemMatcher": [],
+      "label": "npm: doc",
+      "detail": "typedoc --out docs src --exclude **/*.test.ts --name \"Sugar.js\""
+    },
+    {
+      "type": "npm",
+      "script": "do:pack",
+      "problemMatcher": [],
+      "label": "npm: do:pack",
+      "detail": "node ./dev/publish.mjs pack"
+    },
+    {
+      "type": "npm",
+      "script": "do:publish",
+      "problemMatcher": [],
+      "label": "npm: do:publish",
+      "detail": "node ./dev/publish.mjs"
+    }
+  ]
 }
