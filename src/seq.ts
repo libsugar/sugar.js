@@ -13,6 +13,10 @@ export class Seq<T> implements Iterable<T> {
         return this.iter()[Symbol.iterator]()
     }
 
+    static empty<T>(): Seq<T> {
+        return new Seq(function* () { })
+    }
+
     static by<T>(iter: () => Iterable<T>): Seq<T> {
         return new Seq(iter)
     }
@@ -21,8 +25,31 @@ export class Seq<T> implements Iterable<T> {
         return seq(iter)
     }
 
+    /** Create a Seq from a range starting from 0 */
+    static to(to: number, step: number = 1): Seq<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        return new Seq(function* () {
+            for (let i = 0; i < to; i += step) {
+                yield i
+            }
+        })
+    }
+
+    /** Create a Seq from a range */
+    static range(from: number, to: number, step: number = 1): Seq<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        const inc = from > to ? -step : step
+        return new Seq(function* () {
+            for (let i = from; i < to; i += inc) {
+                yield i
+            }
+        })
+    }
+
     flu(): Flu<T> {
-        return Flu.from(this)
+        return Flu.from(this.iter())
     }
 
     toFlu(): T extends infer R | Promise<infer R> ? Flu<R> : never {
@@ -105,9 +132,9 @@ export class Seq<T> implements Iterable<T> {
         return run(this.iter())
     }
 
-    filter(f: (v: T) => unknown): Seq<T>
     filter<S extends T>(f: (v: T) => v is S): Seq<S>
-    filter<S extends T>(f: (v: T) => v is S): Seq<S> {
+    filter(f: (v: T) => unknown): Seq<T>
+    filter(f: (v: T) => unknown): Seq<T> {
         return new Seq(() => filter(this, f))
     }
 
@@ -122,7 +149,7 @@ export class Seq<T> implements Iterable<T> {
     take(n: number): Seq<T> {
         return new Seq(() => take(this, n))
     }
-    
+
     slice(from: number, to: number): Seq<T> {
         return new Seq(() => slice(this, from, to))
     }
@@ -148,11 +175,11 @@ export class Seq<T> implements Iterable<T> {
     }
 
     fold<R>(init: R, f: (acc: R, val: T) => R): R {
-        return fold(this, init, f)
+        return fold(this.iter(), init, f)
     }
 
     reduce(f: (acc: T, val: T) => T): T {
-        return reduce(this, f)
+        return reduce(this.iter(), f)
     }
 
     all(f: (v: T) => unknown): boolean
@@ -162,41 +189,70 @@ export class Seq<T> implements Iterable<T> {
     }
 
     any(f: (v: T) => unknown): boolean {
-        return any(this, f)
+        return any(this.iter(), f)
     }
 
     find(f: (v: T) => unknown): Voidable<T> {
-        return find(this, f)
+        return find(this.iter(), f)
     }
 
     findO(f: (v: T) => unknown): Option<T> {
-        return findO(this, f)
+        return findO(this.iter(), f)
     }
 
     position(f: (v: T) => unknown): number {
-        return position(this, f)
+        return position(this.iter(), f)
     }
 
     indexOf(v: T): number {
-        return indexOf(this, v)
+        return indexOf(this.iter(), v)
     }
 
     max(): Voidable<T> {
-        return max(this)
+        return max(this.iter())
     }
 
     maxO(): Option<T> {
-        return maxO(this)
+        return maxO(this.iter())
     }
 
     min(): Voidable<T> {
-        return min(this)
+        return min(this.iter())
     }
 
     minO(): Option<T> {
-        return minO(this)
+        return minO(this.iter())
     }
 
+    push(...items: T[]): Seq<T> {
+        return new Seq(() => push(this, ...items))
+    }
+
+    unshift(...items: T[]): Seq<T> {
+        return new Seq(() => unshift(this, ...items))
+    }
+
+    as<U>(): Seq<U> {
+        return this as any
+    }
+
+    groupBy<K>(keyf: (v: T) => K): Seq<[K, T[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf: (v: T) => V): Seq<[K, V[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf?: (v: T) => V): Seq<[K, (T | V)[]]> {
+        return new Seq(() => groupBy(this, keyf, valf!))
+    }
+
+    toArray(): T[] {
+        return toArray(this.iter())
+    }
+
+    toSet(): Set<T> {
+        return toSet(this.iter())
+    }
+
+    toMap(): T extends [infer K, infer V] ? Map<K, V> : never {
+        return toMap(this.iter() as any) as any
+    }
 }
 
 export function of<T>(...iter: T[]): Iterable<T> {
@@ -339,7 +395,9 @@ export function run<T>(iter: Iterable<T>): void {
     for (const _ of iter) { }
 }
 
-export function* filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S): Iterable<S> {
+export function filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S): Iterable<S>
+export function filter<T>(iter: Iterable<T>, f: (v: T) => unknown): Iterable<T>
+export function* filter<T>(iter: Iterable<T>, f: (v: T) => unknown): Iterable<T> {
     for (const i of iter) {
         if (f(i)) yield i
     }
@@ -498,4 +556,47 @@ export function minO<T>(a: Iterable<T>): Option<T> {
         else if (i < r!) r = i
     }
     return first ? Option.None : Option.some(r)
+}
+
+export function* push<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
+    yield* a
+    yield* items
+}
+
+export function* unshift<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
+    yield* items
+    yield* a
+}
+
+export function as<T, U>(a: Iterable<T>): Iterable<U> {
+    return a as any
+}
+
+export function groupBy<T, K>(a: Iterable<T>, keyf: (v: T) => K): Iterable<[K, T[]]>
+export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf: (v: T) => V): Iterable<[K, V[]]>
+export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): Iterable<[K, (V | T)[]]> {
+    const groups = new Map<K, (V | T)[]>()
+    for (const e of a) {
+        const key = keyf(e)
+        const val = valf?.(e) ?? e
+        let group = groups.get(key)
+        if (group == null) groups.set(key, group = [])
+        group.push(val)
+    }
+    return groups
+}
+
+export function toArray<T>(a: Iterable<T>): T[] {
+    if (a instanceof Array) return a
+    return Array.from(a)
+}
+
+export function toSet<T>(a: Iterable<T>): Set<T> {
+    if (a instanceof Set) return a
+    return new Set(a)
+}
+
+export function toMap<K, V>(a: Iterable<[K, V]>): Map<K, V> {
+    if (a instanceof Map) return a
+    return new Map(a)
 }

@@ -13,6 +13,10 @@ export class Flu<T> implements AsyncIterable<T> {
         return this.iter()[Symbol.asyncIterator]()
     }
 
+    static empty<T>(): Flu<T> {
+        return new Flu(async function* () { })
+    }
+
     static by<T>(iter: () => AsyncIterable<T>): Flu<T> {
         return new Flu(iter)
     }
@@ -35,12 +39,35 @@ export class Flu<T> implements AsyncIterable<T> {
         return new CbFlu(map)
     }
 
+    /** Create a Flu from a range starting from 0 */
+    static to(to: number, step: number = 1): Flu<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        return new Flu(async function* () {
+            for (let i = 0; i < to; i += step) {
+                yield i
+            }
+        })
+    }
+
+    /** Create a Flu from a range */
+    static range(from: number, to: number, step: number = 1): Flu<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        const inc = from > to ? -step : step
+        return new Flu(async function* () {
+            for (let i = from; i < to; i += inc) {
+                yield i
+            }
+        })
+    }
+
     collect(): Promise<T[]> {
         return collect(this.iter())
     }
 
     join(separator?: string): Promise<string> {
-        return join(this, separator)
+        return join(this.iter(), separator)
     }
 
     count(): Promise<number> {
@@ -111,12 +138,12 @@ export class Flu<T> implements AsyncIterable<T> {
     }
 
     run(): Promise<void> {
-        return run(this)
+        return run(this.iter())
     }
 
-    filter(f: (v: T) => unknown | PromiseLike<unknown>): Flu<T>
     filter<S extends T>(f: (v: T) => v is S): Flu<S>
-    filter<S extends T>(f: (v: T) => v is S): Flu<S> {
+    filter(f: (v: T) => unknown | PromiseLike<unknown>): Flu<T>
+    filter(f: (v: T) => unknown | PromiseLike<unknown>): Flu<T> {
         return new Flu(() => filter(this, f))
     }
 
@@ -165,51 +192,51 @@ export class Flu<T> implements AsyncIterable<T> {
     }
 
     fold<R>(init: R, f: (acc: R, val: T) => R): Promise<R> {
-        return fold(this, init, f)
+        return fold(this.iter(), init, f)
     }
 
     foldWait<R>(init: R | PromiseLike<R>, f: (acc: R, val: T) => R | PromiseLike<R>): Promise<R> {
-        return foldWait(this, init, f)
+        return foldWait(this.iter(), init, f)
     }
 
     reduce(f: (acc: T, val: T) => T): Promise<T> {
-        return reduce(this, f)
+        return reduce(this.iter(), f)
     }
 
     reduceWait(f: (acc: T, val: T) => T | PromiseLike<T>): Promise<T> {
-        return reduceWait(this, f)
+        return reduceWait(this.iter(), f)
     }
 
     all(f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
-        return all(this, f)
+        return all(this.iter(), f)
     }
 
     any(f: (v: T) => unknown | PromiseLike<unknown>): Promise<boolean> {
-        return any(this, f)
+        return any(this.iter(), f)
     }
 
     find(f: (v: T) => unknown | PromiseLike<unknown>): Promise<Voidable<T>> {
-        return find(this, f)
+        return find(this.iter(), f)
     }
 
     position(f: (v: T) => unknown | PromiseLike<unknown>): Promise<number> {
-        return position(this, f)
+        return position(this.iter(), f)
     }
 
     indexOf(v: T): Promise<number> {
-        return indexOf(this, v)
+        return indexOf(this.iter(), v)
     }
 
     indexOfWait(v: T | PromiseLike<T>): Promise<number> {
-        return indexOfWait(this, v)
+        return indexOfWait(this.iter(), v)
     }
 
     max(): Promise<Voidable<T>> {
-        return max(this)
+        return max(this.iter())
     }
 
     min(): Promise<Voidable<T>> {
-        return min(this)
+        return min(this.iter())
     }
 
     merge<U>(other: AsyncIterable<U>): Flu<T | U> {
@@ -309,6 +336,36 @@ export class Flu<T> implements AsyncIterable<T> {
     skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T>
     skipUntil(single: AsyncIterable<unknown> | PromiseLike<unknown>): Flu<T> {
         return new Flu(() => startAt(this, single))
+    }
+
+    push(...items: T[]): Flu<T> {
+        return new Flu(() => push(this, ...items))
+    }
+
+    unshift(...items: T[]): Flu<T> {
+        return new Flu(() => unshift(this, ...items))
+    }
+
+    as<U>(): Flu<U> {
+        return this as any
+    }
+
+    groupBy<K>(keyf: (v: T) => K): Flu<[K, T[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf: (v: T) => V): Flu<[K, V[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf?: (v: T) => V): Flu<[K, (T | V)[]]> {
+        return new Flu(() => groupBy(this, keyf, valf!))
+    }
+
+    toArray(): Promise<T[]> {
+        return toArray(this.iter())
+    }
+
+    toSet(): Promise<Set<T>> {
+        return toSet(this.iter())
+    }
+
+    toMap(): Promise<T extends [infer K, infer V] ? Map<K, V> : never> {
+        return toMap(this.iter() as any) as any
     }
 }
 
@@ -511,7 +568,9 @@ export async function run<T>(iter: AsyncIterable<T>): Promise<void> {
     for await (const _ of iter) { }
 }
 
-export async function* filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T) => v is S): AsyncIterable<S> {
+export function filter<T, S extends T>(iter: AsyncIterable<T>, f: (v: T) => v is S): AsyncIterable<S>
+export function filter<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T>
+export async function* filter<T>(iter: AsyncIterable<T>, f: (v: T) => unknown): AsyncIterable<T> {
     for await (const i of iter) {
         if (await (f(i) as any)) yield i as any
     }
@@ -936,4 +995,53 @@ export async function* startAt<T>(iter: AsyncIterable<T>, single: AsyncIterable<
         }
         else return yield* Continue(p, it)
     }
+}
+
+
+export async function* push<T>(a: AsyncIterable<T>, ...items: T[]): AsyncIterable<T> {
+    yield* a
+    yield* items
+}
+
+export async function* unshift<T>(a: AsyncIterable<T>, ...items: T[]): AsyncIterable<T> {
+    yield* items
+    yield* a
+}
+
+export function as<T, U>(a: AsyncIterable<T>): AsyncIterable<U> {
+    return a as any
+}
+
+export function groupBy<T, K>(a: AsyncIterable<T>, keyf: (v: T) => K): AsyncIterable<[K, T[]]>
+export function groupBy<T, K, V>(a: AsyncIterable<T>, keyf: (v: T) => K, valf: (v: T) => V): AsyncIterable<[K, V[]]>
+export async function* groupBy<T, K, V>(a: AsyncIterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): AsyncIterable<[K, (V | T)[]]> {
+    const groups = new Map<K, (V | T)[]>()
+    for await (const e of a) {
+        const key = keyf(e)
+        const val = valf?.(e) ?? e
+        let group = groups.get(key)
+        if (group == null) groups.set(key, group = [])
+        group.push(val)
+    }
+    yield* groups
+}
+
+export async function toArray<T>(a: AsyncIterable<T>): Promise<T[]> {
+    return collect(a)
+}
+
+export async function toSet<T>(a: AsyncIterable<T>): Promise<Set<T>> {
+    const r = new Set<T>()
+    for await (const e of a) {
+        r.add(e)
+    }
+    return r
+}
+
+export async function toMap<K, V>(a: AsyncIterable<[K, V]>): Promise<Map<K, V>> {
+    const r = new Map<K, V>()
+    for await (const [k, v] of a) {
+        r.set(k, v)
+    }
+    return r
 }
