@@ -151,6 +151,10 @@ export class Flu<T> implements AsyncIterable<T> {
         return new Flu(() => enumerate(this))
     }
 
+    indexed(): Flu<[number, T]> {
+        return new Flu(() => indexed(this))
+    }
+
     skip(n: number): Flu<T> {
         return new Flu(() => skip(this, n))
     }
@@ -580,6 +584,14 @@ export async function* enumerate<T>(iter: AsyncIterable<T>): AsyncIterable<[T, n
     let i = 0
     for await (const e of iter) {
         yield [e, i]
+        i++
+    }
+}
+
+export async function* indexed<T>(iter: AsyncIterable<T>): AsyncIterable<[number, T]> {
+    let i = 0
+    for await (const e of iter) {
+        yield [i, e]
         i++
     }
 }
