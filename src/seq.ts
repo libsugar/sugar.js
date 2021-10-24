@@ -1,6 +1,9 @@
 import { Flu } from "./flu"
 import { Voidable } from "./maybe"
 import { Option } from "./option"
+import { SeqLinq } from "./seq/linq"
+import { all, also, any, avg, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, includes, indexed, indexOf, isEmpty, join, last, lastO, map, max, maxO, min, minO, nth, nthO, position, push, reduce, relate, relateMap, run, scan, skip, slice, stepBy, sub, sum, take, toArray, toMap, toSet, unshift, unzip, zip } from "./seq/ops"
+export * from './seq/ops'
 
 export function seq<T>(iter: Iterable<T>): Seq<T> {
     return new Seq(() => iter)
@@ -16,6 +19,10 @@ export class Seq<T> implements Iterable<T> {
         return this.iter()[Symbol.iterator]()
     }
 
+    static empty<T>(): Seq<T> {
+        return new Seq(function* () { })
+    }
+
     static by<T>(iter: () => Iterable<T>): Seq<T> {
         return new Seq(iter)
     }
@@ -24,8 +31,43 @@ export class Seq<T> implements Iterable<T> {
         return seq(iter)
     }
 
+    /** Create a Seq from a range starting from 0 */
+    static to(to: number, step: number = 1): Seq<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        return new Seq(function* () {
+            for (let i = 0; i < to; i += step) {
+                yield i
+            }
+        })
+    }
+
+    /** Create a Seq from a range */
+    static range(from: number, to: number, step: number = 1): Seq<number> {
+        step = Math.abs(step)
+        if (step <= 0) step = 1
+        const inc = from > to ? -step : step
+        return new Seq(function* () {
+            for (let i = from; i < to; i += inc) {
+                yield i
+            }
+        })
+    }
+
+    static repeat<T>(v: T, n: number): Seq<T> {
+        return new Seq(function* () {
+            for (let i = 0; i < n; i++) {
+                yield v
+            }
+        })
+    }
+
+    linq(): SeqLinq<T> {
+        return new SeqLinq(this.iter)
+    }
+
     flu(): Flu<T> {
-        return Flu.from(this)
+        return Flu.from(this.iter())
     }
 
     toFlu(): T extends infer R | Promise<infer R> ? Flu<R> : never {
@@ -108,14 +150,18 @@ export class Seq<T> implements Iterable<T> {
         return run(this.iter())
     }
 
-    filter(f: (v: T) => unknown): Seq<T>
     filter<S extends T>(f: (v: T) => v is S): Seq<S>
-    filter<S extends T>(f: (v: T) => v is S): Seq<S> {
+    filter(f: (v: T) => unknown): Seq<T>
+    filter(f: (v: T) => unknown): Seq<T> {
         return new Seq(() => filter(this, f))
     }
 
     enumerate(): Seq<[T, number]> {
         return new Seq(() => enumerate(this))
+    }
+
+    indexed(): Seq<[number, T]> {
+        return new Seq(() => indexed(this))
     }
 
     skip(n: number): Seq<T> {
@@ -125,7 +171,7 @@ export class Seq<T> implements Iterable<T> {
     take(n: number): Seq<T> {
         return new Seq(() => take(this, n))
     }
-    
+
     slice(from: number, to: number): Seq<T> {
         return new Seq(() => slice(this, from, to))
     }
@@ -151,354 +197,106 @@ export class Seq<T> implements Iterable<T> {
     }
 
     fold<R>(init: R, f: (acc: R, val: T) => R): R {
-        return fold(this, init, f)
+        return fold(this.iter(), init, f)
     }
 
     reduce(f: (acc: T, val: T) => T): T {
-        return reduce(this, f)
+        return reduce(this.iter(), f)
     }
 
-    all(f: (v: T) => unknown): boolean
     all<S extends T>(f: (v: T) => v is S): this is Seq<S>
-    all<S extends T>(f: (v: T) => v is S): this is Seq<S> {
+    all(f: (v: T) => unknown): boolean
+    all(f: (v: T) => unknown): boolean {
         return all(this, f)
     }
 
     any(f: (v: T) => unknown): boolean {
-        return any(this, f)
+        return any(this.iter(), f)
     }
 
     find(f: (v: T) => unknown): Voidable<T> {
-        return find(this, f)
+        return find(this.iter(), f)
     }
 
     findO(f: (v: T) => unknown): Option<T> {
-        return findO(this, f)
+        return findO(this.iter(), f)
     }
 
     position(f: (v: T) => unknown): number {
-        return position(this, f)
+        return position(this.iter(), f)
     }
 
     indexOf(v: T): number {
-        return indexOf(this, v)
+        return indexOf(this.iter(), v)
+    }
+
+    includes(v: T): boolean {
+        return includes(this.iter(), v)
     }
 
     max(): Voidable<T> {
-        return max(this)
+        return max(this.iter())
     }
 
     maxO(): Option<T> {
-        return maxO(this)
+        return maxO(this.iter())
     }
 
     min(): Voidable<T> {
-        return min(this)
+        return min(this.iter())
     }
 
     minO(): Option<T> {
-        return minO(this)
+        return minO(this.iter())
     }
 
-}
-
-export function of<T>(...iter: T[]): Iterable<T> {
-    return iter
-}
-
-export function collect<T>(iter: Iterable<T>): T[] {
-    return [...iter]
-}
-
-export function join<T>(iter: Iterable<T>, separator?: string): string {
-    return [...iter].join(separator)
-}
-
-export function count<T>(iter: Iterable<T>): number {
-    if ('length' in iter) return (iter as any).length
-    if ('size' in iter) return (iter as any).size
-    let i = 0
-    for (const _ of iter) i++
-    return i
-}
-
-export function isEmpty<T>(iter: Iterable<T>): boolean {
-    if ('length' in iter) return (iter as any).length == 0
-    if ('size' in iter) return (iter as any).size == 0
-    for (const _ of iter) return false
-    return true
-}
-
-export function first<T>(iter: Iterable<T>): Voidable<T> {
-    for (const i of iter) return i
-}
-
-export function firstO<T>(iter: Iterable<T>): Option<T> {
-    for (const i of iter) return Option.some(i)
-    return Option.None
-}
-
-export function last<T>(iter: Iterable<T>): Voidable<T> {
-    if (iter instanceof Array) return iter[iter.length - 1]
-    let r: Voidable<T>
-    for (const i of iter) {
-        r = i
+    sum(defv: T): T extends number | bigint | string ? T : never
+    sum(): T extends number | bigint | string ? Voidable<T> : never
+    sum(defv: Voidable<T> = void 0): T extends number | bigint | string ? Voidable<T> : never {
+        return sum(this.iter() as any, defv as any) as any
     }
-    return r
-}
 
-export function lastO<T>(iter: Iterable<T>): Option<T> {
-    if (iter instanceof Array) return iter.length == 0 ? Option.None : Option.some(iter[iter.length - 1])
-    let r: Voidable<T>, has: boolean = false
-    for (const i of iter) {
-        r = i
-        has = true
+    avg(defv: T): T extends number | bigint ? T : never
+    avg(): T extends number | bigint ? Voidable<T> : never
+    avg(defv: Voidable<T> = void 0): T extends number | bigint ? Voidable<T> : never {
+        return avg(this.iter() as any, defv as any) as any
     }
-    return has ? Option.some(r) : Option.None
-}
 
-export function nth<T>(iter: Iterable<T>, n: number): Voidable<T> {
-    if (iter instanceof Array) return iter[n]
-    let i = 0
-    for (const e of iter) {
-        if (i == n) return e
-        i++
+    push(...items: T[]): Seq<T> {
+        return new Seq(() => push(this, ...items))
     }
-    return
-}
 
-export function nthO<T>(iter: Iterable<T>, n: number): Option<T> {
-    if (iter instanceof Array) return iter.length > n ? Option.some(iter[n]) : Option.None
-    let i = 0
-    for (const e of iter) {
-        if (i == n) return Option.some(e)
-        i++
+    unshift(...items: T[]): Seq<T> {
+        return new Seq(() => unshift(this, ...items))
     }
-    return Option.None
-}
 
-export function* stepBy<T>(iter: Iterable<T>, step: number): Iterable<T> {
-    if (step < 1) step = 1
-    let i = 0, first = true
-    for (const e of iter) {
-        if (first || i >= step) {
-            yield e
-            i = 1
-        } else {
-            i++
-        }
-        first = false
+    as<U>(): Seq<U> {
+        return this as any
     }
-}
 
-export function* chain<T>(a: Iterable<T>, b: Iterable<T>, ...more: Iterable<T>[]): Iterable<T> {
-    yield* a
-    yield* b
-    for (const iter of more) {
-        yield* iter
+    toArray(): T[] {
+        return toArray(this.iter())
     }
-}
 
-export function* zip<A, B>(a: Iterable<A>, b: Iterable<B>): Iterable<[A, B]> {
-    const ai = a[Symbol.iterator]()
-    const bi = b[Symbol.iterator]()
-    for (; ;) {
-        const a = ai.next()
-        if (a.done) return
-        const b = bi.next()
-        if (b.done) return
-        yield [a.value, b.value]
+    toSet(): Set<T> {
+        return toSet(this.iter())
     }
-}
 
-export function unzip<A, B>(iter: Iterable<[A, B]>): [A[], B[]] {
-    let [a, b]: [A[], B[]] = [[], []]
-    for (const i of iter) {
-        a.push(i[0])
-        b.push(i[1])
+    toMap(): T extends [infer K, infer V] ? Map<K, V> : never {
+        return toMap(this.iter() as any) as any
     }
-    return [a, b]
-}
 
-export function* map<T, R>(iter: Iterable<T>, f: (v: T) => R): Iterable<R> {
-    for (const i of iter) {
-        yield f(i)
+    groupBy<K>(keyf: (v: T) => K): Seq<[K, T[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf: (v: T) => V): Seq<[K, V[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf?: (v: T) => V): Seq<[K, (T | V)[]]> {
+        return new Seq(() => groupBy(this, keyf, valf!))
     }
-}
 
-export function* fill<T, R>(iter: Iterable<T>, v: R): Iterable<R> {
-    for (const _ of iter) {
-        yield v
+    relate<I, K>(inner: Iterable<I>, outerKey: (a: T) => K, innerKey: (b: I) => K): Seq<[T, I]> {
+        return new Seq(() => relate(this, inner, outerKey, innerKey))
     }
-}
 
-export function forEach<T>(iter: Iterable<T>, f: (v: T) => unknown): void {
-    for (const i of iter) {
-        f(i)
+    relateMap<I, K, R>(inner: Iterable<I>, outerKey: (a: T) => K, innerKey: (b: I) => K, selector: (a: T, b: I) => R): Seq<R> {
+        return new Seq(() => relateMap(this, inner, outerKey, innerKey, selector))
     }
-}
-
-export function run<T>(iter: Iterable<T>): void {
-    for (const _ of iter) { }
-}
-
-export function* filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S): Iterable<S> {
-    for (const i of iter) {
-        if (f(i)) yield i
-    }
-}
-
-export function* enumerate<T>(iter: Iterable<T>): Iterable<[T, number]> {
-    let i = 0
-    for (const e of iter) {
-        yield [e, i]
-        i++
-    }
-}
-
-export function* skip<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
-        if (i >= n) yield e
-    }
-}
-
-export function* take<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
-        yield e
-        if (i + 1 >= n) return
-    }
-}
-
-export function* slice<T>(iter: Iterable<T>, from: number, to: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
-        if (i >= from) yield e
-        if (i + 1 >= to) return
-    }
-}
-
-export function sub<T>(iter: Iterable<T>, from: number, count: number): Iterable<T> {
-    return slice(iter, from, count + from)
-}
-
-
-export function* scan<T, R>(iter: Iterable<T>, init: R, f: (acc: R, val: T) => R): Iterable<R> {
-    let acc = init
-    for (const i of iter) {
-        acc = f(acc, i)
-        yield acc
-    }
-}
-
-export function* flatMap<T, R>(iter: Iterable<T>, f: (v: T) => Iterable<R>): Iterable<R> {
-    for (const i of iter) {
-        yield* f(i)
-    }
-}
-
-export function* flatten<T>(iter: Iterable<Iterable<T>>): Iterable<T> {
-    for (const i of iter) {
-        yield* i
-    }
-}
-
-export function* also<T>(iter: Iterable<T>, f: (v: T) => void): Iterable<T> {
-    for (const i of iter) {
-        f(i)
-        yield i
-    }
-}
-
-export function fold<T, R>(a: Iterable<T>, init: R, f: (acc: R, val: T) => R): R {
-    let acc = init
-    for (const i of a) {
-        acc = f(acc, i)
-    }
-    return acc
-}
-
-export function reduce<T>(a: Iterable<T>, f: (acc: T, val: T) => T): T {
-    let acc: T | undefined, first = true
-    for (const i of a) {
-        if (first) (acc = i, first = false)
-        else acc = f(acc!, i)
-    }
-    if (first) throw new TypeError('no item')
-    return acc!
-}
-
-export function all<T, S extends T>(a: Iterable<T>, f: (v: T) => v is S): a is Iterable<S> {
-    for (const i of a) {
-        if (!f(i)) return false
-    }
-    return true
-}
-
-export function any<T>(a: Iterable<T>, f: (v: T) => unknown): boolean {
-    for (const i of a) {
-        if (f(i)) return true
-    }
-    return false
-}
-
-export function find<T>(a: Iterable<T>, f: (v: T) => unknown): Voidable<T> {
-    for (const i of a) {
-        if (f(i)) return i
-    }
-}
-
-export function findO<T>(a: Iterable<T>, f: (v: T) => unknown): Option<T> {
-    for (const i of a) {
-        if (f(i)) return Option.some(i)
-    }
-    return Option.None
-}
-
-export function position<T>(a: Iterable<T>, f: (v: T) => unknown): number {
-    for (const [e, i] of enumerate(a)) {
-        if (f(e)) return i
-    }
-    return -1
-}
-
-export function indexOf<T>(a: Iterable<T>, v: T): number {
-    for (const [e, i] of enumerate(a)) {
-        if (e == v) return i
-    }
-    return -1
-}
-
-export function max<T>(a: Iterable<T>): Voidable<T> {
-    let r: Voidable<T>, first = true
-    for (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i > r!) r = i
-    }
-    return r
-}
-
-export function maxO<T>(a: Iterable<T>): Option<T> {
-    let r: Voidable<T>, first = true
-    for (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i > r!) r = i
-    }
-    return first ? Option.None : Option.some(r)
-}
-
-export function min<T>(a: Iterable<T>): Voidable<T> {
-    let r: Voidable<T>, first = true
-    for (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i < r!) r = i
-    }
-    return r
-}
-
-export function minO<T>(a: Iterable<T>): Option<T> {
-    let r: Voidable<T>, first = true
-    for (const i of a) {
-        if (first) (r = i, first = false)
-        else if (i < r!) r = i
-    }
-    return first ? Option.None : Option.some(r)
 }
