@@ -1,6 +1,7 @@
 import { Flu } from "./flu"
 import { Voidable } from "./maybe"
 import { Option } from "./option"
+import { SeqLinq } from "./seq/linq"
 import { all, also, any, avg, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, includes, indexed, indexOf, isEmpty, join, last, lastO, map, max, maxO, min, minO, nth, nthO, position, push, reduce, relate, relateMap, run, scan, skip, slice, stepBy, sub, sum, take, toArray, toMap, toSet, unshift, unzip, zip } from "./seq/ops"
 export * from './seq/ops'
 
@@ -48,6 +49,18 @@ export class Seq<T> implements Iterable<T> {
                 yield i
             }
         })
+    }
+
+    static repeat<T>(v: T, n: number): Seq<T> {
+        return new Seq(function* () {
+            for (let i = 0; i < n; i++) {
+                yield v
+            }
+        })
+    }
+
+    linq(): SeqLinq<T> {
+        return new SeqLinq(this.iter)
     }
 
     flu(): Flu<T> {
@@ -233,7 +246,7 @@ export class Seq<T> implements Iterable<T> {
     minO(): Option<T> {
         return minO(this.iter())
     }
-    
+
     sum(defv: T): T extends number | bigint | string ? T : never
     sum(): T extends number | bigint | string ? Voidable<T> : never
     sum(defv: Voidable<T> = void 0): T extends number | bigint | string ? Voidable<T> : never {
