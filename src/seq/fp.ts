@@ -113,9 +113,11 @@ export function unshift<T>(...items: T[]): (a: Iterable<T>) => Iterable<T> {
     return a => seq.unshift(a, ...items)
 }
 
-export function as<U>(): <T> (a: Iterable<T>) => Iterable<U> {
+export function as<U>(): <T>(a: Iterable<T>) => Iterable<U> {
     return a => seq.as(a)
 }
+
+export { toArray, toSet, toMap } from './ops'
 
 export function groupBy<T, K>(keyf: (v: T) => K): (a: Iterable<T>) => Iterable<[K, T[]]>
 export function groupBy<T, K, V>(keyf: (v: T) => K, valf: (v: T) => V): (a: Iterable<T>) => Iterable<[K, V[]]>
@@ -123,4 +125,10 @@ export function groupBy<T, K, V>(keyf: (v: T) => K, valf?: (v: T) => V): (a: Ite
     return a => seq.groupBy(a, keyf, valf!)
 }
 
-export { toArray, toSet, toMap } from './ops'
+export function relate<O, I, K>(outerKey: (a: O) => K, innerKey: (b: I) => K): (inner: Iterable<I>) => (outer: Iterable<O>) => Iterable<[O, I]> {
+    return inner => outer => seq.relate(outer, inner, outerKey, innerKey)
+}
+
+export function relateMap<O, I, K, R>(outerKey: (a: O) => K, innerKey: (b: I) => K, selector: (a: O, b: I) => R): (inner: Iterable<I>) => (outer: Iterable<O>) => Iterable<R> {
+    return inner => outer => seq.relateMap(outer, inner, outerKey, innerKey, selector)
+}

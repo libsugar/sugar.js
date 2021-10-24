@@ -1,7 +1,7 @@
 import { Flu } from "./flu"
 import { Voidable } from "./maybe"
 import { Option } from "./option"
-import { all, also, any, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, indexed, indexOf, isEmpty, join, last, lastO, map, max, maxO, min, minO, nth, nthO, position, push, reduce, run, scan, skip, slice, stepBy, sub, take, toArray, toMap, toSet, unshift, unzip, zip } from "./seq/ops"
+import { all, also, any, avg, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, includes, indexed, indexOf, isEmpty, join, last, lastO, map, max, maxO, min, minO, nth, nthO, position, push, reduce, relate, relateMap, run, scan, skip, slice, stepBy, sub, sum, take, toArray, toMap, toSet, unshift, unzip, zip } from "./seq/ops"
 export * from './seq/ops'
 
 export function seq<T>(iter: Iterable<T>): Seq<T> {
@@ -214,6 +214,10 @@ export class Seq<T> implements Iterable<T> {
         return indexOf(this.iter(), v)
     }
 
+    includes(v: T): boolean {
+        return includes(this.iter(), v)
+    }
+
     max(): Voidable<T> {
         return max(this.iter())
     }
@@ -229,6 +233,18 @@ export class Seq<T> implements Iterable<T> {
     minO(): Option<T> {
         return minO(this.iter())
     }
+    
+    sum(defv: T): T extends number | bigint | string ? T : never
+    sum(): T extends number | bigint | string ? Voidable<T> : never
+    sum(defv: Voidable<T> = void 0): T extends number | bigint | string ? Voidable<T> : never {
+        return sum(this.iter() as any, defv as any) as any
+    }
+
+    avg(defv: T): T extends number | bigint ? T : never
+    avg(): T extends number | bigint ? Voidable<T> : never
+    avg(defv: Voidable<T> = void 0): T extends number | bigint ? Voidable<T> : never {
+        return avg(this.iter() as any, defv as any) as any
+    }
 
     push(...items: T[]): Seq<T> {
         return new Seq(() => push(this, ...items))
@@ -242,12 +258,6 @@ export class Seq<T> implements Iterable<T> {
         return this as any
     }
 
-    groupBy<K>(keyf: (v: T) => K): Seq<[K, T[]]>
-    groupBy<K, V>(keyf: (v: T) => K, valf: (v: T) => V): Seq<[K, V[]]>
-    groupBy<K, V>(keyf: (v: T) => K, valf?: (v: T) => V): Seq<[K, (T | V)[]]> {
-        return new Seq(() => groupBy(this, keyf, valf!))
-    }
-
     toArray(): T[] {
         return toArray(this.iter())
     }
@@ -258,5 +268,19 @@ export class Seq<T> implements Iterable<T> {
 
     toMap(): T extends [infer K, infer V] ? Map<K, V> : never {
         return toMap(this.iter() as any) as any
+    }
+
+    groupBy<K>(keyf: (v: T) => K): Seq<[K, T[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf: (v: T) => V): Seq<[K, V[]]>
+    groupBy<K, V>(keyf: (v: T) => K, valf?: (v: T) => V): Seq<[K, (T | V)[]]> {
+        return new Seq(() => groupBy(this, keyf, valf!))
+    }
+
+    relate<I, K>(inner: Iterable<I>, outerKey: (a: T) => K, innerKey: (b: I) => K): Seq<[T, I]> {
+        return new Seq(() => relate(this, inner, outerKey, innerKey))
+    }
+
+    relateMap<I, K, R>(inner: Iterable<I>, outerKey: (a: T) => K, innerKey: (b: I) => K, selector: (a: T, b: I) => R): Seq<R> {
+        return new Seq(() => relateMap(this, inner, outerKey, innerKey, selector))
     }
 }

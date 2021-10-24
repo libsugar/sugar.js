@@ -1,5 +1,7 @@
 import { Voidable } from "../maybe"
+import { OnceIter } from "../onceiter"
 import { Option } from "../option"
+import { ArrayGuard } from "../types"
 
 export function of<T>(...iter: T[]): Iterable<T> {
     return iter
@@ -277,6 +279,13 @@ export function indexOf<T>(a: Iterable<T>, v: T): number {
     return -1
 }
 
+export function includes<T>(a: Iterable<T>, v: T): boolean {
+    for (const i of a) {
+        if (i === v) return true
+    }
+    return false
+}
+
 export function max<T>(a: Iterable<T>): Voidable<T> {
     let r: Voidable<T>, first = true
     for (const i of a) {
@@ -313,6 +322,31 @@ export function minO<T>(a: Iterable<T>): Option<T> {
     return first ? Option.None : Option.some(r)
 }
 
+export function sum<T extends number | bigint | string>(a: Iterable<T>, defv: T): T
+export function sum<T extends number | bigint | string>(a: Iterable<T>): Voidable<T>
+export function sum<T extends number | bigint | string>(a: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
+    let r: Voidable<T> = defv, first = true
+    for (const i of a) {
+        if (first) (r = i, first = false)
+        else (r as any) += i as any
+    }
+    return r
+}
+
+export function avg<T extends number | bigint>(a: Iterable<T>, defv: T): T
+export function avg<T extends number | bigint>(a: Iterable<T>): Voidable<T>
+export function avg<T extends number | bigint>(a: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
+    let r: Voidable<T> = defv, first = true
+    let count = 0
+    for (const i of a) {
+        count++
+        if (first) (r = i, first = false)
+        else (r as any) += i as any
+    }
+    if (count > 0) return ((r as any) / (count as any)) as any
+    return r
+}
+
 export function* push<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
     yield* a
     yield* items
@@ -325,20 +359,6 @@ export function* unshift<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
 
 export function as<T, U>(a: Iterable<T>): Iterable<U> {
     return a as any
-}
-
-export function groupBy<T, K>(a: Iterable<T>, keyf: (v: T) => K): Iterable<[K, T[]]>
-export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf: (v: T) => V): Iterable<[K, V[]]>
-export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): Iterable<[K, (V | T)[]]> {
-    const groups = new Map<K, (V | T)[]>()
-    for (const e of a) {
-        const key = keyf(e)
-        const val = valf?.(e) ?? e
-        let group = groups.get(key)
-        if (group == null) groups.set(key, group = [])
-        group.push(val)
-    }
-    return groups
 }
 
 export function toArray<T>(a: Iterable<T>): T[] {
@@ -354,4 +374,102 @@ export function toSet<T>(a: Iterable<T>): Set<T> {
 export function toMap<K, V>(a: Iterable<[K, V]>): Map<K, V> {
     if (a instanceof Map) return a
     return new Map(a)
+}
+
+
+/** Cartesian product */
+export function product<O extends Iterable<any>[]>(...iters: O): Iterable<ArrayGuard<{ [K in keyof O]: O[K] extends Iterable<infer T> ? T : never }>>
+export function product<T>(...iters: Iterable<T>[]): Iterable<T[]>
+export function* product<T>(...iters: Iterable<T>[]): Iterable<T[]> {
+    if (iters.length == 0) return
+    if (iters.length == 1) {
+        yield* map(iters[0], t => [t])
+        return
+    }
+    const [iter, ...tailitr] = iters
+    const tail = tailitr.map(i => new OnceIter(i))
+    function* dopro(i: number, ...parent: T[]): Iterable<T[]> {
+        if (i < tail.length) {
+            for (const e of tail[i]) {
+                yield* dopro(i + 1, ...parent, e)
+            }
+        } else {
+            yield parent
+        }
+    }
+    for (const e of iter) {
+        yield* dopro(0, e)
+    }
+}
+
+let a = product([1], ['a'])
+
+export function groupBy<T, K>(a: Iterable<T>, keyf: (v: T) => K): Iterable<[K, T[]]>
+export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf: (v: T) => V): Iterable<[K, V[]]>
+export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): Iterable<[K, (V | T)[]]> {
+    const groups = new Map<K, (V | T)[]>()
+    for (const e of a) {
+        const key = keyf(e)
+        const val = valf?.(e) ?? e
+        let group = groups.get(key)
+        if (group == null) groups.set(key, group = [])
+        group.push(val)
+    }
+    return groups
+}
+
+/** sql inner join */
+export function relate<O, I, K>(outer: Iterable<O>, inner: Iterable<I>, outerKey: (a: O) => K, innerKey: (b: I) => K): Iterable<[O, I]> {
+    return relateMap(outer, inner, outerKey, innerKey, (a, b) => [a, b])
+}
+
+/** sql inner join */
+export function* relateMap<O, I, K, R>(outer: Iterable<O>, inner: Iterable<I>, outerKey: (a: O) => K, innerKey: (b: I) => K, selector: (a: O, b: I) => R): Iterable<R> {
+    const map = new Map<K, { o: O[], i: I[] }>()
+    const oitor = outer[Symbol.iterator]()
+    const iitor = inner[Symbol.iterator]()
+    for (; ;) {
+        const or = oitor.next()
+        if (!or.done) {
+            const key = outerKey(or.value)
+            let g = map.get(key)
+            if (g == null) map.set(key, g = { o: [], i: [] })
+            for (const ie of g.i) {
+                yield selector(or.value, ie)
+            }
+            g.o.push(or.value)
+        } else {
+            for (; ;) {
+                const ir = iitor.next()
+                if (ir.done) return
+                const key = innerKey(ir.value)
+                const g = map.get(key)
+                if (g == null) continue
+                for (const oe of g.o) {
+                    yield selector(oe, ir.value)
+                }
+            }
+        }
+        const ir = iitor.next()
+        if (!ir.done) {
+            const key = innerKey(ir.value)
+            let g = map.get(key)
+            if (g == null) map.set(key, g = { o: [], i: [] })
+            for (const oe of g.o) {
+                yield selector(oe, ir.value)
+            }
+            g.i.push(ir.value)
+        } else {
+            for (; ;) {
+                const or = oitor.next()
+                if (or.done) return
+                const key = outerKey(or.value)
+                const g = map.get(key)
+                if (g == null) continue
+                for (const ie of g.i) {
+                    yield selector(or.value, ie)
+                }
+            }
+        }
+    }
 }
