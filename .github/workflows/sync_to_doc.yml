@@ -16,11 +16,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - name: merge to doc
-        uses: everlytic/branch-merge@1.1.2
+      - name: merge master -> doc
+        uses: devmasx/merge-branch@master
         with:
           github_token: ${{ github.token }}
-          source_ref: 'master'
-          target_branch: 'doc'
-          commit_message_template: '[Automated] Merged {source_ref} into {target_branch}'
+          type: now
+          from_branch: master
+          target_branch: doc
 
