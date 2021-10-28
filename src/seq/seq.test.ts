@@ -1,5 +1,5 @@
-import { seq } from './seq'
-import { Option } from './option'
+import { seq } from '.'
+import { Option } from '../option'
 
 test('seq1', () => {
     const r = seq([1, 2, 3, 4, 5])
