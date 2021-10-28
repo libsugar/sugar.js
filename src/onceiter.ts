@@ -1,3 +1,4 @@
+/** Cache the results of the iterator */
 export class OnceIter<T> implements Iterable<T> {
     constructor(source: Iterable<T>) {
         this.#iterator = source[Symbol.iterator]()
