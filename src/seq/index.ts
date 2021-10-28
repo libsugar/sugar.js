@@ -19,6 +19,7 @@ export class Seq<T> implements Iterable<T> {
         return this.iter()[Symbol.iterator]()
     }
 
+    /** Create empty seq */
     static empty<T>(): Seq<T> {
         return new Seq(function* () { })
     }
