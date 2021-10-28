@@ -2,10 +2,9 @@
 name: gen_doc
 
 on:
-  push:
-    branches: [ doc ]
-  pull_request:
-    branches: [ doc ]
+  release:
+    types: [published]
+    branches: [master]
 
   workflow_dispatch:
 
@@ -19,6 +18,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: merge master -> doc
+        uses: devmasx/merge-branch@master
+        with:
+          github_token: ${{ github.token }}
+          type: now
+          from_branch: master
+          target_branch: doc
+      - uses: actions/checkout@v2
+        with:
+          ref: doc
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
