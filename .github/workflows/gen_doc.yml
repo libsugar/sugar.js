@@ -1,0 +1,31 @@
+
+name: gen_doc
+
+on:
+  push:
+    branches: [ doc ]
+  pull_request:
+    branches: [ doc ]
+
+  workflow_dispatch:
+
+jobs:
+  gen_doc:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+      - run: npm run doc
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '[Automated] gen doc'
+          
