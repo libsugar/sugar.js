@@ -1,6 +1,6 @@
 import { Flu } from '../flu'
 import { Voidable } from '../maybe'
-import { Seq } from '../seq'
+import { Seq } from '.'
 
 export {
     filter as where, all, any, includes as contains, map as select, flatMap as selectMany, zip, skip, take, relateMap as join, relate as joinPair, groupBy, nth as elementAt,
