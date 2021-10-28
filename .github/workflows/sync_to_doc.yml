@@ -1,0 +1,26 @@
+
+name: sync_to_doc
+
+on:
+  release:
+    types: [published]
+    branches: [master]
+
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: merge to doc
+        uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ github.token }}
+          source_ref: 'master'
+          target_branch: 'doc'
+          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+
