@@ -1,8 +1,9 @@
 import { Flu } from "../flu"
 import { Voidable } from "../maybe"
 import { Option } from "../option"
+import { AnyPair, Pair, PairKey, PairValue } from "../types"
 import { SeqLinq } from "./linq"
-import { all, also, any, avg, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, includes, indexed, indexOf, isEmpty, join, last, lastO, map, max, maxO, min, minO, nth, nthO, position, push, reduce, relate, relateMap, run, scan, skip, slice, stepBy, sub, sum, take, toArray, toMap, toSet, unshift, unzip, zip } from "./ops"
+import { all, also, any, avg, chain, collect, count, enumerate, fill, filter, find, findO, first, firstO, flatMap, flatten, fold, forEach, groupBy, includes, indexed, indexOf, isEmpty, join, last, lastO, map, mapKey, mapValue, max, maxO, min, minO, nth, nthO, position, push, reduce, relate, relateMap, run, scan, skip, slice, stepBy, sub, sum, take, toArray, toMap, toSet, unshift, unzip, zip } from "./ops"
 export * from './ops'
 
 export function seq<T>(iter: Iterable<T>): Seq<T> {
@@ -283,7 +284,7 @@ export class Seq<T> implements Iterable<T> {
         return toSet(this.iter())
     }
 
-    toMap(): T extends [infer K, infer V] ? Map<K, V> : never {
+    toMap(): T extends AnyPair<infer K, infer V> ? Map<K, V> : never {
         return toMap(this.iter() as any) as any
     }
 
@@ -299,5 +300,17 @@ export class Seq<T> implements Iterable<T> {
 
     relateMap<I, K, R>(inner: Iterable<I>, outerKey: (a: T) => K, innerKey: (b: I) => K, selector: (a: T, b: I) => R): Seq<R> {
         return new Seq(() => relateMap(this, inner, outerKey, innerKey, selector))
+    }
+
+    get arr() {
+        return this.toArray()
+    }
+
+    mapKey<R>(f: (key: PairKey<T>) => R): T extends AnyPair<any, infer V> ? Seq<Pair<R, V>> : never {
+        return new Seq(() => mapKey(this as any, f)) as any
+    }
+
+    mapValue<R>(f: (key: PairValue<T>) => R): T extends AnyPair<infer K, any> ? Seq<Pair<K, R>> : never {
+        return new Seq(() => mapValue(this as any, f)) as any
     }
 }

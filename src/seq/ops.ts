@@ -1,7 +1,7 @@
 import { Voidable } from "../maybe"
 import { OnceIter } from "../onceiter"
 import { Option } from "../option"
-import { ArrayGuard } from "../types"
+import { AnyPair, ArrayGuard, Pair, ReadonlyPair } from "../types"
 
 export function of<T>(...iter: T[]): Iterable<T> {
     return iter
@@ -371,7 +371,10 @@ export function toSet<T>(a: Iterable<T>): Set<T> {
     return new Set(a)
 }
 
-export function toMap<K, V>(a: Iterable<[K, V]>): Map<K, V> {
+export function toMap<K, V>(a: Iterable<[K, V]>): Map<K, V>
+export function toMap<K, V>(a: Iterable<readonly [K, V]>): Map<K, V>
+export function toMap<K, V>(a: Iterable<[K, V] | readonly [K, V]>): Map<K, V>
+export function toMap<K, V>(a: Iterable<[K, V] | readonly [K, V]>): Map<K, V> {
     if (a instanceof Map) return a
     return new Map(a)
 }
@@ -471,5 +474,23 @@ export function* relateMap<O, I, K, R>(outer: Iterable<O>, inner: Iterable<I>, o
                 }
             }
         }
+    }
+}
+
+export function mapKey<K, V, R>(iter: Iterable<[K, V]>, f: (key: K) => R): Iterable<[R, V]>
+export function mapKey<K, V, R>(iter: Iterable<readonly [K, V]>, f: (key: K) => R): Iterable<[R, V]>
+export function mapKey<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (key: K) => R): Iterable<[R, V]>
+export function* mapKey<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (key: K) => R): Iterable<[R, V]> {
+    for (const [k, v] of iter) {
+        yield [f(k), v]
+    }
+}
+
+export function mapValue<K, V, R>(iter: Iterable<[K, V]>, f: (val: V) => R): Iterable<[K, R]>
+export function mapValue<K, V, R>(iter: Iterable<readonly [K, V]>, f: (val: V) => R): Iterable<[K, R]>
+export function mapValue<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (val: V) => R): Iterable<[K, R]>
+export function* mapValue<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (val: V) => R): Iterable<[K, R]> {
+    for (const [k, v] of iter) {
+        yield [k, f(v)]
     }
 }

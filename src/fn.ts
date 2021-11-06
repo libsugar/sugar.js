@@ -12,6 +12,11 @@ export function identity<T>(val: T): T {
     return val
 }
 
+/** Guard value type */
+export function guard<T>(val: T): T {
+    return val
+}
+
 /** Do nothing */
 export function empty(): void { }
 
@@ -33,4 +38,9 @@ export function abort(): Promise<never> {
 /** Yield time slice */
 export function Yield(): Promise<void> {
     return Promise.resolve()
+}
+
+/** build tuple */
+export function tuple<T extends unknown[]>(...vals: T): T {
+    return vals
 }

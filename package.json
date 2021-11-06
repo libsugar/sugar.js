@@ -1,6 +1,6 @@
 {
   "name": "libsugar",
-  "version": "2.12.0-beta.3",
+  "version": "2.12.0-beta.4",
   "description": "",
   "main": "./cjs/index.js",
   "module": "./esm/index.mjs",
