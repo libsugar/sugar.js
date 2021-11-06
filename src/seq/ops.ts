@@ -1,7 +1,11 @@
 import { Voidable } from "../maybe"
 import { OnceIter } from "../onceiter"
 import { Option } from "../option"
+<<<<<<< HEAD
 import { AnyPair, ArrayGuard, Pair, ReadonlyPair } from "../types"
+=======
+import { AnyPair, ArrayGuard } from "../types"
+>>>>>>> master
 
 export function of<T>(...iter: T[]): Iterable<T> {
     return iter
