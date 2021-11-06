@@ -103,6 +103,41 @@
         [3, '3'],
     ]
     ```
+  
+  - guard function
+    ```ts
+    guard<{ a: 1 }>({ a: 1 }) => { a: 1 }
+    ```
+  - tuple function
+    ```ts
+    tuple(1, 2, 3) => [1, 2, 3]
+    ```
+
+  - Pair type
+    ```ts
+    Pair<K, V> => [K, V]
+    ```
+  - ReadonlyPair type
+    ```ts
+    ReadonlyPair<K, V> => readonly [K, V]
+    ```
+  - AnyPair type
+    ```ts
+    AnyPair<K, V> => [K, V] | readonly [K, V]
+    ```
+  - PairKey type
+    ```ts
+    PairKey<[1, 2]> => 1
+    ```
+  - PairValue type
+    ```ts
+    PairKey<[1, 2]> => 2
+    ```
+
+  - seq.mapKey
+  - seq.mapValue
+
+  - seq.arr
 
 # 2.11.0
 - Add

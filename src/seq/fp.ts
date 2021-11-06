@@ -132,3 +132,11 @@ export function relate<O, I, K>(outerKey: (a: O) => K, innerKey: (b: I) => K): (
 export function relateMap<O, I, K, R>(outerKey: (a: O) => K, innerKey: (b: I) => K, selector: (a: O, b: I) => R): (inner: Iterable<I>) => (outer: Iterable<O>) => Iterable<R> {
     return inner => outer => seq.relateMap(outer, inner, outerKey, innerKey, selector)
 }
+
+export function mapKey<K, V, R>(f: (key: K) => R): (iter: Iterable<[K, V]>) => Iterable<[R, V]> {
+    return iter => seq.mapKey(iter, f)
+}
+
+export function mapValue<K, V, R>(f: (val: V) => R): (iter: Iterable<[K, V]>) => Iterable<[K, R]> {
+    return iter => seq.mapValue(iter, f)
+}
