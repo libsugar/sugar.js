@@ -200,6 +200,7 @@ export type GetKey<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof 
  * ```ts
  * PromiseValue<Promise<T>> => T
  * ```
+ * @deprecated use `Awaited<T>` in > ts 4.5
  */
 export type PromiseValue<T extends PromiseLike<any>> = T extends PromiseLike<infer V> ? V : never
 
@@ -355,3 +356,18 @@ type _ObjPathEntry<T, Base extends string = ''> =
  * ```
 */
 export type ObjPathEntry<T> = _ObjPathEntry<T>
+
+/** Key Value Pairl */
+export type Pair<K, V> = [K, V]
+
+/** Readonly Key Value Pairl */
+export type ReadonlyPair<K, V> = readonly [K, V]
+
+/** Any Pair */
+export type AnyPair<K, V> = Pair<K, V> | ReadonlyPair<K, V>
+
+/** Get Key of Pair */
+export type PairKey<T> = T extends AnyPair<infer K, any> ? K : never
+
+/** Get Key of Pair */
+export type PairValue<T> = T extends AnyPair<any, infer V> ? V : never
