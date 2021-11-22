@@ -51,7 +51,7 @@
     "build": "darl build",
     "postbuild": "node ./dev/postbuild.mjs",
     "test": "jest --coverage",
-    "doc": "typedoc src --out docs --exclude '**/*.test.ts' --entryPointStrategy expand --name \"Sugar.js\" --includeVersion --githubPages true --readme none --sort source-order --excludePrivate true --excludeExternals true --excludeInternal true --categorizeByGroup false",
+    "doc": "typedoc",
     "do:pack": "node ./dev/publish.mjs pack",
     "do:publish": "node ./dev/publish.mjs"
   },
