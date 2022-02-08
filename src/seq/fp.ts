@@ -1,7 +1,11 @@
 import { Voidable } from "../maybe"
 import * as seq from './ops'
 
-export { collect, join, count, isEmpty, first, last } from './ops'
+export { collect, count, isEmpty, first, last } from './ops'
+
+export function join(separator?: string): <T>(iter: Iterable<T>) => string {
+    return iter => seq.join(iter, separator)
+}
 
 export function nth(n: number): <T>(iter: Iterable<T>) => Voidable<T> {
     return iter => seq.nth(iter, n)
