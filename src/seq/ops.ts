@@ -405,8 +405,6 @@ export function* product<T>(...iters: Iterable<T>[]): Iterable<T[]> {
     }
 }
 
-let a = product([1], ['a'])
-
 export function groupBy<T, K>(a: Iterable<T>, keyf: (v: T) => K): Iterable<[K, T[]]>
 export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf: (v: T) => V): Iterable<[K, V[]]>
 export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): Iterable<[K, (V | T)[]]> {
