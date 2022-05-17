@@ -1,0 +1,122 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/sugar",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/sugar",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/fn",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/fn",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/struct",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/struct",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/types",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/types",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/box",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/box",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/adt",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/adt",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/adt",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/adt",
+            "detail": "jest --coverage"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/box",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/box",
+            "detail": "jest --coverage"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/fn",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/fn",
+            "detail": "jest --coverage"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/seq",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/seq",
+            "detail": "jest --coverage"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/struct",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/struct",
+            "detail": "jest --coverage"
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "packages/iter",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build - packages/iter",
+            "detail": "darl build"
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "packages/iter",
+            "group": "test",
+            "problemMatcher": [],
+            "label": "npm: test - packages/iter",
+            "detail": "jest --coverage"
+        }
+    ]
+}

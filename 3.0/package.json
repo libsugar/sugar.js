@@ -1,0 +1,13 @@
+{
+  "name": "@libsugar/root",
+  "private": true,
+  "scripts": {
+    "lerna": "lerna",
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test"
+  },
+  "dependencies": {
+    "lerna": "^4.0.0"
+  }
+}

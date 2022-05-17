@@ -1,0 +1,44 @@
+{
+    "name": "@libsugar/types",
+    "version": "3.0.0",
+    "description": "Like syntactic sugar, but is library",
+    "author": "libsugar",
+    "homepage": "https://github.com/libsugar/sugar.js#readme",
+    "keywords": [
+        "sugar",
+        "batchoper"
+    ],
+    "license": "MIT",
+    "main": "lib/index.cjs",
+    "module": "lib/index.mjs",
+    "types": "type",
+    "files": [
+        "/**/*.d.ts",
+        "src/**/*.ts",
+        "lib/**/*.js",
+        "lib/**/*.mjs",
+        "lib/**/*.cjs"
+    ],
+    "exports": {
+        ".": {
+            "import": "./lib/index.mjs",
+            "require": "./lib/index.cjs"
+        },
+        "./package.json": "./package.json"
+    },
+    "scripts": {
+        "tsc": "tsc",
+        "build": "darl build"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/libsugar/sugar.js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/libsugar/sugar.js/issues"
+    },
+    "devDependencies": {
+        "darl": "^2.2.0",
+        "typescript": "^4.6.4"
+    }
+}

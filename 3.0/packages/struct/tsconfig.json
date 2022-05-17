@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "ES2022",
+        "outDir": "./es",
+        "strict": true,
+        "declaration": true,
+        "declarationDir": "type",
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "paths": {
+            "tslib": ["./node_modules/tslib/tslib.d.ts"]
+        }
+    },
+    "include": ["./src/**/*.ts", "../iter/src/onceiter.test.ts"]
+}
