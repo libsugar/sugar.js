@@ -1,4 +1,26 @@
-import { groupBy, product, relate } from './ops'
+import { groupBy, product, join, zip, unzip } from './ops'
+
+test('zip', () => {
+    expect([...zip([1, 2, 3], ['a', 'b', 'c'], [1n, 2n, 3n])]).toEqual([
+        [1, 'a', 1n],
+        [2, 'b', 2n],
+        [3, 'c', 3n],
+    ])
+})
+
+test('unzip', () => {
+    expect([
+        ...unzip([
+            [1, 'a', 1n],
+            [2, 'b', 2n],
+            [3, 'c', 3n],
+        ]),
+    ]).toEqual([
+        [1, 2, 3],
+        ['a', 'b', 'c'],
+        [1n, 2n, 3n],
+    ])
+})
 
 test('product', () => {
     expect([...product([1, 2, 3], ['a', 'b'])]).toEqual([
@@ -47,42 +69,63 @@ test('product2', () => {
 })
 
 test('groupBy', () => {
-    expect([...groupBy([1, 1, 2, 2, 2, 3], a => a)])
-        .toEqual([
-            [1, [1, 1]],
-            [2, [2, 2, 2]],
-            [3, [3]],
-        ])
+    expect([...groupBy([1, 1, 2, 2, 2, 3], a => a)]).toEqual([
+        [1, [1, 1]],
+        [2, [2, 2, 2]],
+        [3, [3]],
+    ])
 })
 
-test('relate', () => {
-    expect([...relate([1, 2, 3], ['1', '2', '3'], a => a, b => +b)])
-        .toEqual([
-            [1, '1'],
-            [2, '2'],
-            [3, '3'],
-        ])
+test('join', () => {
+    expect([
+        ...join(
+            [1, 2, 3],
+            ['1', '2', '3'],
+            a => a,
+            b => +b
+        ),
+    ]).toEqual([
+        [1, '1'],
+        [2, '2'],
+        [3, '3'],
+    ])
 })
 
-test('relate2', () => {
-    expect([...relate([1, 2, -2, 3], ['1', '-1', '2', '3'], a => Math.abs(a), b => Math.abs(+b))])
-        .toEqual([
-            [1, '1'],
-            [1, '-1'],
-            [2, '2'],
-            [-2, '2'],
-            [3, '3'],
-        ])
+test('join2', () => {
+    expect([
+        ...join(
+            [1, 2, -2, 3],
+            ['1', '-1', '2', '3'],
+            a => Math.abs(a),
+            b => Math.abs(+b)
+        ),
+    ]).toEqual([
+        [1, '1'],
+        [1, '-1'],
+        [2, '2'],
+        [-2, '2'],
+        [3, '3'],
+    ])
 })
 
-test('relate3', () => {
-    expect([...relate([1, 2, 3], ['1', '2', '3'], a => a, b => -b)])
-        .toEqual([])
+test('join3', () => {
+    expect([
+        ...join(
+            [1, 2, 3],
+            ['1', '2', '3'],
+            a => a,
+            b => -b
+        ),
+    ]).toEqual([])
 })
 
-test('relate4', () => {
-    expect([...relate([1, 2, 3], ['1', '-2', '3'], a => a, b => -b)])
-        .toEqual([
-            [2, '-2']
-        ])
+test('join4', () => {
+    expect([
+        ...join(
+            [1, 2, 3],
+            ['1', '-2', '3'],
+            a => a,
+            b => -b
+        ),
+    ]).toEqual([[2, '-2']])
 })

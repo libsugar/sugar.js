@@ -1,4 +1,5 @@
 export * from './array'
+export * from './iter'
 export * from './map'
 export * from './object'
 export * from './pair'

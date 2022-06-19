@@ -1,16 +1,19 @@
 import { Voidable, Option } from '@libsugar/adt'
 import { OnceIter } from '@libsugar/iter'
-import { AnyPair, ArrayGuard } from '@libsugar/types'
+import type { ArrayElement, ArrayGuard, FlatIterable, IterableNest } from '@libsugar/types'
 
 export function of<T>(...iter: T[]): Iterable<T> {
     return iter
 }
 
-export function collect<T>(iter: Iterable<T>): T[] {
-    return [...iter]
+export function collect<T>(iter: Iterable<T>): T[]
+export function collect<T, C extends new (iter: Iterable<T>) => any>(iter: Iterable<T>, ctor: C): InstanceType<C>
+export function collect<T, C extends new (iter: Iterable<T>) => any>(iter: Iterable<T>, ctor?: C): T[] | InstanceType<C> {
+    if (ctor) return new ctor(iter)
+    else return [...iter]
 }
 
-export function join<T>(iter: Iterable<T>, separator?: string): string {
+export function joinStr<T>(iter: Iterable<T>, separator?: string): string {
     return [...iter].join(separator)
 }
 
@@ -29,11 +32,15 @@ export function isEmpty<T>(iter: Iterable<T>): boolean {
     return true
 }
 
+export function isNotEmpty<T>(iter: Iterable<T>): boolean {
+    return !isEmpty(iter)
+}
+
 export function first<T>(iter: Iterable<T>): Voidable<T> {
     for (const i of iter) return i
 }
 
-export function firstO<T>(iter: Iterable<T>): Option<T> {
+export function tryFirst<T>(iter: Iterable<T>): Option<T> {
     for (const i of iter) return Option.some(i)
     return Option.none()
 }
@@ -47,7 +54,7 @@ export function last<T>(iter: Iterable<T>): Voidable<T> {
     return r
 }
 
-export function lastO<T>(iter: Iterable<T>): Option<T> {
+export function tryLast<T>(iter: Iterable<T>): Option<T> {
     if (iter instanceof Array) return iter.length == 0 ? Option.none() : Option.some(iter[iter.length - 1])
     let r: Voidable<T>,
         has: boolean = false
@@ -68,7 +75,7 @@ export function nth<T>(iter: Iterable<T>, n: number): Voidable<T> {
     return
 }
 
-export function nthO<T>(iter: Iterable<T>, n: number): Option<T> {
+export function tryNth<T>(iter: Iterable<T>, n: number): Option<T> {
     if (iter instanceof Array) return iter.length > n ? Option.some(iter[n]) : Option.none()
     let i = 0
     for (const e of iter) {
@@ -93,7 +100,49 @@ export function* stepBy<T>(iter: Iterable<T>, step: number): Iterable<T> {
     }
 }
 
-export function* chain<T>(a: Iterable<T>, b: Iterable<T>, ...more: Iterable<T>[]): Iterable<T> {
+export function sort<T>(iter: Iterable<T>, compare?: (a: T, b: T) => number): T[] {
+    return [...iter].sort(compare)
+}
+
+export function orderBy<T>(iter: Iterable<T>, selector: (v: T) => any): T[]
+export function orderBy<T>(iter: Iterable<T>, order: 'asc' | 'desc', selector: (v: T) => any): T[]
+export function orderBy<T, R>(iter: Iterable<T>, selector: (v: T) => R, compare: (a: R, b: R) => number): T[]
+export function orderBy<T, R>(iter: Iterable<T>, order: 'asc' | 'desc', selector: (v: T) => R, compare: (a: R, b: R) => number): T[]
+export function orderBy<T, R>(
+    iter: Iterable<T>,
+    order?: ((v: T) => R) | 'asc' | 'desc',
+    selector?: ((a: R, b: R) => number) | ((v: T) => R),
+    compare?: (a: R, b: R) => number
+): T[] {
+    const [_order, _selector, _compare] =
+        typeof order === 'function'
+            ? ['asc', order as (v: T) => any, selector as ((a: R, b: R) => number) | undefined]
+            : [order as string, selector as (v: T) => any, compare as ((a: R, b: R) => number) | undefined]
+    return sort(iter, (a, b) => {
+        const ar = _selector(a)
+        const br = _selector(b)
+        if (_order == 'desc') {
+            if (_compare) return _compare(br, ar)
+            if (ar > br) return -1
+            else if (ar < br) return 1
+            return 0
+        } else {
+            if (_compare) return _compare(ar, br)
+            if (ar > br) return 1
+            else if (ar < br) return -1
+            return 0
+        }
+    })
+}
+
+export function* reverse<T>(iter: Iterable<T>): Iterable<T> {
+    const arr = iter instanceof Array ? (iter as T[]) : [...iter]
+    for (let i = arr.length - 1; i >= 0; i--) {
+        yield arr[i]
+    }
+}
+
+export function* concat<T>(a: Iterable<T>, b: Iterable<T>, ...more: Iterable<T>[]): Iterable<T> {
     yield* a
     yield* b
     for (const iter of more) {
@@ -101,30 +150,38 @@ export function* chain<T>(a: Iterable<T>, b: Iterable<T>, ...more: Iterable<T>[]
     }
 }
 
-export function* zip<A, B>(a: Iterable<A>, b: Iterable<B>): Iterable<[A, B]> {
-    const ai = a[Symbol.iterator]()
-    const bi = b[Symbol.iterator]()
+export function zip<A, B>(a: Iterable<A>, b: Iterable<B>): Iterable<[A, B]>
+export function zip<O extends [any, any, ...any[]]>(...iters: { [K in keyof O]: Iterable<O[K]> }): Iterable<O>
+export function* zip<O extends [any, any, ...any[]]>(...iters: { [K in keyof O]: Iterable<O[K]> }): Iterable<O> {
+    if (iters.length == 0) return
+    const itors = iters.map(i => i[Symbol.iterator]())
     for (;;) {
-        const a = ai.next()
-        if (a.done) return
-        const b = bi.next()
-        if (b.done) return
-        yield [a.value, b.value]
+        const vals = new Array<ArrayElement<O>>(iters.length)
+        for (const [i, itor] of entries(itors)) {
+            const v = itor.next()
+            if (v.done) return
+            vals[i] = v.value
+        }
+        yield vals as O
     }
 }
 
-export function unzip<A, B>(iter: Iterable<[A, B]>): [A[], B[]] {
-    let [a, b]: [A[], B[]] = [[], []]
-    for (const i of iter) {
-        a.push(i[0])
-        b.push(i[1])
+export function unzip<A, B>(iter: Iterable<[A, B]>): [A[], B[]]
+export function unzip<O extends [any, any, ...any[]]>(iter: Iterable<O>): { [K in keyof O]: O[K][] }
+export function unzip<O extends [any, any, ...any[]]>(iter: Iterable<O>): { [K in keyof O]: O[K][] } {
+    let arrs: { [K in keyof O]: O[K][] } = [] as any
+    for (const arr of iter) {
+        for (const [i, e] of entries(arr)) {
+            arrs[i] ??= []
+            arrs[i].push(e)
+        }
     }
-    return [a, b]
+    return arrs
 }
 
-export function* map<T, R>(iter: Iterable<T>, f: (v: T) => R): Iterable<R> {
-    for (const i of iter) {
-        yield f(i)
+export function* map<T, R>(iter: Iterable<T>, f: (v: T, i: number) => R): Iterable<R> {
+    for (const [i, e] of entries(iter)) {
+        yield f(e, i)
     }
 }
 
@@ -134,9 +191,9 @@ export function* fill<T, R>(iter: Iterable<T>, v: R): Iterable<R> {
     }
 }
 
-export function forEach<T>(iter: Iterable<T>, f: (v: T) => unknown): void {
-    for (const i of iter) {
-        f(i)
+export function forEach<T>(iter: Iterable<T>, f: (v: T, i: number) => unknown): void {
+    for (const [i, e] of entries(iter)) {
+        f(e, i)
     }
 }
 
@@ -145,15 +202,15 @@ export function run<T>(iter: Iterable<T>): void {
     }
 }
 
-export function filter<T, S extends T>(iter: Iterable<T>, f: (v: T) => v is S): Iterable<S>
-export function filter<T>(iter: Iterable<T>, f: (v: T) => unknown): Iterable<T>
-export function* filter<T>(iter: Iterable<T>, f: (v: T) => unknown): Iterable<T> {
-    for (const i of iter) {
-        if (f(i)) yield i
+export function filter<T, S extends T>(iter: Iterable<T>, f: (v: T, i: number) => v is S): Iterable<S>
+export function filter<T>(iter: Iterable<T>, f: (v: T, i: number) => unknown): Iterable<T>
+export function* filter<T>(iter: Iterable<T>, f: (v: T, i: number) => unknown): Iterable<T> {
+    for (const [i, e] of entries(iter)) {
+        if (f(e, i)) yield e
     }
 }
 
-export function* enumerate<T>(iter: Iterable<T>): Iterable<[T, number]> {
+export function* indexed<T>(iter: Iterable<T>): Iterable<[T, number]> {
     let i = 0
     for (const e of iter) {
         yield [e, i]
@@ -161,7 +218,8 @@ export function* enumerate<T>(iter: Iterable<T>): Iterable<[T, number]> {
     }
 }
 
-export function* indexed<T>(iter: Iterable<T>): Iterable<[number, T]> {
+export function* entries<T>(iter: Iterable<T>): Iterable<[number, T]> {
+    if (iter instanceof Array) return void (yield* iter.entries())
     let i = 0
     for (const e of iter) {
         yield [i, e]
@@ -169,21 +227,34 @@ export function* indexed<T>(iter: Iterable<T>): Iterable<[number, T]> {
     }
 }
 
+export function* keys<T>(iter: Iterable<T>): Iterable<number> {
+    if (iter instanceof Array) return void (yield* iter.keys())
+    let i = 0
+    for (const _ of iter) {
+        yield i
+        i++
+    }
+}
+
+export function values<T>(iter: Iterable<T>): Iterable<T> {
+    return iter
+}
+
 export function* skip<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
+    for (const [i, e] of entries(iter)) {
         if (i >= n) yield e
     }
 }
 
 export function* take<T>(iter: Iterable<T>, n: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
+    for (const [i, e] of entries(iter)) {
         yield e
         if (i + 1 >= n) return
     }
 }
 
 export function* slice<T>(iter: Iterable<T>, from: number, to: number): Iterable<T> {
-    for (const [e, i] of enumerate(iter)) {
+    for (const [i, e] of entries(iter)) {
         if (i >= from) yield e
         if (i + 1 >= to) return
     }
@@ -193,160 +264,169 @@ export function sub<T>(iter: Iterable<T>, from: number, count: number): Iterable
     return slice(iter, from, count + from)
 }
 
-export function* scan<T, R>(iter: Iterable<T>, init: R, f: (acc: R, val: T) => R): Iterable<R> {
+export function* flatMap<T, R>(iter: Iterable<T>, f: (v: T, index: number) => Iterable<R>): Iterable<R> {
+    for (const [i, e] of entries(iter)) {
+        yield* f(e, i)
+    }
+}
+
+export function flat<I extends IterableNest<any, 2>>(iter: I): Iterable<FlatIterable<I, 2>>
+export function flat<I extends IterableNest<any, N>, N extends number>(iter: I, deep?: N): Iterable<FlatIterable<I, N>>
+export function* flat<I extends IterableNest<any, N>, N extends number>(iter: I, deep?: N): Iterable<FlatIterable<I, N>> {
+    if (!deep || deep < 1) {
+        for (const e of iter as any) {
+            yield* e
+        }
+    } else {
+        for (const e of iter as any) {
+            yield* flat(e, deep - 1)
+        }
+    }
+}
+
+export function* also<T>(iter: Iterable<T>, f: (v: T, index: number) => void): Iterable<T> {
+    for (const [i, e] of entries(iter)) {
+        f(e, i)
+        yield e
+    }
+}
+
+export type ReduceFn<T, R = T> = (acc: R, val: T, index: number) => R
+
+export function* scan<T, R>(iter: Iterable<T>, init: R, f: ReduceFn<T, R>): Iterable<R> {
     let acc = init
-    for (const i of iter) {
-        acc = f(acc, i)
+    for (const [i, e] of entries(iter)) {
+        acc = f(acc, e, i)
         yield acc
     }
 }
 
-export function* flatMap<T, R>(iter: Iterable<T>, f: (v: T) => Iterable<R>): Iterable<R> {
-    for (const i of iter) {
-        yield* f(i)
-    }
-}
-
-export function* flatten<T>(iter: Iterable<Iterable<T>>): Iterable<T> {
-    for (const i of iter) {
-        yield* i
-    }
-}
-
-export function* also<T>(iter: Iterable<T>, f: (v: T) => void): Iterable<T> {
-    for (const i of iter) {
-        f(i)
-        yield i
-    }
-}
-
-export function fold<T, R>(a: Iterable<T>, init: R, f: (acc: R, val: T) => R): R {
-    let acc = init
-    for (const i of a) {
-        acc = f(acc, i)
+export function reduce<T>(iter: Iterable<T>, f: ReduceFn<T>): Voidable<T>
+export function reduce<T, R>(iter: Iterable<T>, init: R, f: ReduceFn<T, R>): R
+export function reduce<T, R>(iter: Iterable<T>, init: R | T | ReduceFn<T, R>, f?: ReduceFn<T, R>): T | R | undefined {
+    const hasInit = !!f
+    let acc = hasInit ? (init as R | T) : void 0
+    f ??= init as ReduceFn<T, R>
+    for (const [i, e] of entries(iter)) {
+        if (i === 0 && !hasInit) acc = e
+        else acc = f(acc as R, e, i)
     }
     return acc
 }
 
-export function reduce<T>(a: Iterable<T>, f: (acc: T, val: T) => T): T {
-    let acc: T | undefined,
-        first = true
-    for (const i of a) {
-        if (first) (acc = i), (first = false)
-        else acc = f(acc!, i)
-    }
-    if (first) throw new TypeError('no item')
-    return acc!
-}
-export function all<T, S extends T>(a: Iterable<T>, f: (v: T) => v is S): a is Iterable<S>
-export function all<T>(a: Iterable<T>, f: (v: T) => unknown): boolean
-export function all<T>(a: Iterable<T>, f: (v: T) => unknown): boolean {
-    for (const i of a) {
-        if (!f(i)) return false
+export function all<T, S extends T>(iter: Iterable<T>, f: (v: T, index: number) => v is S): iter is Iterable<S>
+export function all<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): boolean
+export function all<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): boolean {
+    for (const [i, e] of entries(iter)) {
+        if (!f(e, i)) return false
     }
     return true
 }
 
-export function any<T>(a: Iterable<T>, f: (v: T) => unknown): boolean {
-    for (const i of a) {
-        if (f(i)) return true
+export function any<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): boolean {
+    for (const [i, e] of entries(iter)) {
+        if (f(e, i)) return true
     }
     return false
 }
 
-export function find<T>(a: Iterable<T>, f: (v: T) => unknown): Voidable<T> {
-    for (const i of a) {
-        if (f(i)) return i
+export function find<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): Voidable<T> {
+    for (const [i, e] of entries(iter)) {
+        if (f(e, i)) return e
     }
 }
 
-export function findO<T>(a: Iterable<T>, f: (v: T) => unknown): Option<T> {
-    for (const i of a) {
-        if (f(i)) return Option.some(i)
+export function tryFind<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): Option<T> {
+    for (const [i, e] of entries(iter)) {
+        if (f(e, i)) return Option.some(e)
     }
     return Option.none()
 }
 
-export function position<T>(a: Iterable<T>, f: (v: T) => unknown): number {
-    for (const [e, i] of enumerate(a)) {
-        if (f(e)) return i
+export function findIndex<T>(iter: Iterable<T>, f: (v: T, index: number) => unknown): number {
+    for (const [i, e] of entries(iter)) {
+        if (f(e, i)) return i
     }
     return -1
 }
 
-export function indexOf<T>(a: Iterable<T>, v: T): number {
-    for (const [e, i] of enumerate(a)) {
+export function indexOf<T>(iter: Iterable<T>, v: T): number {
+    for (const [i, e] of entries(iter)) {
         if (e == v) return i
     }
     return -1
 }
 
-export function includes<T>(a: Iterable<T>, v: T): boolean {
-    for (const i of a) {
-        if (i === v) return true
+export function includes<T>(iter: Iterable<T>, v: T): boolean {
+    for (const e of iter) {
+        if (e === v) return true
     }
     return false
 }
 
-export function max<T>(a: Iterable<T>): Voidable<T> {
+export function max<T>(iter: Iterable<T>): Voidable<T>
+export function max<T>(iter: Iterable<T>, defv: T): T
+export function max<T>(iter: Iterable<T>, defv?: T): Voidable<T> {
     let r: Voidable<T>,
         first = true
-    for (const i of a) {
+    for (const i of iter) {
         if (first) (r = i), (first = false)
         else if (i > r!) r = i
     }
-    return r
+    return r ?? defv
 }
 
-export function maxO<T>(a: Iterable<T>): Option<T> {
+export function tryMax<T>(iter: Iterable<T>): Option<T> {
     let r: Voidable<T>,
         first = true
-    for (const i of a) {
+    for (const i of iter) {
         if (first) (r = i), (first = false)
         else if (i > r!) r = i
     }
     return first ? Option.none() : Option.some(r!)
 }
 
-export function min<T>(a: Iterable<T>): Voidable<T> {
+export function min<T>(iter: Iterable<T>): Voidable<T>
+export function min<T>(iter: Iterable<T>, defv: T): T
+export function min<T>(iter: Iterable<T>, defv?: T): Voidable<T> {
     let r: Voidable<T>,
         first = true
-    for (const i of a) {
+    for (const i of iter) {
         if (first) (r = i), (first = false)
         else if (i < r!) r = i
     }
-    return r
+    return r ?? defv
 }
 
-export function minO<T>(a: Iterable<T>): Option<T> {
+export function tryMin<T>(iter: Iterable<T>): Option<T> {
     let r: Voidable<T>,
         first = true
-    for (const i of a) {
+    for (const i of iter) {
         if (first) (r = i), (first = false)
         else if (i < r!) r = i
     }
     return first ? Option.none() : Option.some(r!)
 }
 
-export function sum<T extends number | bigint | string>(a: Iterable<T>, defv: T): T
-export function sum<T extends number | bigint | string>(a: Iterable<T>): Voidable<T>
-export function sum<T extends number | bigint | string>(a: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
+export function sum<T extends number | bigint | string>(iter: Iterable<T>, defv: T): T
+export function sum<T extends number | bigint | string>(iter: Iterable<T>): Voidable<T>
+export function sum<T extends number | bigint | string>(iter: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
     let r: Voidable<T> = defv,
         first = true
-    for (const i of a) {
+    for (const i of iter) {
         if (first) (r = i), (first = false)
         else (r as any) += i as any
     }
     return r
 }
 
-export function avg<T extends number | bigint>(a: Iterable<T>, defv: T): T
-export function avg<T extends number | bigint>(a: Iterable<T>): Voidable<T>
-export function avg<T extends number | bigint>(a: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
+export function avg<T extends number | bigint>(iter: Iterable<T>, defv: T): T
+export function avg<T extends number | bigint>(iter: Iterable<T>): Voidable<T>
+export function avg<T extends number | bigint>(iter: Iterable<T>, defv: Voidable<T> = void 0): Voidable<T> {
     let r: Voidable<T> = defv,
         first = true
     let count = 0
-    for (const i of a) {
+    for (const i of iter) {
         count++
         if (first) (r = i), (first = false)
         else (r as any) += i as any
@@ -355,36 +435,43 @@ export function avg<T extends number | bigint>(a: Iterable<T>, defv: Voidable<T>
     return r
 }
 
-export function* push<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
-    yield* a
+export function* push<T>(iter: Iterable<T>, ...items: T[]): Iterable<T> {
+    yield* iter
     yield* items
 }
 
-export function* unshift<T>(a: Iterable<T>, ...items: T[]): Iterable<T> {
+export function* unshift<T>(iter: Iterable<T>, ...items: T[]): Iterable<T> {
     yield* items
-    yield* a
+    yield* iter
 }
 
-export function as<T, U>(a: Iterable<T>): Iterable<U> {
-    return a as any
+export function as<T, U>(iter: Iterable<T>): Iterable<U> {
+    return iter as any
 }
 
-export function toArray<T>(a: Iterable<T>): T[] {
-    if (a instanceof Array) return a
-    return Array.from(a)
+export function toArray<T>(iter: Iterable<T>): T[] {
+    if (iter instanceof Array) return iter
+    return Array.from(iter)
 }
 
-export function toSet<T>(a: Iterable<T>): Set<T> {
-    if (a instanceof Set) return a
-    return new Set(a)
+export function toSet<T>(iter: Iterable<T>): Set<T> {
+    if (iter instanceof Set) return iter
+    return new Set(iter)
 }
 
-export function toMap<K, V>(a: Iterable<[K, V]>): Map<K, V>
-export function toMap<K, V>(a: Iterable<readonly [K, V]>): Map<K, V>
-export function toMap<K, V>(a: Iterable<[K, V] | readonly [K, V]>): Map<K, V>
-export function toMap<K, V>(a: Iterable<[K, V] | readonly [K, V]>): Map<K, V> {
-    if (a instanceof Map) return a
-    return new Map(a)
+export function toMap<K, V>(iter: Iterable<[K, V]>): Map<K, V>
+export function toMap<K, V>(iter: Iterable<readonly [K, V]>): Map<K, V>
+export function toMap<K, V>(iter: Iterable<[K, V] | readonly [K, V]>): Map<K, V>
+export function toMap<K, V>(iter: Iterable<[K, V] | readonly [K, V]>): Map<K, V> {
+    if (iter instanceof Map) return iter
+    return new Map(iter)
+}
+
+export function toObject<K extends PropertyKey, V>(iter: Iterable<[K, V]>): Record<K, V>
+export function toObject<K extends PropertyKey, V>(iter: Iterable<readonly [K, V]>): Record<K, V>
+export function toObject<K extends PropertyKey, V>(iter: Iterable<[K, V] | readonly [K, V]>): Record<K, V>
+export function toObject<K extends PropertyKey, V>(iter: Iterable<[K, V] | readonly [K, V]>): Record<K, V> {
+    return Object.fromEntries(iter) as Record<K, V>
 }
 
 /** Cartesian product */
@@ -412,33 +499,64 @@ export function* product<T>(...iters: Iterable<T>[]): Iterable<T[]> {
     }
 }
 
-export function groupBy<T, K>(a: Iterable<T>, keyf: (v: T) => K): Iterable<[K, T[]]>
-export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf: (v: T) => V): Iterable<[K, V[]]>
-export function groupBy<T, K, V>(a: Iterable<T>, keyf: (v: T) => K, valf?: (v: T) => V): Iterable<[K, (V | T)[]]> {
+export function group<T, K extends PropertyKey>(iter: Iterable<T>, keyf: (v: T, index: number) => K): { [P in K]: T[] } {
+    const obj = {} as { [P in K]: T[] }
+    for (const [i, e] of entries(iter)) {
+        const key = keyf(e, i)
+        obj[key] ??= []
+        obj[key].push(e)
+    }
+    return obj
+}
+
+export function groupToMap<T, K>(iter: Iterable<T>, keyf: (v: T, index: number) => K): Map<K, T[]> {
+    const obj = new Map<K, T[]>()
+    for (const [i, e] of entries(iter)) {
+        const key = keyf(e, i) as K
+        let arr = obj.get(key)
+        if (!arr) obj.set(key, (arr = []))
+        arr.push(e)
+    }
+    return obj
+}
+
+export function groupBy<T, K>(iter: Iterable<T>, keyf: (v: T, index: number) => K): Iterable<[K, T[]]>
+export function groupBy<T, K, V>(iter: Iterable<T>, keyf: (v: T, index: number) => K, valf: (v: T, index: number) => V): Iterable<[K, V[]]>
+export function groupBy<T, K, V, R>(
+    iter: Iterable<T>,
+    keyf: (v: T, index: number) => K,
+    valf: (v: T, index: number) => V,
+    selector?: (key: K, group: V[], index: number) => R
+): Iterable<R>
+export function groupBy<T, K, V, R>(
+    iter: Iterable<T>,
+    keyf: (v: T, index: number) => K,
+    valf?: (v: T, index: number) => V,
+    selector?: (key: K, group: (V | T)[], index: number) => R
+): Iterable<[K, (V | T)[]] | R> {
     const groups = new Map<K, (V | T)[]>()
-    for (const e of a) {
-        const key = keyf(e)
-        const val = valf?.(e) ?? e
+    for (const [i, e] of entries(iter)) {
+        const key = keyf(e, i)
+        const val = valf?.(e, i) ?? e
         let group = groups.get(key)
         if (group == null) groups.set(key, (group = []))
         group.push(val)
     }
+    if (selector) return map(groups, ([k, v], i) => selector(k, v, i))
     return groups
 }
 
 /** sql inner join */
-export function relate<O, I, K>(outer: Iterable<O>, inner: Iterable<I>, outerKey: (a: O) => K, innerKey: (b: I) => K): Iterable<[O, I]> {
-    return relateMap(outer, inner, outerKey, innerKey, (a, b) => [a, b])
-}
-
-/** sql inner join */
-export function* relateMap<O, I, K, R>(
+export function join<O, I, K>(outer: Iterable<O>, inner: Iterable<I>, outerKey: (a: O) => K, innerKey: (b: I) => K): Iterable<[O, I]>
+export function join<O, I, K, R>(outer: Iterable<O>, inner: Iterable<I>, outerKey: (a: O) => K, innerKey: (b: I) => K, selector: (a: O, b: I) => R): Iterable<R>
+export function* join<O, I, K, R>(
     outer: Iterable<O>,
     inner: Iterable<I>,
     outerKey: (a: O) => K,
     innerKey: (b: I) => K,
-    selector: (a: O, b: I) => R
+    selector?: (a: O, b: I) => R
 ): Iterable<R> {
+    selector ??= (a: O, b: I) => [a, b] as any
     const map = new Map<K, { o: O[]; i: I[] }>()
     const oitor = outer[Symbol.iterator]()
     const iitor = inner[Symbol.iterator]()
@@ -488,20 +606,14 @@ export function* relateMap<O, I, K, R>(
     }
 }
 
-export function mapKey<K, V, R>(iter: Iterable<[K, V]>, f: (key: K) => R): Iterable<[R, V]>
-export function mapKey<K, V, R>(iter: Iterable<readonly [K, V]>, f: (key: K) => R): Iterable<[R, V]>
-export function mapKey<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (key: K) => R): Iterable<[R, V]>
-export function* mapKey<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (key: K) => R): Iterable<[R, V]> {
-    for (const [k, v] of iter) {
-        yield [f(k), v]
-    }
+export function whenAll<T>(iter: Iterable<T | PromiseLike<T>>) {
+    return Promise.all(iter)
 }
 
-export function mapValue<K, V, R>(iter: Iterable<[K, V]>, f: (val: V) => R): Iterable<[K, R]>
-export function mapValue<K, V, R>(iter: Iterable<readonly [K, V]>, f: (val: V) => R): Iterable<[K, R]>
-export function mapValue<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (val: V) => R): Iterable<[K, R]>
-export function* mapValue<K, V, R>(iter: Iterable<AnyPair<K, V>>, f: (val: V) => R): Iterable<[K, R]> {
-    for (const [k, v] of iter) {
-        yield [k, f(v)]
-    }
+export function whenAny<T>(iter: Iterable<T | PromiseLike<T>>) {
+    return Promise.any(iter)
+}
+
+export function whenRace<T>(iter: Iterable<T | PromiseLike<T>>) {
+    return Promise.race(iter)
 }
